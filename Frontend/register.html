@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Account | RUNFOLD</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <a
+        href="index.html"
+        class="logo"
+    >
+        RUNFOLD
+    </a>
+
+
+    <nav>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="catalogue.html">
+            Catalogue
+        </a>
+
+        <a href="cart.html">
+            Cart
+            <span id="cart-count">0</span>
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="auth-page">
+
+    <section class="auth-card">
+
+        <span class="eyebrow">
+            JOIN RUNFOLD
+        </span>
+
+
+        <h1>
+            Create Account
+        </h1>
+
+
+        <p class="auth-subtitle">
+            Create your account to track your orders.
+        </p>
+
+
+        <form id="register-form">
+
+
+            <label>
+
+                Full Name
+
+                <input
+                    type="text"
+                    id="register-name"
+                    required
+                    autocomplete="name"
+                >
+
+            </label>
+
+
+            <label>
+
+                Email
+
+                <input
+                    type="email"
+                    id="register-email"
+                    required
+                    autocomplete="email"
+                >
+
+            </label>
+
+
+            <label>
+
+                Password
+
+                <input
+                    type="password"
+                    id="register-password"
+                    minlength="6"
+                    required
+                    autocomplete="new-password"
+                >
+
+            </label>
+
+
+            <label>
+
+                Confirm Password
+
+                <input
+                    type="password"
+                    id="register-confirm"
+                    minlength="6"
+                    required
+                    autocomplete="new-password"
+                >
+
+            </label>
+
+
+            <p
+                id="register-message"
+                class="auth-message">
+            </p>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary full-width"
+            >
+                Create Account
+            </button>
+
+
+        </form>
+
+
+        <p class="auth-bottom">
+
+            Already have an account?
+
+            <a href="login.html">
+                Login
+            </a>
+
+        </p>
+
+    </section>
+
+</main>
+
+
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/register.js"></script>
+
+</body>
+
+</html>

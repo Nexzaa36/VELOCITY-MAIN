@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Catalogue | VELOCITY</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ======================================
+         NAVIGATION
+    ======================================= -->
+
+    <header class="navbar">
+
+        <a
+            href="index.html"
+            class="logo"
+        >
+            VELOCITY
+        </a>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+
+            <a
+                href="catalogue.html"
+                class="active"
+            >
+                Catalogue
+            </a>
+
+
+            <a href="cart.html">
+
+                Cart
+
+                <span id="cart-count">
+                    0
+                </span>
+
+            </a>
+
+
+            <span id="auth-nav">
+
+                <a href="login.html">
+                    Login
+                </a>
+
+            </span>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- ======================================
+         CATALOGUE
+    ======================================= -->
+
+    <main class="page">
+
+
+        <!-- ==================================
+             CATALOGUE HEADER
+        =================================== -->
+
+        <section class="catalogue-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    PRODUCTS
+                </span>
+
+
+                <h1>
+                    Explore the catalogue
+                </h1>
+
+
+                <p>
+                    Select products and build your order.
+                </p>
+
+            </div>
+
+
+            <div class="catalogue-search">
+
+                <input
+                    type="search"
+                    id="product-search"
+                    placeholder="Search products..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ======================================
+             INTERACTIVE PRODUCT DISCOVERY
+        ======================================= -->
+
+        <section class="discovery-section">
+
+
+            <div class="discovery-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        FIND YOUR FLOW
+                    </span>
+
+
+                    <h2>
+                        What are you looking for?
+                    </h2>
+
+                </div>
+
+
+                <span
+                    id="discovery-count"
+                    class="discovery-count"
+                >
+                    6 products
+                </span>
+
+            </div>
+
+
+
+            <!-- DISCOVERY FILTERS -->
+
+            <div
+                class="discovery-filters"
+                id="discovery-filters"
+            >
+
+
+                <button
+                    type="button"
+                    class="discovery-filter active"
+                    data-filter="all"
+                >
+                    ALL
+                </button>
+
+
+                <button
+                    type="button"
+                    class="discovery-filter"
+                    data-filter="running"
+                >
+                    RUNNING
+                </button>
+
+
+                <button
+                    type="button"
+                    class="discovery-filter"
+                    data-filter="everyday"
+                >
+                    EVERYDAY
+                </button>
+
+
+                <button
+                    type="button"
+                    class="discovery-filter"
+                    data-filter="street"
+                >
+                    STREET
+                </button>
+
+
+                <button
+                    type="button"
+                    class="discovery-filter"
+                    data-filter="performance"
+                >
+                    PERFORMANCE
+                </button>
+
+
+                <button
+                    type="button"
+                    class="discovery-filter"
+                    data-filter="essentials"
+                >
+                    ESSENTIALS
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ======================================
+             ADVANCED FILTER BAR
+        ======================================= -->
+
+        <section class="advanced-filters">
+
+
+            <div class="advanced-filter-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        REFINE
+                    </span>
+
+                    <h2>
+                        Find the right fit.
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="clear-filters"
+                    class="clear-filters"
+                >
+                    RESET FILTERS
+                </button>
+
+            </div>
+
+
+
+            <div class="filter-controls">
+
+
+                <!-- CATEGORY -->
+
+                <div class="filter-control">
+
+                    <label for="category-filter">
+                        CATEGORY
+                    </label>
+
+                    <select id="category-filter">
+
+                        <option value="all">
+                            All categories
+                        </option>
+
+                        <option value="Footwear">
+                            Footwear
+                        </option>
+
+                        <option value="Apparel">
+                            Apparel
+                        </option>
+
+                        <option value="Accessories">
+                            Accessories
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- PRICE -->
+
+                <div class="filter-control">
+
+                    <label for="price-filter">
+                        PRICE
+                    </label>
+
+                    <select id="price-filter">
+
+                        <option value="all">
+                            All prices
+                        </option>
+
+                        <option value="under-2000">
+                            Under ₹2,000
+                        </option>
+
+                        <option value="2000-4000">
+                            ₹2,000 – ₹4,000
+                        </option>
+
+                        <option value="4000-6000">
+                            ₹4,000 – ₹6,000
+                        </option>
+
+                        <option value="over-6000">
+                            Above ₹6,000
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- SIZE -->
+
+                <div class="filter-control">
+
+                    <label for="size-filter">
+                        SIZE
+                    </label>
+
+                    <select id="size-filter">
+
+                        <option value="all">
+                            All sizes
+                        </option>
+
+                        <option value="7">
+                            Size 7
+                        </option>
+
+                        <option value="8">
+                            Size 8
+                        </option>
+
+                        <option value="9">
+                            Size 9
+                        </option>
+
+                        <option value="10">
+                            Size 10
+                        </option>
+
+                        <option value="11">
+                            Size 11
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+        <!-- ======================================
+             PRODUCT GRID
+        ======================================= -->
+
+        <section
+            id="product-grid"
+            class="product-grid"
+        >
+
+        </section>
+
+
+
+        <!-- ======================================
+             RECENTLY VIEWED
+        ======================================= -->
+
+        <section
+            id="recently-viewed-section"
+            class="recently-viewed-section"
+        >
+
+            <div class="recently-viewed-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        YOUR ACTIVITY
+                    </span>
+
+
+                    <h2>
+                        Recently viewed
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="clear-recently-viewed"
+                    class="clear-recently-viewed"
+                >
+                    CLEAR
+                </button>
+
+            </div>
+
+
+            <div
+                id="recently-viewed-grid"
+                class="recently-viewed-grid"
+            >
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- ======================================
+         FOOTER
+    ======================================= -->
+
+    <footer class="site-footer">
+
+    <div class="footer-main">
+
+        <!-- Brand -->
+        <div class="footer-brand">
+
+            <a href="index.html" class="footer-logo">
+                VELOCITY
+            </a>
+
+            <p class="footer-tagline">
+                Performance. Style. Everyday.
+            </p>
+
+            <p class="footer-description">
+                Modern footwear built for movement,
+                comfort and everyday performance.
+            </p>
+
+        </div>
+
+
+        <!-- Customer Service -->
+        <div class="footer-column">
+
+            <h3>Customer Service</h3>
+
+            <a href="#">Contact Us</a>
+            <a href="#">Shipping Policy</a>
+            <a href="#">Returns & Exchanges</a>
+            <a href="#">FAQs</a>
+
+        </div>
+
+
+        <!-- Quick Links -->
+        <div class="footer-column">
+
+            <h3>Quick Links</h3>
+
+            <a href="index.html">Home</a>
+            <a href="catalogue.html">Catalogue</a>
+            <a href="order-tracking.html">Track Order</a>
+            <a href="login.html">Login / Register</a>
+
+        </div>
+
+
+        <!-- Support -->
+        <div class="footer-column">
+
+            <h3>Support</h3>
+
+            <a href="#">Size Guide</a>
+            <a href="#">Care Instructions</a>
+            <a href="#">Terms & Conditions</a>
+            <a href="#">Privacy Policy</a>
+
+        </div>
+
+
+        <!-- Social -->
+        <div class="footer-social">
+
+            <h3>Follow Us</h3>
+
+            <p>
+                Stay connected with VELOCITY.
+            </p>
+
+            <div class="social-links">
+
+                <a href="#" aria-label="Facebook">
+                    f
+                </a>
+
+                <a href="#" aria-label="Instagram">
+                    ◎
+                </a>
+
+                <a href="#" aria-label="X">
+                    𝕏
+                </a>
+
+                <a href="#" aria-label="YouTube">
+                    ▶
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Bottom Footer -->
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 VELOCITY All rights reserved.
+        </p>
+
+        <div class="footer-bottom-links">
+
+            <a href="#">
+                Privacy Policy
+            </a>
+
+            <span>|</span>
+
+            <a href="#">
+                Terms of Service
+            </a>
+
+            <span>|</span>
+
+            <a href="#">
+                Contact
+            </a>
+
+        </div>
+
+
+        <button
+            class="back-to-top"
+            onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+            aria-label="Back to top">
+
+            ↑
+            <span>Back to Top</span>
+
+        </button>
+
+    </div>
+
+</footer>
+
+
+
+    <!-- ======================================
+         JAVASCRIPT
+    ======================================= -->
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/app.js"></script>
+
+    <script src="js/catalogue.js"></script>
+
+
+
+    <!-- ======================================
+         AUTHENTICATION NAVIGATION
+    ======================================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const authNav =
+                    document.getElementById(
+                        "auth-nav"
+                    );
+
+
+                if (
+                    typeof isLoggedIn === "function" &&
+                    isLoggedIn()
+                ) {
+
+                    authNav.innerHTML = `
+
+                        <a href="order-tracking.html">
+                            Track Order
+                        </a>
+
+                        <a
+                            href="#"
+                            onclick="logoutUser(); return false;"
+                        >
+                            Logout
+                        </a>
+
+                    `;
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>

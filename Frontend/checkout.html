@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | RUNFOLD</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <a href="index.html" class="logo">
+            RUNFOLD
+        </a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="catalogue.html">Catalogue</a>
+            <a href="cart.html">
+                Cart <span id="cart-count">0</span>
+            </a>
+        </nav>
+
+    </header>
+
+
+    <main class="page">
+
+        <section class="page-heading">
+
+            <span class="eyebrow">
+                CHECKOUT
+            </span>
+
+            <h1>Complete your order</h1>
+
+        </section>
+
+
+        <section class="checkout-layout">
+
+            <form id="checkout-form" class="checkout-form">
+
+                <div class="form-section">
+
+                    <h2>Delivery Information</h2>
+
+                    <label>
+                        Full Name
+
+                        <input
+                            type="text"
+                            id="name"
+                            required
+                        >
+                    </label>
+
+
+                    <label>
+                        Email
+
+                        <input
+                            type="email"
+                            id="email"
+                            required
+                        >
+                    </label>
+
+
+                    <label>
+                        Address
+
+                        <textarea
+                            id="address"
+                            rows="4"
+                            required>
+                        </textarea>
+                    </label>
+
+
+                    <div class="form-row">
+
+                        <label>
+                            City
+
+                            <input
+                                type="text"
+                                id="city"
+                                required>
+                        </label>
+
+
+                        <label>
+                            Postal Code
+
+                            <input
+                                type="text"
+                                id="postal"
+                                required>
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary full-width">
+
+                    Place Order
+
+                </button>
+
+            </form>
+
+
+            <aside class="order-summary">
+
+                <h2>Your Order</h2>
+
+                <div id="checkout-items"></div>
+
+                <hr>
+
+                <div class="summary-total">
+
+                    <span>Total</span>
+
+                    <strong id="checkout-total">
+                        ₹0
+                    </strong>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/app.js"></script>
+    <script src="js/checkout.js"></script>
+
+</body>
+</html>
