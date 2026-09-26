@@ -46,7 +46,17 @@ loginForm.addEventListener(
 
             return;
         }
+        // Save login session
 
+localStorage.setItem(
+    "runfold-auth",
+    "true"
+);
+
+localStorage.setItem(
+    "runfold-user",
+    email
+);
 
         loginMessage.textContent =
             "Login successful. Redirecting...";

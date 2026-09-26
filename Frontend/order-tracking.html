@@ -1,168 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Track Order | RUNFOLD 2.0</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Track Order | VELOCITY</title>
 
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/order-tracking.css">
+
 </head>
 
 <body>
 
-    <!-- Navigation -->
+    <!-- NAVBAR -->
+
     <header class="navbar">
+
         <a href="index.html" class="logo">
-            RUNFOLD
+            VELOCITY
         </a>
 
         <nav>
-            <a href="index.html">Home</a>
-            <a href="catalogue.html">Catalogue</a>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="catalogue.html">
+                Catalogue
+            </a>
 
             <a href="cart.html">
-                Cart <span id="cart-count">0</span>
+                Cart
             </a>
 
-            <a href="order-tracking.html">
-                Track Order
-            </a>
         </nav>
+
     </header>
 
 
-    <!-- Order Tracking -->
-    <main class="page">
+    <main class="tracking-page">
 
-        <div class="page-heading">
-            <span class="eyebrow">ORDER TRACKING</span>
+        <!-- HEADER -->
+
+        <section class="tracking-header">
+
+            <span class="eyebrow">
+                ORDER TRACKING
+            </span>
 
             <h1>
-                Track your order.
+                Track Your Order
             </h1>
 
             <p>
-                Follow your RUNFOLD order from confirmation
-                to delivery.
+                Follow your order journey in real time.
             </p>
-        </div>
+
+        </section>
 
 
-        <section class="tracking-container">
+        <!-- ORDER INFO -->
 
-            <div class="tracking-card">
+        <section class="tracking-card">
 
-                <div class="tracking-header">
-                    <div>
-                        <span class="tracking-label">
-                            ORDER ID
-                        </span>
+            <div class="tracking-top">
 
-                        <h2 id="tracking-order-id">
-                            RF10245
-                        </h2>
-                    </div>
+                <div>
 
-                    <span id="tracking-status" class="tracking-status">
-                        PROCESSING
+                    <span class="label">
+                        Order ID
                     </span>
-                </div>
 
-
-                <!-- Tracking Timeline -->
-                <div class="tracking-timeline">
-
-                    <div class="tracking-step completed">
-                        <div class="tracking-icon">✓</div>
-
-                        <div class="tracking-info">
-                            <h3>Order Placed</h3>
-                            <p>Your order has been received.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step completed">
-                        <div class="tracking-icon">✓</div>
-
-                        <div class="tracking-info">
-                            <h3>Payment Confirmed</h3>
-                            <p>Your payment has been confirmed.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step completed">
-                        <div class="tracking-icon">✓</div>
-
-                        <div class="tracking-info">
-                            <h3>Inventory Reserved</h3>
-                            <p>Your selected footwear has been reserved.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step active">
-                        <div class="tracking-icon">●</div>
-
-                        <div class="tracking-info">
-                            <h3>Processing at Warehouse</h3>
-                            <p>Your order is being prepared.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step">
-                        <div class="tracking-icon">○</div>
-
-                        <div class="tracking-info">
-                            <h3>Packed</h3>
-                            <p>Your order will be packed shortly.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step">
-                        <div class="tracking-icon">○</div>
-
-                        <div class="tracking-info">
-                            <h3>Dispatched</h3>
-                            <p>Your package will leave the warehouse.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step">
-                        <div class="tracking-icon">○</div>
-
-                        <div class="tracking-info">
-                            <h3>In Transit</h3>
-                            <p>Your package is on its way.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step">
-                        <div class="tracking-icon">○</div>
-
-                        <div class="tracking-info">
-                            <h3>Out for Delivery</h3>
-                            <p>Your package is arriving soon.</p>
-                        </div>
-                    </div>
-
-
-                    <div class="tracking-step">
-                        <div class="tracking-icon">○</div>
-
-                        <div class="tracking-info">
-                            <h3>Delivered</h3>
-                            <p>Your order has been delivered.</p>
-                        </div>
-                    </div>
+                    <h2 id="order-id">
+                        --
+                    </h2>
 
                 </div>
+
+                <div>
+
+                    <span class="label">
+                        Status
+                    </span>
+
+                    <h3 id="order-status">
+                        Processing
+                    </h3>
+
+                </div>
+
+                <div>
+
+                    <span class="label">
+                        Estimated Delivery
+                    </span>
+
+                    <h3 id="delivery-date">
+                        --
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- TIMELINE -->
+
+        <section class="timeline-card">
+
+            <h2>
+                Order Progress
+            </h2>
+
+            <div class="timeline">
+
+                <div class="timeline-step active">
+                    ✓ Order Placed
+                </div>
+
+                <div class="timeline-step active">
+                    ✓ Payment Confirmed
+                </div>
+
+                <div class="timeline-step active">
+                    ✓ Inventory Reserved
+                </div>
+
+                <div class="timeline-step current">
+                    ● Preparing For Dispatch
+                </div>
+
+                <div class="timeline-step">
+                    ○ Shipped
+                </div>
+
+                <div class="timeline-step">
+                    ○ Out For Delivery
+                </div>
+
+                <div class="timeline-step">
+                    ○ Delivered
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CUSTOMER -->
+
+        <section class="customer-card">
+
+            <h2>
+                Delivery Information
+            </h2>
+
+            <div id="customer-details">
+            </div>
+
+        </section>
+
+
+        <!-- ITEMS -->
+
+        <section class="items-card">
+
+            <h2>
+                Order Items
+            </h2>
+
+            <div id="order-items">
+            </div>
+
+            <div class="order-total">
+
+                <span>Total</span>
+
+                <strong id="order-total">
+                    ₹0
+                </strong>
 
             </div>
 
@@ -171,27 +196,8 @@
     </main>
 
 
-    <!-- Footer -->
-    <footer>
-        <p>RUNFOLD 2.0</p>
-        <span>
-            Event-Driven Commerce Fulfilment Platform
-        </span>
-    </footer>
-
-
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            if (typeof requireLogin === "function") {
-                requireLogin();
-            }
-
-        });
-    </script>
+    <script src="js/order-tracking.js"></script>
 
 </body>
+
 </html>

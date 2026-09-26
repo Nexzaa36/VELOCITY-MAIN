@@ -1,3 +1,7 @@
+// =====================================
+// VELOCITY CHECKOUT
+// =====================================
+
 const checkoutForm =
     document.getElementById("checkout-form");
 
@@ -8,6 +12,10 @@ const checkoutTotal =
     document.getElementById("checkout-total");
 
 
+// =====================================
+// RENDER ORDER SUMMARY
+// =====================================
+
 function renderCheckout() {
 
     const cart = getCart();
@@ -16,19 +24,17 @@ function renderCheckout() {
 
     checkoutItems.innerHTML = "";
 
-
     cart.forEach(item => {
 
         total +=
-            item.price * item.quantity;
-
+            item.price *
+            item.quantity;
 
         const itemElement =
             document.createElement("div");
 
         itemElement.className =
             "summary-row";
-
 
         itemElement.innerHTML = `
 
@@ -38,105 +44,160 @@ function renderCheckout() {
 
             <strong>
                 ${formatCurrency(
-                    item.price * item.quantity
+                    item.price *
+                    item.quantity
                 )}
             </strong>
 
         `;
 
-
         checkoutItems.appendChild(
             itemElement
         );
-    });
 
+    });
 
     checkoutTotal.textContent =
         formatCurrency(total);
+
 }
 
 
+// =====================================
+// GENERATE ORDER ID
+// =====================================
+
+function generateOrderId() {
+
+    return (
+        "VE-" +
+        Math.floor(
+            100000 +
+            Math.random() * 900000
+        )
+    );
+
+}
+
+
+// =====================================
+// CHECKOUT SUBMIT
+// =====================================
+
 checkoutForm.addEventListener(
     "submit",
-    async event => {
+    function (event) {
 
         event.preventDefault();
 
-
-        const cart = getCart();
+        const cart =
+            getCart();
 
         if (cart.length === 0) {
-            alert("Your cart is empty.");
+
+            alert(
+                "Your cart is empty."
+            );
+
             return;
+
         }
 
 
-        const order = {
+        // ==========================
+        // CUSTOMER DETAILS
+        // ==========================
 
-            customer: {
+        const customer = {
 
-                name:
-                    document.getElementById("name").value,
+            name:
+                document.getElementById(
+                    "name"
+                ).value,
 
-                email:
-                    document.getElementById("email").value,
+            email:
+                document.getElementById(
+                    "email"
+                ).value,
 
-                address:
-                    document.getElementById("address").value,
+            address:
+                document.getElementById(
+                    "address"
+                ).value,
 
-                city:
-                    document.getElementById("city").value,
+            city:
+                document.getElementById(
+                    "city"
+                ).value,
 
-                postal:
-                    document.getElementById("postal").value
+            postal:
+                document.getElementById(
+                    "postal"
+                ).value
 
-            },
-
-            items: cart,
-
-            createdAt:
-                new Date().toISOString()
         };
 
 
-        console.log(
-            "Order ready:",
-            order
+        // ==========================
+        // ORDER OBJECT
+        // ==========================
+
+        const order = {
+
+            orderId:
+                generateOrderId(),
+
+            status:
+                "Processing",
+
+            estimatedDelivery:
+                "3 - 5 Business Days",
+
+            createdAt:
+                new Date()
+                    .toLocaleString(),
+
+            customer:
+                customer,
+
+            items:
+                cart
+
+        };
+
+
+        // ==========================
+        // SAVE ORDER
+        // ==========================
+
+        localStorage.setItem(
+            "velocity-current-order",
+            JSON.stringify(order)
         );
 
 
-        /*
-         * Later:
-         *
-         * await fetch(
-         *     "http://localhost:8080/api/orders",
-         *     {
-         *         method: "POST",
-         *         headers: {
-         *             "Content-Type":
-         *                 "application/json"
-         *         },
-         *         body:
-         *             JSON.stringify(order)
-         *     }
-         * );
-         */
-
+        // ==========================
+        // CLEAR CART
+        // ==========================
 
         localStorage.removeItem(
             "runfold-cart"
         );
 
 
-        alert(
-            "Order created successfully!"
-        );
-
+        // ==========================
+        // REDIRECT
+        // ==========================
 
         window.location.href =
-            "index.html";
+            "order-tracking.html";
+
     }
 );
 
+
+// =====================================
+// INITIAL LOAD
+// =====================================
 
 renderCheckout();
