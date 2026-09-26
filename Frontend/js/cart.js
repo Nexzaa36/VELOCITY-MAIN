@@ -1,4 +1,8 @@
-const cartContainer =
+// =====================================
+// VELOCITY CART
+// =====================================
+
+const cartItemsContainer =
     document.getElementById("cart-items");
 
 const subtotalElement =
@@ -8,126 +12,316 @@ const totalElement =
     document.getElementById("cart-total");
 
 
-function renderCart() {
+// =====================================
+// LOAD CART
+// =====================================
 
-    const cart = getCart();
-
-    cartContainer.innerHTML = "";
-
-
-    if (cart.length === 0) {
-
-        cartContainer.innerHTML = `
-            <div class="feature-card">
-
-                <h2>Your cart is empty.</h2>
-
-                <p>
-                    Explore the catalogue and
-                    add some products.
-                </p>
-
-                <br>
-
-                <a
-                    href="catalogue.html"
-                    class="btn btn-primary">
-
-                    Explore Catalogue
-
-                </a>
-
-            </div>
-        `;
-
-        subtotalElement.textContent =
-            formatCurrency(0);
-
-        totalElement.textContent =
-            formatCurrency(0);
-
-        return;
-    }
+let cart =
+    JSON.parse(
+        localStorage.getItem("runfold-cart")
+    ) || [];
 
 
-    let subtotal = 0;
+// =====================================
+// SAVE CART
+// =====================================
 
+function saveCart() {
 
-    cart.forEach(item => {
-
-        subtotal +=
-            item.price * item.quantity;
-
-
-        const element =
-            document.createElement("div");
-
-        element.className = "cart-item";
-
-
-        element.innerHTML = `
-
-            <div class="cart-item-image">
-                ${item.image}
-            </div>
-
-            <div class="cart-item-info">
-
-                <h3>
-                    ${item.name}
-                </h3>
-
-                <span>
-                    Quantity: ${item.quantity}
-                </span>
-
-                <br>
-
-                <strong>
-                    ${formatCurrency(
-                        item.price * item.quantity
-                    )}
-                </strong>
-
-            </div>
-
-            <button
-                class="remove-item"
-                onclick="removeFromCart(${item.id})">
-
-                Remove
-
-            </button>
-
-        `;
-
-        cartContainer.appendChild(element);
-    });
-
-
-    subtotalElement.textContent =
-        formatCurrency(subtotal);
-
-    totalElement.textContent =
-        formatCurrency(subtotal);
-}
-
-
-function removeFromCart(productId) {
-
-    let cart = getCart();
-
-    cart =
-        cart.filter(
-            item => item.id !== productId
-        );
-
-    saveCart(cart);
+    localStorage.setItem(
+        "runfold-cart",
+        JSON.stringify(cart)
+    );
 
     updateCartCount();
 
-    renderCart();
 }
 
 
-renderCart();
+// =====================================
+// UPDATE NAV CART COUNT
+// =====================================
+
+function updateCartCount() {
+
+    const countElement =
+        document.getElementById(
+            "cart-count"
+        );
+
+    if (!countElement) return;
+
+    const totalItems =
+        cart.reduce(
+            (total, item) =>
+                total +
+                (item.quantity || 1),
+            0
+        );
+
+    countElement.textContent =
+        totalItems;
+
+}
+
+
+// =====================================
+// FORMAT PRICE
+// =====================================
+
+function formatPrice(value) {
+
+    return new Intl.NumberFormat(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 0
+        }
+    ).format(value);
+
+}
+
+
+// =====================================
+// RENDER CART
+// =====================================
+
+function renderCart() {
+
+    if (!cartItemsContainer)
+        return;
+
+    cartItemsContainer.innerHTML = "";
+
+
+    // ============================
+    // EMPTY CART
+    // ============================
+
+    if (cart.length === 0) {
+
+        cartItemsContainer.innerHTML = `
+
+            <div class="empty-cart">
+
+                <h2>
+                    Your cart is empty
+                </h2>
+
+                <p>
+                    Add products from catalogue.
+                </p>
+
+                <a
+                    href="catalogue.html"
+                    class="btn btn-primary"
+                >
+                    Start Shopping
+                </a>
+
+            </div>
+
+        `;
+
+        updateSummary();
+
+        return;
+
+    }
+
+
+    // ============================
+    // PRODUCTS
+    // ============================
+
+    cart.forEach(
+        (item, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "cart-item";
+
+            card.innerHTML = `
+
+                <div class="cart-image">
+
+                    <img
+                        src="${item.image}"
+                        alt="${item.name}"
+                        onerror="
+                            this.src='images/p1.jpg'
+                        "
+                    >
+
+                </div>
+
+
+                <div class="cart-details">
+
+                    <h3>
+                        ${item.name}
+                    </h3>
+
+                    <p>
+                        Size:
+                        ${item.size || "-"}
+                    </p>
+
+                    <div class="cart-price">
+
+                        ${formatPrice(
+                            item.price
+                        )}
+
+                    </div>
+
+
+                    <div class="quantity-controls">
+
+                        <button
+                            onclick="decreaseQty(${index})"
+                        >
+                            −
+                        </button>
+
+                        <span>
+                            ${item.quantity || 1}
+                        </span>
+
+                        <button
+                            onclick="increaseQty(${index})"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        class="remove-btn"
+                        onclick="removeItem(${index})"
+                    >
+                        Remove Item
+                    </button>
+
+                </div>
+
+            `;
+
+            cartItemsContainer.appendChild(
+                card
+            );
+
+        }
+    );
+
+    updateSummary();
+
+}
+
+
+// =====================================
+// ORDER SUMMARY
+// =====================================
+
+function updateSummary() {
+
+    const subtotal =
+        cart.reduce(
+            (sum, item) =>
+                sum +
+                (
+                    item.price *
+                    (item.quantity || 1)
+                ),
+            0
+        );
+
+    if (subtotalElement) {
+
+        subtotalElement.textContent =
+            formatPrice(subtotal);
+
+    }
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            formatPrice(subtotal);
+
+    }
+
+}
+
+
+// =====================================
+// INCREASE QUANTITY
+// =====================================
+
+function increaseQty(index) {
+
+    cart[index].quantity =
+        (cart[index].quantity || 1) + 1;
+
+    saveCart();
+
+    renderCart();
+
+}
+
+
+// =====================================
+// DECREASE QUANTITY
+// =====================================
+
+function decreaseQty(index) {
+
+    if (
+        (cart[index].quantity || 1) > 1
+    ) {
+
+        cart[index].quantity--;
+
+    }
+
+    saveCart();
+
+    renderCart();
+
+}
+
+
+// =====================================
+// REMOVE PRODUCT
+// =====================================
+
+function removeItem(index) {
+
+    cart.splice(index, 1);
+
+    saveCart();
+
+    renderCart();
+
+}
+
+
+// =====================================
+// INITIAL LOAD
+// =====================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        updateCartCount();
+
+        renderCart();
+
+    }
+);
