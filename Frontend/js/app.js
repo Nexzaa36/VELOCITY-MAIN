@@ -54,11 +54,39 @@ function addToCart(product) {
     const existingProduct =
         cart.find(item => item.id === product.id);
 
+    const stock = Number(product.stock) || 0;
+
+    // Product is completely out of stock
+    if (stock <= 0) {
+
+        alert("This product is currently out of stock.");
+
+        return;
+
+    }
+
+
+    // Product already exists in cart
     if (existingProduct) {
+
+        // Prevent quantity from exceeding available stock
+        if (existingProduct.quantity >= stock) {
+
+            alert(
+                `Only ${stock} unit${stock === 1 ? "" : "s"} available for this product.`
+            );
+
+            return;
+
+        }
 
         existingProduct.quantity++;
 
-    } else {
+    }
+
+
+    // Product is being added for the first time
+    else {
 
         cart.push({
             ...product,
@@ -66,6 +94,7 @@ function addToCart(product) {
         });
 
     }
+
 
     saveCart(cart);
 
