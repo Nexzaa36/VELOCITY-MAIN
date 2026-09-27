@@ -44,7 +44,80 @@ const getProductById = async (req, res) => {
     }
 };
 
+const createProduct = async (req, res) => {
+    try {
+        const {
+            name,
+            category,
+            price,
+            image,
+            tags,
+            sizes,
+            description,
+            stock
+        } = req.body;
+
+        // Required fields
+        if (!name || !category || price === undefined || !image) {
+            return res.status(400).json({
+                success: false,
+                message: "Name, category, price and image are required"
+            });
+        }
+
+        // Validate price
+        if (Number(price) < 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Price cannot be negative"
+            });
+        }
+
+        // Validate stock
+        if (stock !== undefined && Number(stock) < 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Stock cannot be negative"
+            });
+        }
+
+        // Generate numeric product ID
+        const lastProduct = await Product.findOne().sort({ id: -1 });
+
+        const nextId = lastProduct
+            ? lastProduct.id + 1
+            : 1;
+
+        const product = await Product.create({
+            id: nextId,
+            name,
+            category,
+            price: Number(price),
+            image,
+            tags: Array.isArray(tags) ? tags : [],
+            sizes: Array.isArray(sizes) ? sizes : [],
+            description: description || "",
+            stock: stock !== undefined ? Number(stock) : 0
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Product created successfully",
+            product
+        });
+
+    } catch (error) {
+        console.error("Create Product Error:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create product"
+        });
+    }
+};
+
 module.exports = {
     getProducts,
-    getProductById
+    getProductById,
+    createProduct
 };
