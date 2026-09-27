@@ -116,8 +116,78 @@ const createProduct = async (req, res) => {
     }
 };
 
+const updateProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        const {
+            name,
+            category,
+            price,
+            image,
+            tags,
+            sizes,
+            description,
+            stock
+        } = req.body;
+
+        if (name !== undefined) product.name = name;
+        if (category !== undefined) product.category = category;
+        if (price !== undefined) {
+            if (Number(price) < 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Price cannot be negative"
+                });
+            }
+
+            product.price = Number(price);
+        }
+
+        if (image !== undefined) product.image = image;
+        if (tags !== undefined) product.tags = tags;
+        if (sizes !== undefined) product.sizes = sizes;
+        if (description !== undefined) product.description = description;
+
+        if (stock !== undefined) {
+            if (Number(stock) < 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Stock cannot be negative"
+                });
+            }
+
+            product.stock = Number(stock);
+        }
+
+        await product.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            product
+        });
+
+    } catch (error) {
+        console.error("Update Product Error:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update product"
+        });
+    }
+};
+
 module.exports = {
     getProducts,
     getProductById,
-    createProduct
+    createProduct,
+    updateProduct
 };
