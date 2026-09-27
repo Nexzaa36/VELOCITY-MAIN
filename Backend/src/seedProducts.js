@@ -143,7 +143,8 @@ const seedProducts = async () => {
 
         console.log("MongoDB connected");
 
-        // Remove existing products before inserting the current catalogue
+        // Remove existing products before inserting the current catalogue 
+        //so it will replace the old documents with the corrected ones.
         await Product.deleteMany({});
 
         await Product.insertMany(products);

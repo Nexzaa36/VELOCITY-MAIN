@@ -9,215 +9,164 @@
 // PRODUCT DATA
 // ======================================
 
-const products = [
+// ======================================
+// PRODUCT DATA
+// ======================================
 
-    {
-        id: 1,
-        name: "Velocity Runner",
-        price: 4999,
-        category: "Footwear",
-        image: "images/p1.jpg",
-        tags: [
-            "running",
-            "performance"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
+const API_BASE_URL = "http://localhost:5000/api";
+
+let products = [];
 
 
-    {
-        id: 2,
-        name: "Velocity Pro",
-        price: 6999,
-        category: "Footwear",
-        image: "images/p2.jpg",
-        tags: [
-            "running",
-            "performance"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
+// ======================================
+// LOAD PRODUCTS FROM BACKEND
+// ======================================
+
+async function loadProducts() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/products`
+            );
 
 
-    {
-        id: 3,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Footwear",
-        image: "images/p3.jpg",
-        tags: [
-            "everyday",
-            "essentials"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP error: ${response.status}`
+            );
+
+        }
 
 
-    {
-        id: 4,
-        name: "Motion Jacket",
-        price: 5499,
-        category: "Apparel",
-        image: "images/app1.jpg",
-        tags: [
-            "street",
-            "everyday"
-        ],
-        sizes: []
-    },
+        const data =
+            await response.json();
 
 
-    {
-        id: 5,
-        name: "Performance Pack",
-        price: 1999,
-        category: "Footwear",
-        image: "images/p5.jpg",
-        tags: [
-            "performance",
-            "running"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
+        if (
+            !data.success ||
+            !Array.isArray(data.products)
+        ) {
+
+            throw new Error(
+                "Invalid product data received from backend."
+            );
+
+        }
 
 
-    {
-        id: 6,
-        name: "Runner Bottle",
-        price: 999,
-        category: "Accessories",
-        image: "images/acc1.jpg",
-        tags: [
-            "everyday",
-            "essentials",
-            "running"
-        ],
-        sizes: []
-    },
-    {
-        id: 7,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Footwear",
-        image: "images/p4.jpg",
-        tags: [
-            "everyday",
-            "essentials"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
-    {
-        id: 8,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Footwear",
-        image: "images/p6.jpg",
-        tags: [
-            "everyday",
-            "essentials"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
-    {
-        id: 9,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Accessories",
-        image: "images/acc2.jpg",
-        tags: [
-            "everyday",
-            "essentials",
-            "running"
-        ],
-        sizes: []
-    },
-    {
-        id: 10,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Footwear",
-        image: "images/p7.jpg",
-        tags: [
-            "everyday",
-            "essentials"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
-    {
-        id: 11,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "Footwear",
-        image: "images/p8.jpg",
-        tags: [
-            "everyday",
-            "essentials"
-        ],
-        sizes: [
-            "7",
-            "8",
-            "9",
-            "10",
-            "11"
-        ]
-    },
-    {
-        id: 12,
-        name: "Runfold Essential",
-        price: 2999,
-        category: "apparel",
-        image: "images/app2.jpg",
-        tags: [
-            "everyday",
-            "essentials",
-            "running"
-        ],
-        sizes: []
-    },
+        /*
+         * Convert MongoDB products into the
+         * same structure expected by the
+         * existing catalogue code.
+         */
 
-];
+        products =
+            data.products.map(
+                product => ({
+
+                    id: Number(product.id),
+
+                    name: product.name,
+
+                    price: Number(product.price),
+
+                    category: product.category,
+
+                    image: product.image,
+
+                    tags:
+                        Array.isArray(product.tags)
+                            ? product.tags
+                            : [],
+
+                    sizes:
+                        Array.isArray(product.sizes)
+                            ? product.sizes
+                            : []
+
+                })
+            );
+
+
+        console.log(
+            `✅ Loaded ${products.length} products from backend`
+        );
+
+
+        currentProductList =
+            [...products];
+
+
+        renderProducts(
+            currentProductList
+        );
+
+
+        renderRecentlyViewed();
+
+
+        updateProductCount(
+            products.length
+        );
+
+
+        updateFilterStatus(
+            products
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Failed to load products:",
+            error
+        );
+
+
+        if (productGrid) {
+
+            productGrid.innerHTML = `
+
+                <div class="no-products">
+
+                    <span class="eyebrow">
+                        CONNECTION ERROR
+                    </span>
+
+
+                    <h3>
+                        Products could not be loaded.
+                    </h3>
+
+
+                    <p>
+                        Please make sure the
+                        VELOCITY backend server
+                        is running.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="reset-results-button"
+                        onclick="loadProducts()"
+                    >
+
+                        TRY AGAIN
+
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+}
 
 
 // ======================================
@@ -2416,23 +2365,7 @@ function openQuickView(
 // INITIAL LOAD
 // ======================================
 
-currentProductList =
-    [...products];
-
-
-renderProducts(
-    currentProductList
-);
-
-
-renderRecentlyViewed();
-
-
-updateProductCount(
-    products.length
-);
-
-
-updateFilterStatus(
-    products
+document.addEventListener(
+    "DOMContentLoaded",
+    loadProducts
 );
