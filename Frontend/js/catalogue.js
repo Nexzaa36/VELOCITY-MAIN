@@ -63,32 +63,34 @@ async function loadProducts() {
          * existing catalogue code.
          */
 
-        products =
-            data.products.map(
-                product => ({
+            products =
+        data.products.map(
+        product => ({
 
-                    id: Number(product.id),
+            id: Number(product.id),
 
-                    name: product.name,
+            name: product.name,
 
-                    price: Number(product.price),
+            price: Number(product.price),
 
-                    category: product.category,
+            category: product.category,
 
-                    image: product.image,
+            image: product.image,
 
-                    tags:
-                        Array.isArray(product.tags)
-                            ? product.tags
-                            : [],
+            tags:
+                Array.isArray(product.tags)
+                    ? product.tags
+                    : [],
 
-                    sizes:
-                        Array.isArray(product.sizes)
-                            ? product.sizes
-                            : []
+            sizes:
+                Array.isArray(product.sizes)
+                    ? product.sizes
+                    : [],
 
-                })
-            );
+            stock: Number(product.stock) || 0
+
+        })
+        );
 
 
         console.log(
@@ -1348,6 +1350,22 @@ function renderProducts(
                         )}
 
                     </div>
+                    
+                    <div class="stock-status ${
+    product.stock === 0
+        ? "out-of-stock"
+        : product.stock <= 3
+            ? "low-stock"
+            : "in-stock"
+}">
+    ${
+        product.stock === 0
+            ? "OUT OF STOCK"
+            : product.stock <= 3
+                ? `ONLY ${product.stock} LEFT`
+                : `${product.stock} IN STOCK`
+    }
+</div>
 
 
                     ${
@@ -1393,11 +1411,11 @@ function renderProducts(
 
                     <button
                         class="btn btn-primary full-width add-cart-btn"
-                        type="button"
+                        type="button" ${product.stock === 0 ? "disabled" : ""}
                     >
 
                         <span>
-                            ADD TO CART
+                            ${product.stock === 0 ? "OUT OF STOCK" : "ADD TO CART"}
                         </span>
 
 
@@ -1586,6 +1604,9 @@ function handleAddToCart(
 
     if (!product) {
         return;
+    }
+    if (product.stock <= 0) {
+    return;
     }
 
 

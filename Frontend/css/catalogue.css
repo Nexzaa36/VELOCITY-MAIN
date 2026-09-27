@@ -1,0 +1,24 @@
+.stock-status {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.stock-status.in-stock {
+    color: #2f7d32;
+}
+
+.stock-status.low-stock {
+    color: #c47a00;
+}
+
+.stock-status.out-of-stock {
+    color: #b3261e;
+}
+
+.add-cart-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
