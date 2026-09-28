@@ -10,10 +10,12 @@ const getCart = async (req, res) => {
 
     try {
 
-        const { userId } = req.params;
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
         const cart = await Cart.findOne({ userId })
             .populate("items.productId");
+
 
         // No cart yet
         if (!cart) {
@@ -31,6 +33,7 @@ const getCart = async (req, res) => {
 
         }
 
+
         res.status(200).json({
 
             success: true,
@@ -38,6 +41,7 @@ const getCart = async (req, res) => {
             cart
 
         });
+
 
     } catch (error) {
 
@@ -67,7 +71,8 @@ const addToCart = async (req, res) => {
 
     try {
 
-        const { userId } = req.params;
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
         const {
             productId,
@@ -288,6 +293,7 @@ const addToCart = async (req, res) => {
 
         });
 
+
     } catch (error) {
 
         console.error(
@@ -318,9 +324,11 @@ const updateCartItem = async (req, res) => {
     try {
 
         const {
-            userId,
             productId
         } = req.params;
+
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
         const {
             quantity,
@@ -466,6 +474,7 @@ const updateCartItem = async (req, res) => {
 
         });
 
+
     } catch (error) {
 
         console.error(
@@ -496,9 +505,11 @@ const removeCartItem = async (req, res) => {
     try {
 
         const {
-            userId,
             productId
         } = req.params;
+
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
         const {
             size = null
@@ -576,6 +587,7 @@ const removeCartItem = async (req, res) => {
 
         });
 
+
     } catch (error) {
 
         console.error(
@@ -605,8 +617,8 @@ const clearCart = async (req, res) => {
 
     try {
 
-        const { userId } =
-            req.params;
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
 
         const cart =
@@ -643,6 +655,7 @@ const clearCart = async (req, res) => {
             cart
 
         });
+
 
     } catch (error) {
 

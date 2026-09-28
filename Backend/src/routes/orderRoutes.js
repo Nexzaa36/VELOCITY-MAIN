@@ -1,5 +1,7 @@
 const express = require("express");
 
+const protect = require("../middleware/authMiddleware");
+
 const {
     createOrder,
     getUserOrders,
@@ -9,16 +11,37 @@ const {
 const router = express.Router();
 
 
-// Get one order
-router.get("/order/:orderId", getOrderById);
+// =========================================
+// GET ONE ORDER
+// =========================================
+
+router.get(
+    "/order/:orderId",
+    protect,
+    getOrderById
+);
 
 
-// Create order from user's cart
-router.post("/:userId", createOrder);
+// =========================================
+// CREATE ORDER FROM USER CART
+// =========================================
+
+router.post(
+    "/:userId",
+    protect,
+    createOrder
+);
 
 
-// Get all orders for a user
-router.get("/:userId", getUserOrders);
+// =========================================
+// GET ALL ORDERS FOR USER
+// =========================================
+
+router.get(
+    "/:userId",
+    protect,
+    getUserOrders
+);
 
 
 module.exports = router;

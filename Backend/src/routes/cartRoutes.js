@@ -1,4 +1,5 @@
 const express = require("express");
+const protect = require("../middleware/authMiddleware");
 
 const {
     getCart,
@@ -17,6 +18,7 @@ const router = express.Router();
 
 router.get(
     "/:userId",
+    protect,
     getCart
 );
 
@@ -27,6 +29,7 @@ router.get(
 
 router.post(
     "/:userId/items",
+    protect,
     addToCart
 );
 
@@ -37,6 +40,7 @@ router.post(
 
 router.put(
     "/:userId/items/:productId",
+    protect,
     updateCartItem
 );
 
@@ -47,6 +51,7 @@ router.put(
 
 router.delete(
     "/:userId/items/:productId",
+    protect,
     removeCartItem
 );
 
@@ -57,6 +62,7 @@ router.delete(
 
 router.delete(
     "/:userId",
+    protect,
     clearCart
 );
 

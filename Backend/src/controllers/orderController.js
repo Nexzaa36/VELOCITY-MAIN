@@ -11,7 +11,8 @@ const createOrder = async (req, res) => {
 
     try {
 
-        const { userId } = req.params;
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
         const { customer } = req.body;
 
@@ -288,10 +289,7 @@ const createOrder = async (req, res) => {
             success: false,
 
             message:
-                "Failed to create order",
-
-            error:
-                error.message
+                "Failed to create order"
 
         });
 
@@ -308,8 +306,8 @@ const getUserOrders = async (req, res) => {
 
     try {
 
-        const { userId } =
-            req.params;
+        // Get user ID from verified JWT
+        const userId = req.user.userId;
 
 
         const orders =
@@ -365,6 +363,9 @@ const getOrderById = async (req, res) => {
         const { orderId } =
             req.params;
 
+        // Get logged-in user from verified JWT
+        const userId = req.user.userId;
+
 
         const order =
             await Order.findById(
@@ -374,6 +375,10 @@ const getOrderById = async (req, res) => {
                 "items.productId"
             );
 
+
+        // =====================================
+        // ORDER DOES NOT EXIST
+        // =====================================
 
         if (!order) {
 
@@ -388,6 +393,31 @@ const getOrderById = async (req, res) => {
 
         }
 
+
+        // =====================================
+        // CHECK ORDER OWNERSHIP
+        // =====================================
+
+        if (
+            order.userId.toString() !==
+            userId.toString()
+        ) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "You are not authorized to view this order"
+
+            });
+
+        }
+
+
+        // =====================================
+        // SUCCESS
+        // =====================================
 
         return res.status(200).json({
 
