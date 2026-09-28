@@ -1,7 +1,6 @@
 // =============================
-// RUNFOLD REGISTER
+//  REGISTER
 // =============================
-
 const registerForm =
     document.getElementById(
         "register-form"
@@ -14,82 +13,154 @@ const registerMessage =
     );
 
 
-registerForm.addEventListener(
-    "submit",
-    event => {
+if (registerForm) {
 
-        event.preventDefault();
+    registerForm.addEventListener(
+        "submit",
+        async (event) => {
 
-
-        const name =
-            document.getElementById(
-                "register-name"
-            ).value.trim();
+            event.preventDefault();
 
 
-        const email =
-            document.getElementById(
-                "register-email"
-            ).value.trim();
+            const name =
+                document.getElementById(
+                    "register-name"
+                ).value.trim();
 
 
-        const password =
-            document.getElementById(
-                "register-password"
-            ).value;
+            const email =
+                document.getElementById(
+                    "register-email"
+                ).value.trim();
 
 
-        const confirmPassword =
-            document.getElementById(
-                "register-confirm"
-            ).value;
+            const password =
+                document.getElementById(
+                    "register-password"
+                ).value;
 
 
-        if (password !== confirmPassword) {
+            const confirmPassword =
+                document.getElementById(
+                    "register-confirm"
+                ).value;
 
-            registerMessage.textContent =
-                "Passwords do not match.";
 
-            registerMessage.className =
-                "auth-message error";
+            // ==================================
+            // PASSWORD CHECK
+            // ==================================
 
-            return;
+            if (
+                password !==
+                confirmPassword
+            ) {
+
+                registerMessage.textContent =
+                    "Passwords do not match.";
+
+                registerMessage.className =
+                    "auth-message error";
+
+                return;
+
+            }
+
+
+            try {
+
+                // ==================================
+                // SEND REGISTER REQUEST
+                // ==================================
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/auth/register`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                name,
+                                email,
+                                password
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Register Response:",
+                    data
+                );
+
+
+                // ==================================
+                // HANDLE ERROR
+                // ==================================
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    registerMessage.textContent =
+                        data.message ||
+                        "Registration failed.";
+
+                    registerMessage.className =
+                        "auth-message error";
+
+                    return;
+
+                }
+
+
+                // ==================================
+                // SUCCESS
+                // ==================================
+
+                registerMessage.textContent =
+                    "Account created successfully. Redirecting to login...";
+
+                registerMessage.className =
+                    "auth-message success";
+
+
+                setTimeout(
+                    () => {
+
+                        window.location.href =
+                            "login.html";
+
+                    },
+                    1000
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Register Error:",
+                    error
+                );
+
+
+                registerMessage.textContent =
+                    "Unable to connect to the server.";
+
+                registerMessage.className =
+                    "auth-message error";
+
+            }
+
         }
+    );
 
-
-        const result =
-            registerUser(
-                name,
-                email,
-                password
-            );
-
-
-        if (!result.success) {
-
-            registerMessage.textContent =
-                result.message;
-
-            registerMessage.className =
-                "auth-message error";
-
-            return;
-        }
-
-
-        registerMessage.textContent =
-            "Account created. Redirecting to login...";
-
-        registerMessage.className =
-            "auth-message success";
-
-
-        setTimeout(() => {
-
-            window.location.href =
-                "login.html";
-
-        }, 1000);
-
-    }
-);
+}

@@ -1,125 +1,33 @@
 // =============================
-// RUNFOLD AUTHENTICATION
-// FRONTEND DEVELOPMENT VERSION
+// RUNFOLD AUTH HELPERS
 // =============================
 
-function getUsers() {
-    return JSON.parse(
-        localStorage.getItem("runfold-users")
-    ) || [];
-}
-
-
-function saveUsers(users) {
-    localStorage.setItem(
-        "runfold-users",
-        JSON.stringify(users)
-    );
-}
-
+const API_BASE_URL = "http://localhost:5000/api";
 
 function getCurrentUser() {
-    return JSON.parse(
-        localStorage.getItem("runfold-current-user")
-    );
+    try {
+        return JSON.parse(
+            localStorage.getItem("user")
+        );
+    } catch (error) {
+        return null;
+    }
 }
 
+function getToken() {
+    return localStorage.getItem("token");
+}
 
 function isLoggedIn() {
-    return getCurrentUser() !== null;
+    return !!getToken();
 }
-
-
-function registerUser(name, email, password) {
-
-    const users = getUsers();
-
-    const existingUser = users.find(
-        user =>
-            user.email.toLowerCase() ===
-            email.toLowerCase()
-    );
-
-    if (existingUser) {
-        return {
-            success: false,
-            message: "An account with this email already exists."
-        };
-    }
-
-    const newUser = {
-        id: "USR-" + Date.now(),
-        name: name,
-        email: email.toLowerCase(),
-        password: password
-    };
-
-    users.push(newUser);
-
-    saveUsers(users);
-
-    return {
-        success: true,
-        message: "Account created successfully."
-    };
-}
-
-
-function loginUser(email, password) {
-
-    const users = getUsers();
-
-    const user = users.find(
-        user =>
-            user.email.toLowerCase() ===
-            email.toLowerCase() &&
-            user.password === password
-    );
-
-    if (!user) {
-        return {
-            success: false,
-            message: "Invalid email or password."
-        };
-    }
-
-    const sessionUser = {
-        id: user.id,
-        name: user.name,
-        email: user.email
-    };
-
-    localStorage.setItem(
-        "runfold-current-user",
-        JSON.stringify(sessionUser)
-    );
-
-    return {
-        success: true,
-        user: sessionUser
-    };
-}
-
 
 function logoutUser() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-    localStorage.removeItem(
-        "runfold-current-user"
-    );
+    localStorage.removeItem("runfold-auth");
+    localStorage.removeItem("runfold-user");
 
-    window.location.href = "index.html";
-}
-
-
-function requireLogin() {
-
-    if (!isLoggedIn()) {
-
-        window.location.href =
-            "login.html";
-
-        return false;
-    }
-
-    return true;
+    window.location.href = "login.html";
 }

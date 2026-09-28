@@ -5,72 +5,120 @@
 const loginForm =
     document.getElementById("login-form");
 
-
 const loginMessage =
     document.getElementById("login-message");
 
+if (loginForm) {
 
-loginForm.addEventListener(
-    "submit",
-    event => {
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
+            event.preventDefault();
 
+            const email =
+                document
+                    .getElementById("login-email")
+                    .value
+                    .trim();
 
-        const email =
-            document.getElementById(
-                "login-email"
-            ).value.trim();
+            const password =
+                document
+                    .getElementById("login-password")
+                    .value;
 
+            try {
 
-        const password =
-            document.getElementById(
-                "login-password"
-            ).value;
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/auth/login`,
+                        {
+                            method: "POST",
 
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
 
-        const result =
-            loginUser(
-                email,
-                password
-            );
+                            body: JSON.stringify({
+                                email,
+                                password
+                            })
+                        }
+                    );
 
+                const data =
+                    await response.json();
 
-        if (!result.success) {
+                console.log(
+                    "Login Response:",
+                    data
+                );
 
-            loginMessage.textContent =
-                result.message;
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
 
-            loginMessage.className =
-                "auth-message error";
+                    loginMessage.textContent =
+                        data.message ||
+                        "Login failed.";
 
-            return;
+                    loginMessage.className =
+                        "auth-message error";
+
+                    return;
+                }
+
+                // Save JWT
+                localStorage.setItem(
+                    "token",
+                    data.token
+                );
+
+                // Save user
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(data.user)
+                );
+
+                // Keep existing frontend compatibility
+                localStorage.setItem(
+                    "runfold-auth",
+                    "true"
+                );
+
+                localStorage.setItem(
+                    "runfold-user",
+                    data.user.email
+                );
+
+                loginMessage.textContent =
+                    "Login successful. Redirecting...";
+
+                loginMessage.className =
+                    "auth-message success";
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "index.html";
+
+                }, 700);
+
+            } catch (error) {
+
+                console.error(
+                    "Login Error:",
+                    error
+                );
+
+                loginMessage.textContent =
+                    "Unable to connect to the server.";
+
+                loginMessage.className =
+                    "auth-message error";
+            }
         }
-        // Save login session
-
-localStorage.setItem(
-    "runfold-auth",
-    "true"
-);
-
-localStorage.setItem(
-    "runfold-user",
-    email
-);
-
-        loginMessage.textContent =
-            "Login successful. Redirecting...";
-
-        loginMessage.className =
-            "auth-message success";
-
-
-        setTimeout(() => {
-
-            window.location.href =
-                "index.html";
-
-        }, 700);
-
-    }
-);
+    );
+}

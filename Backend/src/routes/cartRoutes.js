@@ -11,29 +11,50 @@ const {
 const router = express.Router();
 
 
-// Get user's cart
-router.get("/:userId", getCart);
+// =====================================
+// GET USER CART
+// =====================================
+
+router.get(
+    "/:userId",
+    getCart
+);
 
 
-// Add product to cart
-router.post("/:userId/items", addToCart);
+// =====================================
+// ADD ITEM
+// =====================================
+
+router.post(
+    "/:userId/items",
+    addToCart
+);
 
 
-// Update product quantity
+// =====================================
+// UPDATE ITEM
+// =====================================
+
 router.put(
     "/:userId/items/:productId",
     updateCartItem
 );
 
 
-// Remove product from cart
+// =====================================
+// REMOVE ITEM
+// =====================================
+
 router.delete(
     "/:userId/items/:productId",
     removeCartItem
 );
 
 
-// Clear cart
+// =====================================
+// CLEAR CART
+// =====================================
+
 router.delete(
     "/:userId",
     clearCart

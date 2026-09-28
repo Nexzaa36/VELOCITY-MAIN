@@ -13,7 +13,6 @@
 // PRODUCT DATA
 // ======================================
 
-const API_BASE_URL = "http://localhost:5000/api";
 
 let products = [];
 
@@ -63,34 +62,39 @@ async function loadProducts() {
          * existing catalogue code.
          */
 
-            products =
-        data.products.map(
-        product => ({
+        products =
+            data.products.map(
+                product => ({
 
-            id: Number(product.id),
+                    // Frontend/product ID
+                    id: Number(product.id),
 
-            name: product.name,
+                    // MongoDB ObjectId
+                    productId: product._id,
 
-            price: Number(product.price),
+                    name: product.name,
 
-            category: product.category,
+                    price: Number(product.price),
 
-            image: product.image,
+                    category: product.category,
 
-            tags:
-                Array.isArray(product.tags)
-                    ? product.tags
-                    : [],
+                    image: product.image,
 
-            sizes:
-                Array.isArray(product.sizes)
-                    ? product.sizes
-                    : [],
+                    tags:
+                        Array.isArray(product.tags)
+                            ? product.tags
+                            : [],
 
-            stock: Number(product.stock) || 0
+                    sizes:
+                        Array.isArray(product.sizes)
+                            ? product.sizes
+                            : [],
 
-        })
-        );
+                    stock:
+                        Number(product.stock) || 0
+
+                })
+            );
 
 
         console.log(
@@ -584,7 +588,7 @@ function updateFilterStatus(
 
         activeParts.push(
             labels[
-                priceFilter.value
+            priceFilter.value
             ]
         );
 
@@ -645,11 +649,10 @@ function updateFilterStatus(
                 ${filteredProducts.length}
             </strong>
 
-            ${
-                filteredProducts.length === 1
-                    ? "product"
-                    : "products"
-            }
+            ${filteredProducts.length === 1
+            ? "product"
+            : "products"
+        }
 
             ·
 
@@ -684,10 +687,9 @@ function updateProductCount(
         () => {
 
             discoveryCount.textContent =
-                `${count} ${
-                    count === 1
-                        ? "product"
-                        : "products"
+                `${count} ${count === 1
+                    ? "product"
+                    : "products"
                 }`;
 
         },
@@ -732,7 +734,7 @@ function matchesPrice(
 
 
     switch (
-        priceFilter.value
+    priceFilter.value
     ) {
 
         case "under-2000":
@@ -1346,31 +1348,28 @@ function renderProducts(
                     <div class="product-price">
 
                         ${formatCurrency(
-                            product.price
-                        )}
+                product.price
+            )}
 
                     </div>
                     
-                    <div class="stock-status ${
-    product.stock === 0
-        ? "out-of-stock"
-        : product.stock <= 3
-            ? "low-stock"
-            : "in-stock"
-}">
-    ${
-        product.stock === 0
-            ? "OUT OF STOCK"
-            : product.stock <= 3
-                ? `ONLY ${product.stock} LEFT`
-                : `${product.stock} IN STOCK`
-    }
+                    <div class="stock-status ${product.stock === 0
+                    ? "out-of-stock"
+                    : product.stock <= 3
+                        ? "low-stock"
+                        : "in-stock"
+                }">
+    ${product.stock === 0
+                    ? "OUT OF STOCK"
+                    : product.stock <= 3
+                        ? `ONLY ${product.stock} LEFT`
+                        : `${product.stock} IN STOCK`
+                }
 </div>
 
 
-                    ${
-                        product.category === "Footwear"
-                            ? `
+                    ${product.category === "Footwear"
+                    ? `
 
                                 <div class="size-selector">
 
@@ -1381,10 +1380,9 @@ function renderProducts(
 
                                     <div class="sizes">
 
-                                        ${
-                                            product.sizes
-                                                .map(
-                                                    size => `
+                                        ${product.sizes
+                        .map(
+                            size => `
 
                                                         <button
                                                             type="button"
@@ -1396,17 +1394,17 @@ function renderProducts(
                                                         </button>
 
                                                     `
-                                                )
-                                                .join("")
-                                        }
+                        )
+                        .join("")
+                    }
 
                                     </div>
 
                                 </div>
 
                             `
-                            : ""
-                    }
+                    : ""
+                }
 
 
                     <button
@@ -1606,7 +1604,7 @@ function handleAddToCart(
         return;
     }
     if (product.stock <= 0) {
-    return;
+        return;
     }
 
 
@@ -1983,7 +1981,7 @@ function openQuickView(
 
         product.category === "Footwear"
 
-        ? `
+            ? `
 
             <div class="quick-view-size-selector">
 
@@ -1994,10 +1992,9 @@ function openQuickView(
 
                 <div class="quick-view-sizes">
 
-                    ${
-                        product.sizes
-                            .map(
-                                size => `
+                    ${product.sizes
+                .map(
+                    size => `
 
                                     <button
                                         type="button"
@@ -2009,9 +2006,9 @@ function openQuickView(
                                     </button>
 
                                 `
-                            )
-                            .join("")
-                    }
+                )
+                .join("")
+            }
 
                 </div>
 
@@ -2019,7 +2016,7 @@ function openQuickView(
 
         `
 
-        : "";
+            : "";
 
 
     modal.innerHTML = `
@@ -2079,27 +2076,26 @@ function openQuickView(
                 <div class="quick-view-price">
 
                     ${formatCurrency(
-                        product.price
-                    )}
+        product.price
+    )}
 
                 </div>
 
 
                 <div class="quick-view-tags">
 
-                    ${
-                        product.tags
-                            .map(
-                                tag => `
+                    ${product.tags
+            .map(
+                tag => `
 
                                     <span>
                                         ${tag}
                                     </span>
 
                                 `
-                            )
-                            .join("")
-                    }
+            )
+            .join("")
+        }
 
                 </div>
 

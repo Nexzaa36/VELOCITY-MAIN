@@ -1,68 +1,33 @@
 // =====================================
-// VELOCITY CART
+// RUNFOLD CART
+// =====================================
+
+
+// =====================================
+// ELEMENTS
 // =====================================
 
 const cartItemsContainer =
-    document.getElementById("cart-items");
-
-const subtotalElement =
-    document.getElementById("cart-subtotal");
-
-const totalElement =
-    document.getElementById("cart-total");
-
-
-// =====================================
-// LOAD CART
-// =====================================
-
-let cart =
-    JSON.parse(
-        localStorage.getItem("runfold-cart")
-    ) || [];
-
-
-// =====================================
-// SAVE CART
-// =====================================
-
-function saveCart() {
-
-    localStorage.setItem(
-        "runfold-cart",
-        JSON.stringify(cart)
+    document.getElementById(
+        "cart-items"
     );
 
-    updateCartCount();
+const subtotalElement =
+    document.getElementById(
+        "cart-subtotal"
+    );
 
-}
+const totalElement =
+    document.getElementById(
+        "cart-total"
+    );
 
 
 // =====================================
-// UPDATE NAV CART COUNT
+// CART DATA
 // =====================================
 
-function updateCartCount() {
-
-    const countElement =
-        document.getElementById(
-            "cart-count"
-        );
-
-    if (!countElement) return;
-
-    const totalItems =
-        cart.reduce(
-            (total, item) =>
-                total +
-                (item.quantity || 1),
-            0
-        );
-
-    countElement.textContent =
-        totalItems;
-
-}
+let cart = [];
 
 
 // =====================================
@@ -84,20 +49,76 @@ function formatPrice(value) {
 
 
 // =====================================
+// LOAD CART FROM MONGODB
+// =====================================
+
+async function loadCart() {
+
+    cart =
+        await getCart();
+
+    updateCartCount();
+
+    renderCart();
+
+}
+
+
+// =====================================
+// UPDATE NAV CART COUNT
+// =====================================
+
+function updateCartCount() {
+
+    const countElement =
+        document.getElementById(
+            "cart-count"
+        );
+
+
+    if (!countElement) {
+
+        return;
+
+    }
+
+
+    const totalItems =
+        cart.reduce(
+            (total, item) =>
+
+                total +
+                (Number(item.quantity) || 0),
+
+            0
+        );
+
+
+    countElement.textContent =
+        totalItems;
+
+}
+
+
+// =====================================
 // RENDER CART
 // =====================================
 
 function renderCart() {
 
-    if (!cartItemsContainer)
+    if (!cartItemsContainer) {
+
         return;
+
+    }
+
 
     cartItemsContainer.innerHTML = "";
 
 
-    // ============================
+    // =====================================
     // EMPTY CART
-    // ============================
+    // =====================================
 
     if (cart.length === 0) {
 
@@ -131,9 +152,9 @@ function renderCart() {
     }
 
 
-    // ============================
-    // PRODUCTS
-    // ============================
+    // =====================================
+    // CART PRODUCTS
+    // =====================================
 
     cart.forEach(
         (item, index) => {
@@ -143,8 +164,10 @@ function renderCart() {
                     "div"
                 );
 
+
             card.className =
                 "cart-item";
+
 
             card.innerHTML = `
 
@@ -167,10 +190,12 @@ function renderCart() {
                         ${item.name}
                     </h3>
 
+
                     <p>
                         Size:
                         ${item.size || "-"}
                     </p>
+
 
                     <div class="cart-price">
 
@@ -189,9 +214,11 @@ function renderCart() {
                             −
                         </button>
 
+
                         <span>
                             ${item.quantity || 1}
                         </span>
+
 
                         <button
                             onclick="increaseQty(${index})"
@@ -213,6 +240,7 @@ function renderCart() {
 
             `;
 
+
             cartItemsContainer.appendChild(
                 card
             );
@@ -220,13 +248,14 @@ function renderCart() {
         }
     );
 
+
     updateSummary();
 
 }
 
 
 // =====================================
-// ORDER SUMMARY
+// UPDATE SUMMARY
 // =====================================
 
 function updateSummary() {
@@ -234,13 +263,16 @@ function updateSummary() {
     const subtotal =
         cart.reduce(
             (sum, item) =>
+
                 sum +
                 (
-                    item.price *
-                    (item.quantity || 1)
+                    Number(item.price) *
+                    (Number(item.quantity) || 1)
                 ),
+
             0
         );
+
 
     if (subtotalElement) {
 
@@ -248,6 +280,7 @@ function updateSummary() {
             formatPrice(subtotal);
 
     }
+
 
     if (totalElement) {
 
@@ -263,14 +296,27 @@ function updateSummary() {
 // INCREASE QUANTITY
 // =====================================
 
-function increaseQty(index) {
+async function increaseQty(index) {
 
-    cart[index].quantity =
-        (cart[index].quantity || 1) + 1;
+    const item =
+        cart[index];
 
-    saveCart();
 
-    renderCart();
+    if (!item) {
+
+        return;
+
+    }
+
+
+    const newQuantity =
+        (Number(item.quantity) || 1) + 1;
+
+
+    await updateCartItemOnServer(
+        item,
+        newQuantity
+    );
 
 }
 
@@ -279,19 +325,132 @@ function increaseQty(index) {
 // DECREASE QUANTITY
 // =====================================
 
-function decreaseQty(index) {
+async function decreaseQty(index) {
 
-    if (
-        (cart[index].quantity || 1) > 1
-    ) {
+    const item =
+        cart[index];
 
-        cart[index].quantity--;
+
+    if (!item) {
+
+        return;
 
     }
 
-    saveCart();
 
-    renderCart();
+    const currentQuantity =
+        Number(item.quantity) || 1;
+
+
+    if (currentQuantity <= 1) {
+
+        return;
+
+    }
+
+
+    const newQuantity =
+        currentQuantity - 1;
+
+
+    await updateCartItemOnServer(
+        item,
+        newQuantity
+    );
+
+}
+
+
+// =====================================
+// UPDATE SERVER CART
+// =====================================
+
+async function updateCartItemOnServer(
+    item,
+    quantity
+) {
+
+    const userId =
+        getLoggedInUserId();
+
+    const token =
+        getAuthToken();
+
+
+    if (!userId || !token) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/cart/${userId}/items/${item.productId}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            quantity:
+                                quantity,
+
+                            size:
+                                item.size ||
+                                null
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "Unable to update cart."
+            );
+
+            return;
+
+        }
+
+
+        await loadCart();
+
+    } catch (error) {
+
+        console.error(
+            "Update Cart Error:",
+            error
+        );
+
+        alert(
+            "Unable to update cart."
+        );
+
+    }
 
 }
 
@@ -300,13 +459,91 @@ function decreaseQty(index) {
 // REMOVE PRODUCT
 // =====================================
 
-function removeItem(index) {
+async function removeItem(index) {
 
-    cart.splice(index, 1);
+    const item =
+        cart[index];
 
-    saveCart();
 
-    renderCart();
+    if (!item) {
+
+        return;
+
+    }
+
+
+    const userId =
+        getLoggedInUserId();
+
+    const token =
+        getAuthToken();
+
+
+    if (!userId || !token) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    try {
+
+        const query =
+            item.size
+                ? `?size=${encodeURIComponent(item.size)}`
+                : "";
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/cart/${userId}/items/${item.productId}${query}`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "Unable to remove item."
+            );
+
+            return;
+
+        }
+
+
+        await loadCart();
+
+    } catch (error) {
+
+        console.error(
+            "Remove Cart Item Error:",
+            error
+        );
+
+        alert(
+            "Unable to remove item."
+        );
+
+    }
 
 }
 
@@ -319,9 +556,7 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-        updateCartCount();
-
-        renderCart();
+        loadCart();
 
     }
 );

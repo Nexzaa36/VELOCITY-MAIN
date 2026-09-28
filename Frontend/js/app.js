@@ -2,116 +2,370 @@
 // RUNFOLD GLOBAL APP
 // =============================
 
-
 // =========================================
-// CART
+// AUTH HELPERS
 // =========================================
 
-function getCart() {
+function getLoggedInUserId() {
 
-    return JSON.parse(
-        localStorage.getItem("runfold-cart")
-    ) || [];
+    const user =
+        typeof getCurrentUser === "function"
+            ? getCurrentUser()
+            : null;
+
+    if (!user) {
+        return null;
+    }
+
+    return user.id || user._id || null;
+}
+
+
+function getAuthToken() {
+
+    return typeof getToken === "function"
+        ? getToken()
+        : null;
 
 }
 
 
-function saveCart(cart) {
+// =========================================
+// GET CART FROM MONGODB
+// =========================================
 
-    localStorage.setItem(
-        "runfold-cart",
-        JSON.stringify(cart)
-    );
+async function getCart() {
 
-}
+    const userId =
+        getLoggedInUserId();
+
+    const token =
+        getAuthToken();
 
 
-function updateCartCount() {
+    if (!userId || !token) {
 
-    const cart = getCart();
+        return [];
 
-    const count = cart.reduce(
-        (total, item) => total + item.quantity,
-        0
-    );
+    }
 
-    const cartCount =
-        document.getElementById("cart-count");
 
-    if (cartCount) {
+    try {
 
-        cartCount.textContent = count;
+        const response =
+            await fetch(
+                `${API_BASE_URL}/cart/${userId}`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data.success ||
+            !data.cart
+        ) {
+
+            return [];
+
+        }
+
+
+        return data.cart.items.map(
+            item => {
+
+                const product =
+                    item.productId;
+
+
+                return {
+
+                    id:
+                        product?.id || null,
+
+                    productId:
+                        product?._id ||
+                        item.productId,
+
+                    name:
+                        product?.name ||
+                        "Product",
+
+                    price:
+                        Number(item.price) ||
+                        Number(product?.price) ||
+                        0,
+
+                    category:
+                        product?.category ||
+                        "",
+
+                    image:
+                        product?.image ||
+                        "",
+
+                    tags:
+                        Array.isArray(product?.tags)
+                            ? product.tags
+                            : [],
+
+                    sizes:
+                        Array.isArray(product?.sizes)
+                            ? product.sizes
+                            : [],
+
+                    stock:
+                        Number(product?.stock) ||
+                        0,
+
+                    size:
+                        item.size || null,
+
+                    quantity:
+                        Number(item.quantity) || 1
+
+                };
+
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Get Cart Error:",
+            error
+        );
+
+        return [];
 
     }
 
 }
 
 
-function addToCart(product) {
+// =========================================
+// ADD PRODUCT TO MONGODB CART
+// =========================================
 
-    const cart = getCart();
+async function addToCart(product) {
 
-    const existingProduct =
-        cart.find(item => item.id === product.id);
+    const userId =
+        getLoggedInUserId();
 
-    const stock = Number(product.stock) || 0;
+    const token =
+        getAuthToken();
 
-    // Product is completely out of stock
-    if (stock <= 0) {
 
-        alert("This product is currently out of stock.");
+    // =====================================
+    // USER MUST BE LOGGED IN
+    // =====================================
+
+    if (!userId || !token) {
+
+        alert(
+            "Please login before adding products to your cart."
+        );
+
+        window.location.href =
+            "login.html";
 
         return;
 
     }
 
 
-    // Product already exists in cart
-    if (existingProduct) {
+    // =====================================
+    // MONGODB PRODUCT ID
+    // =====================================
 
-        // Prevent quantity from exceeding available stock
-        if (existingProduct.quantity >= stock) {
+    const productId =
+        product.productId ||
+        product._id;
+
+
+    if (!productId) {
+
+        console.error(
+            "MongoDB product ID is missing:",
+            product
+        );
+
+        alert(
+            "Product ID is missing."
+        );
+
+        return;
+
+    }
+
+
+    const stock =
+        Number(product.stock) || 0;
+
+
+    if (stock <= 0) {
+
+        alert(
+            "This product is currently out of stock."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/cart/${userId}/items`,
+                {
+                    method: "POST",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            productId:
+
+                                productId,
+
+                            quantity:
+                                1,
+
+                            size:
+                                product.size ||
+                                null
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
 
             alert(
-                `Only ${stock} unit${stock === 1 ? "" : "s"} available for this product.`
+                data.message ||
+                "Failed to add product to cart."
             );
 
             return;
 
         }
 
-        existingProduct.quantity++;
+
+        console.log(
+            "MongoDB Cart Updated:",
+            data.cart
+        );
+
+
+        await updateCartCount();
+
+    } catch (error) {
+
+        console.error(
+            "Add To Cart Error:",
+            error
+        );
+
+        alert(
+            "Unable to add product to cart."
+        );
 
     }
-
-
-    // Product is being added for the first time
-    else {
-
-        cart.push({
-            ...product,
-            quantity: 1
-        });
-
-    }
-
-
-    saveCart(cart);
-
-    updateCartCount();
 
 }
 
 
+// =========================================
+// UPDATE CART COUNT
+// =========================================
+
+async function updateCartCount() {
+
+    const cartCount =
+        document.getElementById(
+            "cart-count"
+        );
+
+
+    if (!cartCount) {
+
+        return;
+
+    }
+
+
+    const cart =
+        await getCart();
+
+
+    const count =
+        cart.reduce(
+            (total, item) =>
+
+                total +
+                (Number(item.quantity) || 0),
+
+            0
+        );
+
+
+    cartCount.textContent =
+        count;
+
+}
+
+
+// =========================================
+// FORMAT CURRENCY
+// =========================================
+
 function formatCurrency(value) {
 
-    return new Intl.NumberFormat("en-IN", {
-
-        style: "currency",
-
-        currency: "INR"
-
-    }).format(value);
+    return new Intl.NumberFormat(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR"
+        }
+    ).format(value);
 
 }
 
@@ -123,30 +377,29 @@ function formatCurrency(value) {
 function updateAuthNavigation() {
 
     const authNav =
-        document.getElementById("auth-nav");
+        document.getElementById(
+            "auth-nav"
+        );
 
-    // Some pages may not have auth navigation
+
     if (!authNav) {
+
         return;
+
     }
 
 
-    // Check if authentication functions exist
     if (
-        typeof isLoggedIn !== "function"
+        typeof isLoggedIn !==
+        "function"
     ) {
+
         return;
+
     }
 
 
-    // User is logged in
     if (isLoggedIn()) {
-
-        const user =
-            typeof getCurrentUser === "function"
-                ? getCurrentUser()
-                : null;
-
 
         authNav.innerHTML = `
 
@@ -165,7 +418,6 @@ function updateAuthNavigation() {
 
     }
 
-    // User is not logged in
     else {
 
         authNav.innerHTML = `
@@ -187,11 +439,11 @@ function updateAuthNavigation() {
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
-
-        updateCartCount();
+    async function () {
 
         updateAuthNavigation();
+
+        await updateCartCount();
 
     }
 );
