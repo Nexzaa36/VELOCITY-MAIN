@@ -4603,3 +4603,122 @@ footer.site-footer {
     }
 
 }
+
+/* =========================================
+   VELOCITY PASSWORD REQUIREMENTS
+========================================= */
+
+.password-hint {
+    margin-top: -14px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+
+    border: 1px solid #e7e7e7;
+    border-radius: 8px;
+
+    background: #fafafa;
+}
+
+
+/* =========================================
+   PASSWORD TITLE
+========================================= */
+
+.password-title {
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #333;
+}
+
+
+/* =========================================
+   REQUIREMENT ROW
+========================================= */
+
+.requirement {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    color: #888;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* =========================================
+   REQUIREMENT ICON
+========================================= */
+
+.req-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 16px;
+    height: 16px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #999;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* =========================================
+   VALID REQUIREMENT
+========================================= */
+
+.requirement.valid {
+    color: #333;
+}
+
+
+.requirement.valid .req-icon {
+    color: #16803c;
+
+    transform: scale(1.05);
+}
+
+
+/* =========================================
+   PASSWORD INPUT
+========================================= */
+
+#register-password,
+#register-confirm {
+    width: 100%;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .password-hint {
+        padding: 11px 12px;
+    }
+
+
+    .requirement {
+        font-size: 11px;
+    }
+
+}

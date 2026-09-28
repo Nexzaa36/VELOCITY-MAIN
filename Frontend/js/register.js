@@ -1,6 +1,12 @@
 // =============================
-//  REGISTER
+// VELOCITY REGISTER
 // =============================
+
+
+// ==================================
+// ELEMENTS
+// ==================================
+
 const registerForm =
     document.getElementById(
         "register-form"
@@ -13,6 +19,231 @@ const registerMessage =
     );
 
 
+const passwordInput =
+    document.getElementById(
+        "register-password"
+    );
+
+
+const confirmInput =
+    document.getElementById(
+        "register-confirm"
+    );
+
+
+// ==================================
+// PASSWORD REQUIREMENTS
+// ==================================
+
+const requirementLength =
+    document.getElementById(
+        "req-length"
+    );
+
+
+const requirementUppercase =
+    document.getElementById(
+        "req-uppercase"
+    );
+
+
+const requirementNumber =
+    document.getElementById(
+        "req-number"
+    );
+
+
+const requirementSpecial =
+    document.getElementById(
+        "req-special"
+    );
+
+
+// ==================================
+// UPDATE REQUIREMENT UI
+// ==================================
+
+function updateRequirement(
+    element,
+    isValid
+) {
+
+    if (!element) {
+        return;
+    }
+
+
+    const icon =
+        element.querySelector(
+            ".req-icon"
+        );
+
+
+    if (isValid) {
+
+        element.classList.add(
+            "valid"
+        );
+
+
+        if (icon) {
+
+            icon.textContent =
+                "✓";
+
+        }
+
+    } else {
+
+        element.classList.remove(
+            "valid"
+        );
+
+
+        if (icon) {
+
+            icon.textContent =
+                "○";
+
+        }
+
+    }
+
+}
+
+
+// ==================================
+// CHECK PASSWORD REQUIREMENTS
+// ==================================
+
+function checkPasswordRequirements(
+    password
+) {
+
+    const hasMinimumLength =
+        password.length >= 8;
+
+
+    const hasUppercase =
+        /[A-Z]/.test(password);
+
+
+    const hasNumber =
+        /\d/.test(password);
+
+
+    const hasSpecialCharacter =
+        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(
+            password
+        );
+
+
+    updateRequirement(
+        requirementLength,
+        hasMinimumLength
+    );
+
+
+    updateRequirement(
+        requirementUppercase,
+        hasUppercase
+    );
+
+
+    updateRequirement(
+        requirementNumber,
+        hasNumber
+    );
+
+
+    updateRequirement(
+        requirementSpecial,
+        hasSpecialCharacter
+    );
+
+
+    return (
+        hasMinimumLength &&
+        hasUppercase &&
+        hasNumber &&
+        hasSpecialCharacter
+    );
+
+}
+
+
+// ==================================
+// PASSWORD INPUT
+// ==================================
+
+if (passwordInput) {
+
+    passwordInput.addEventListener(
+        "input",
+        () => {
+
+            checkPasswordRequirements(
+                passwordInput.value
+            );
+
+        }
+    );
+
+}
+
+
+// ==================================
+// CONFIRM PASSWORD INPUT
+// ==================================
+
+if (confirmInput) {
+
+    confirmInput.addEventListener(
+        "input",
+        () => {
+
+            // Remove previous message while
+            // the user is correcting the password.
+
+            if (
+                registerMessage &&
+                registerMessage.textContent ===
+                    "Passwords do not match."
+            ) {
+
+                registerMessage.textContent =
+                    "";
+
+                registerMessage.className =
+                    "auth-message";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==================================
+// PASSWORD VALIDATION
+// ==================================
+
+function isValidPassword(
+    password
+) {
+
+    return checkPasswordRequirements(
+        password
+    );
+
+}
+
+
+// ==================================
+// REGISTER FORM
+// ==================================
+
 if (registerForm) {
 
     registerForm.addEventListener(
@@ -21,6 +252,10 @@ if (registerForm) {
 
             event.preventDefault();
 
+
+            // ==================================
+            // GET FORM VALUES
+            // ==================================
 
             const name =
                 document.getElementById(
@@ -35,19 +270,36 @@ if (registerForm) {
 
 
             const password =
-                document.getElementById(
-                    "register-password"
-                ).value;
+                passwordInput.value;
 
 
             const confirmPassword =
-                document.getElementById(
-                    "register-confirm"
-                ).value;
+                confirmInput.value;
 
 
             // ==================================
-            // PASSWORD CHECK
+            // CHECK PASSWORD REQUIREMENTS
+            // ==================================
+
+            if (
+                !isValidPassword(
+                    password
+                )
+            ) {
+
+                registerMessage.textContent =
+                    "Please meet all password requirements.";
+
+                registerMessage.className =
+                    "auth-message error";
+
+                return;
+
+            }
+
+
+            // ==================================
+            // CHECK PASSWORD MATCH
             // ==================================
 
             if (
@@ -66,11 +318,22 @@ if (registerForm) {
             }
 
 
-            try {
+            // ==================================
+            // CLEAR OLD MESSAGE
+            // ==================================
 
-                // ==================================
-                // SEND REGISTER REQUEST
-                // ==================================
+            registerMessage.textContent =
+                "";
+
+            registerMessage.className =
+                "auth-message";
+
+
+            // ==================================
+            // SEND REGISTER REQUEST
+            // ==================================
+
+            try {
 
                 const response =
                     await fetch(
@@ -79,18 +342,30 @@ if (registerForm) {
                             method: "POST",
 
                             headers: {
+
                                 "Content-Type":
                                     "application/json"
+
                             },
 
-                            body: JSON.stringify({
-                                name,
-                                email,
-                                password
-                            })
+                            body:
+                                JSON.stringify({
+
+                                    name,
+
+                                    email,
+
+                                    password
+
+                                })
+
                         }
                     );
 
+
+                // ==================================
+                // READ RESPONSE
+                // ==================================
 
                 const data =
                     await response.json();
@@ -134,6 +409,10 @@ if (registerForm) {
                     "auth-message success";
 
 
+                // ==================================
+                // REDIRECT
+                // ==================================
+
                 setTimeout(
                     () => {
 
@@ -143,6 +422,7 @@ if (registerForm) {
                     },
                     1000
                 );
+
 
             } catch (error) {
 

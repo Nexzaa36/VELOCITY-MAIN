@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Create Account | RUNFOLD</title>
+    <title>Create Account | VELOCITY</title>
 
     <link
         rel="stylesheet"
@@ -28,7 +28,7 @@
         href="index.html"
         class="logo"
     >
-        RUNFOLD
+        VELOCITY
     </a>
 
 
@@ -57,7 +57,7 @@
     <section class="auth-card">
 
         <span class="eyebrow">
-            JOIN RUNFOLD
+            JOIN VELOCITY
         </span>
 
 
@@ -74,6 +74,10 @@
         <form id="register-form">
 
 
+            <!-- =========================
+                 FULL NAME
+            ========================== -->
+
             <label>
 
                 Full Name
@@ -83,10 +87,15 @@
                     id="register-name"
                     required
                     autocomplete="name"
+                    placeholder="Enter your full name"
                 >
 
             </label>
 
+
+            <!-- =========================
+                 EMAIL
+            ========================== -->
 
             <label>
 
@@ -97,10 +106,15 @@
                     id="register-email"
                     required
                     autocomplete="email"
+                    placeholder="Enter your email"
                 >
 
             </label>
 
+
+            <!-- =========================
+                 PASSWORD
+            ========================== -->
 
             <label>
 
@@ -109,13 +123,95 @@
                 <input
                     type="password"
                     id="register-password"
-                    minlength="6"
+                    minlength="8"
                     required
                     autocomplete="new-password"
+                    placeholder="Create a password"
                 >
 
             </label>
 
+
+            <!-- =========================
+                 PASSWORD REQUIREMENTS
+            ========================== -->
+
+            <div class="password-hint">
+
+                <div class="password-title">
+                    Password requirements
+                </div>
+
+
+                <div
+                    class="requirement"
+                    id="req-length"
+                >
+
+                    <span class="req-icon">
+                        ○
+                    </span>
+
+                    <span>
+                        8+ characters
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="requirement"
+                    id="req-uppercase"
+                >
+
+                    <span class="req-icon">
+                        ○
+                    </span>
+
+                    <span>
+                        1 uppercase letter
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="requirement"
+                    id="req-number"
+                >
+
+                    <span class="req-icon">
+                        ○
+                    </span>
+
+                    <span>
+                        1 number
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="requirement"
+                    id="req-special"
+                >
+
+                    <span class="req-icon">
+                        ○
+                    </span>
+
+                    <span>
+                        1 special character
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 CONFIRM PASSWORD
+            ========================== -->
 
             <label>
 
@@ -124,19 +220,28 @@
                 <input
                     type="password"
                     id="register-confirm"
-                    minlength="6"
+                    minlength="8"
                     required
                     autocomplete="new-password"
+                    placeholder="Confirm your password"
                 >
 
             </label>
 
 
+            <!-- =========================
+                 MESSAGE
+            ========================== -->
+
             <p
                 id="register-message"
-                class="auth-message">
-            </p>
+                class="auth-message"
+            ></p>
 
+
+            <!-- =========================
+                 SUBMIT
+            ========================== -->
 
             <button
                 type="submit"
