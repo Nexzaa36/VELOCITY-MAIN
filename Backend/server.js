@@ -6,6 +6,7 @@ const userRoutes = require("./src/routes/userRoutes");
 const productRoutes = require("./src/routes/productRoutes");
 const cartRoutes = require("./src/routes/cartRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
+const rateLimit = require("express-rate-limit");    
 
 
 const connectDB = require("./src/config/db");
@@ -13,7 +14,7 @@ const connectDB = require("./src/config/db");
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // ========================================
 // MIDDLEWARE
@@ -22,7 +23,20 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
+
+    message: {
+        success: false,
+        message: "Too many requests. Please try again later."
+    },
+
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+app.use("/api/auth",authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
