@@ -1,5 +1,9 @@
-const { getChannel } =
-    require("./rabbitmq");
+const { getChannel } =require("./rabbitmq");
+const crypto = require("crypto");
+
+const {
+    publishEvent
+} = require("./eventPublisher");
 
 const {
     EXCHANGE_NAME,
@@ -200,12 +204,29 @@ const startPaymentFailedConsumer = async () => {
                 // CANCEL ORDER
                 // ========================================
 
-                order.status =
-                    "CANCELLED";
+                order.status = "CANCELLED";
 
 
                 await order.save();
+                const orderCancelledEvent = {
+                    eventId: crypto.randomUUID(),
+                    eventType: "OrderCancelled",
+                    timestamp: new Date().toISOString(),
+                    data: {
+                        orderId: String(order._id),
+                        userId: String(order.userId),
+                        reason: event.data.reason
+                    }
+                };
 
+                await publishEvent(
+                    "order.cancelled",
+                    orderCancelledEvent
+                );
+
+                console.log(
+                    "OrderCancelled event published"
+                );
 
                 // ========================================
                 // LOG RESULT

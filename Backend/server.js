@@ -90,6 +90,11 @@ const {
 const {
     startPaymentFailedInventoryConsumer
 } = require("./src/messaging/paymentFailedInventoryConsumer");
+
+const {
+    startNotificationConsumer
+} = require("./src/messaging/notificationConsumer");
+
 // ========================================
 // EXPRESS APP
 // ========================================
@@ -242,7 +247,7 @@ const startServer =
 
         await startPaymentFailedInventoryConsumer();
 
-
+        await startNotificationConsumer();
 
         app.listen(
             PORT,
