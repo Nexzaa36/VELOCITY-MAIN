@@ -20,6 +20,10 @@ const {
     startInventoryConsumer
 } = require("./src/messaging/inventoryConsumer");
 
+const {
+    startInventoryReservedConsumer
+} = require("./src/messaging/inventoryReservedConsumer");
+
 const connectDB = require("./src/config/db");
 
 
@@ -80,7 +84,8 @@ const startServer = async () => {
 
     await startInventoryConsumer();
 
-
+    await startInventoryReservedConsumer();
+    
     app.listen(PORT, () => {
 
         console.log(`

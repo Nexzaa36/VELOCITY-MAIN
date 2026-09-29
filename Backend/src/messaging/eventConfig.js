@@ -30,6 +30,16 @@ const INVENTORY_ORDER_CREATED_ROUTING_KEY =
 const INVENTORY_RESERVED_ROUTING_KEY =
     "inventory.reserved";
 
+// =========================================
+// INVENTORY RESERVED QUEUE
+// =========================================
+
+const INVENTORY_RESERVED_QUEUE =
+    "velocity.order.inventory.reserved";
+
+const INVENTORY_RESERVED_ORDER_ROUTING_KEY =
+    "inventory.reserved";
+
 
 module.exports = {
 
@@ -41,6 +51,9 @@ module.exports = {
     INVENTORY_ORDER_CREATED_QUEUE,
     INVENTORY_ORDER_CREATED_ROUTING_KEY,
 
-    INVENTORY_RESERVED_ROUTING_KEY
+    INVENTORY_RESERVED_ROUTING_KEY,
+
+    INVENTORY_RESERVED_QUEUE,
+    INVENTORY_RESERVED_ORDER_ROUTING_KEY
 
 };
