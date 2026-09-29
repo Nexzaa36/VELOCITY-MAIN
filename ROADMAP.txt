@@ -1,0 +1,46 @@
+STEP 1  Setup & Planning
+        ✅
+         ↓
+STEP 2  Frontend UI
+        ✅
+         ↓
+STEP 3  Backend Core
+        ✅
+         ↓
+STEP 4  MongoDB / Database
+        🟢 Core complete
+         ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        🔥 WE ARE HERE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         ↓
+STEP 5  EVENT-DRIVEN
+        RabbitMQ
+        Events
+        Consumers
+        Retry
+        DLQ
+         ↓
+STEP 6  SAGA + INVENTORY
+        Reservation
+        Payment
+        Compensation
+        Idempotency
+         ↓
+STEP 7  ADMIN + OBSERVABILITY
+        Events
+        Logs
+        Metrics
+        Saga Monitor
+         ↓
+STEP 8  DEPLOYMENT + TESTING
+        Docker
+        CI/CD
+        Load Testing
+        Security
+        Evaluation
+         ↓
+       FINAL
+   Documentation
+   Demo
+   Report

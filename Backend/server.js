@@ -8,6 +8,9 @@ const cartRoutes = require("./src/routes/cartRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const rateLimit = require("express-rate-limit");    
 
+const {
+    connectRabbitMQ
+} = require("./src/messaging/rabbitmq");
 
 const connectDB = require("./src/config/db");
 
@@ -61,6 +64,8 @@ app.get("/api/health", (req, res) => {
 const startServer = async () => {
 
     await connectDB();
+
+    await connectRabbitMQ();
 
     app.listen(PORT, () => {
         console.log(`
