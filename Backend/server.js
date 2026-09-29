@@ -7,8 +7,7 @@ const productRoutes = require("./src/routes/productRoutes");
 const cartRoutes = require("./src/routes/cartRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const rateLimit = require("express-rate-limit");    
-const paymentRoutes =
-    require("./src/routes/paymentRoutes");
+const paymentRoutes =require("./src/routes/paymentRoutes");
 
 const {
     connectRabbitMQ
@@ -65,7 +64,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/payments",paymentRoutes);
 
 // ========================================
 // HEALTH CHECK

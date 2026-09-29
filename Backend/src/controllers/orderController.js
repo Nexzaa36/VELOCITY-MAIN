@@ -8,50 +8,84 @@ const {
 } = require("../messaging/eventPublisher");
 
 
-// =========================================
+// ========================================
 // CREATE ORDER
-// =========================================
+// ========================================
 
 const createOrder = async (req, res) => {
 
     try {
 
-        // Get user ID from verified JWT
-        const userId = req.user.userId;
-
-        const { customer } = req.body;
-
-
-        console.log("=================================");
-        console.log("CREATE ORDER");
-        console.log("User ID:", userId);
-        console.log("Customer:", customer);
-        console.log("=================================");
-
-
-        // =========================================
-        // GET CART FROM MONGODB
-        // =========================================
-
-        const cart =
-            await Cart.findOne({ userId });
-
+        const userId =
+            req.user.id ||
+            req.user.userId ||
+            req.user._id;
 
         console.log(
-            "MongoDB Cart:",
+            "================================="
+        );
+
+        console.log(
+            "CREATE ORDER"
+        );
+
+        console.log(
+            "JWT User:",
+            req.user
+        );
+
+        console.log(
+            "Using User ID:",
+            userId
+        );
+
+        console.log(
+            "================================="
+        );
+
+        const {
+            customer
+        } = req.body;
+
+
+        // ========================================
+        // FIND CART
+        // ========================================
+
+        const cart =
+            await Cart.findOne({
+                userId
+            });
+
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "MONGODB CART FOR ORDER"
+        );
+
+        console.log(
+            "User ID:",
+            userId
+        );
+
+        console.log(
+            "Cart:",
             cart
         );
 
+        console.log(
+            "Cart Item Count:",
+            cart?.items?.length || 0
+        );
 
-        // =========================================
-        // CHECK CART
-        // =========================================
+        console.log(
+            "================================="
+        );
 
-        if (
-            !cart ||
-            !cart.items ||
-            cart.items.length === 0
-        ) {
+
+        if (!cart || cart.items.length === 0) {
 
             return res.status(400).json({
 
@@ -59,64 +93,41 @@ const createOrder = async (req, res) => {
 
                 message:
                     "Cart is empty"
-
             });
-
         }
 
 
+        // ========================================
+        // BUILD ORDER ITEMS
+        // ========================================
+
         const orderItems = [];
 
-        let totalAmount = 0;
+        let subtotal = 0;
 
 
-        // =========================================
-        // PROCESS EVERY CART ITEM
-        // =========================================
+        for (const item of cart.items) {
 
-        for (
-            const cartItem of cart.items
-        ) {
-
-            console.log(
-                "Processing cart item:",
-                cartItem
-            );
-
-
-            // =====================================
-            // PRODUCT ID
-            // =====================================
-
-            const productId =
-                cartItem.productId;
-
-
-            if (!productId) {
-
-                console.error(
-                    "Missing product ID:",
-                    cartItem
+            const product =
+                await Product.findById(
+                    item.productId
                 );
 
-                return res.status(400).json({
+
+            if (!product) {
+
+                return res.status(404).json({
 
                     success: false,
 
                     message:
-                        "Product ID is missing from cart"
-
+                        `Product not found: ${item.productId}`
                 });
-
             }
 
 
-            // =====================================
-            // QUANTITY
-            // =====================================
-
             const quantity =
-                Number(cartItem.quantity);
+                Number(item.quantity);
 
 
             if (
@@ -129,61 +140,33 @@ const createOrder = async (req, res) => {
                     success: false,
 
                     message:
-                        "Invalid product quantity"
-
+                        `Invalid quantity for ${product.name}`
                 });
-
             }
 
 
-            // =====================================
-            // GET PRODUCT FROM MONGODB
-            // =====================================
-
-            const product =
-                await Product.findById(
-                    productId
-                );
-
-
-            if (!product) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    message:
-                        "One or more products no longer exist"
-
-                });
-
-            }
-
-
-            // =====================================
-            // CHECK STOCK
-            // =====================================
+            // ========================================
+            // STOCK CHECK
+            // ========================================
 
             if (
                 quantity >
                 product.stock
             ) {
 
-                return res.status(409).json({
+                return res.status(400).json({
 
                     success: false,
 
                     message:
                         `Insufficient stock for ${product.name}`
-
                 });
-
             }
 
 
-            // =====================================
+            // ========================================
             // USE DATABASE PRICE
-            // =====================================
+            // ========================================
 
             const price =
                 Number(product.price);
@@ -193,9 +176,8 @@ const createOrder = async (req, res) => {
                 price * quantity;
 
 
-            // =====================================
-            // ADD ORDER ITEM
-            // =====================================
+            subtotal += itemTotal;
+
 
             orderItems.push({
 
@@ -205,19 +187,29 @@ const createOrder = async (req, res) => {
                 quantity,
 
                 price
-
             });
-
-
-            totalAmount +=
-                itemTotal;
-
         }
 
 
-        // =========================================
+        // ========================================
+        // TAX
+        // ========================================
+
+        const tax =
+            subtotal * 0.05;
+
+
+        // ========================================
+        // FINAL TOTAL
+        // ========================================
+
+        const totalAmount =
+            subtotal + tax;
+
+
+        // ========================================
         // CREATE ORDER
-        // =========================================
+        // ========================================
 
         const order =
             await Order.create({
@@ -231,19 +223,45 @@ const createOrder = async (req, res) => {
 
                 status:
                     "PENDING"
-
             });
 
 
         console.log(
-            "Order created:",
+            "================================="
+        );
+
+        console.log(
+            "VELOCITY ORDER CREATED"
+        );
+
+        console.log(
+            "Order ID:",
             order._id
         );
 
+        console.log(
+            "Subtotal:",
+            subtotal
+        );
 
-        // =========================================
-        // CREATE ORDER CREATED EVENT
-        // =========================================
+        console.log(
+            "Tax:",
+            tax
+        );
+
+        console.log(
+            "Total:",
+            totalAmount
+        );
+
+        console.log(
+            "================================="
+        );
+
+
+        // ========================================
+        // ORDER CREATED EVENT
+        // ========================================
 
         const orderCreatedEvent = {
 
@@ -265,35 +283,32 @@ const createOrder = async (req, res) => {
                     userId.toString(),
 
                 items:
-                    order.items.map((item) => ({
+                    order.items.map(
+                        (item) => ({
 
-                        productId:
-                            item.productId.toString(),
+                            productId:
+                                item.productId.toString(),
 
-                        quantity:
-                            item.quantity,
+                            quantity:
+                                item.quantity,
 
-                        price:
-                            item.price
+                            price:
+                                item.price
+                        })
+                    ),
 
-                    })),
+                subtotal,
 
-                totalAmount:
-                    order.totalAmount
+                tax,
 
+                totalAmount
             }
-
         };
 
 
-        console.log(
-            "Publishing OrderCreated event..."
-        );
-
-
-        // =========================================
-        // PUBLISH EVENT TO RABBITMQ
-        // =========================================
+        // ========================================
+        // PUBLISH EVENT
+        // ========================================
 
         await publishEvent(
             "order.created",
@@ -302,27 +317,27 @@ const createOrder = async (req, res) => {
 
 
         console.log(
-            "OrderCreated event published successfully"
+            "OrderCreated event published"
         );
 
 
-        // =========================================
-        // CLEAR MONGODB CART
-        // =========================================
+        /*
+         * IMPORTANT:
+         *
+         * The cart is NOT deleted here.
+         *
+         * The user has only created an order.
+         * Payment has not been completed yet.
+         *
+         * The cart will be cleared after
+         * successful Razorpay payment verification
+         * inside paymentController.js.
+         */
 
-        cart.items = [];
 
-        await cart.save();
-
-
-        console.log(
-            "MongoDB cart cleared"
-        );
-
-
-        // =========================================
-        // SUCCESS RESPONSE
-        // =========================================
+        // ========================================
+        // RESPONSE
+        // ========================================
 
         return res.status(201).json({
 
@@ -331,27 +346,37 @@ const createOrder = async (req, res) => {
             message:
                 "Order created successfully",
 
-            order
+            order: {
 
+                _id:
+                    order._id,
+
+                userId:
+                    order.userId,
+
+                items:
+                    order.items,
+
+                subtotal,
+
+                tax,
+
+                totalAmount,
+
+                status:
+                    order.status,
+
+                createdAt:
+                    order.createdAt
+            }
         });
 
 
     } catch (error) {
 
         console.error(
-            "================================="
-        );
-
-        console.error(
-            "CREATE ORDER ERROR:"
-        );
-
-        console.error(
+            "Create order error:",
             error
-        );
-
-        console.error(
-            "================================="
         );
 
 
@@ -360,29 +385,31 @@ const createOrder = async (req, res) => {
             success: false,
 
             message:
-                "Failed to create order"
+                "Failed to create order",
 
+            error:
+                error.message
         });
-
     }
-
 };
 
 
-// =========================================
+// ========================================
 // GET USER ORDERS
-// =========================================
+// ========================================
 
 const getUserOrders = async (req, res) => {
 
     try {
 
-        // Get user ID from verified JWT
-        const userId = req.user.userId;
+        const userId =
+            req.user.id;
 
 
         const orders =
-            await Order.find({ userId })
+            await Order.find({
+                userId
+            })
                 .populate(
                     "items.productId"
                 )
@@ -395,61 +422,56 @@ const getUserOrders = async (req, res) => {
 
             success: true,
 
-            count:
-                orders.length,
-
             orders
-
         });
+
 
     } catch (error) {
 
         console.error(
-            "Get Orders Error:",
-            error.message
+            "Get orders error:",
+            error
         );
+
 
         return res.status(500).json({
 
             success: false,
 
             message:
-                "Failed to fetch orders"
+                "Failed to fetch orders",
 
+            error:
+                error.message
         });
-
     }
-
 };
 
 
-// =========================================
+// ========================================
 // GET SINGLE ORDER
-// =========================================
+// ========================================
 
 const getOrderById = async (req, res) => {
 
     try {
 
-        const { orderId } =
-            req.params;
+        const {
+            orderId
+        } = req.params;
 
-        // Get logged-in user from verified JWT
-        const userId = req.user.userId;
+        const userId =
+            req.user.id;
 
 
         const order =
             await Order.findById(
                 orderId
             )
-            .populate(
-                "items.productId"
-            );
+                .populate(
+                    "items.productId"
+                );
 
-
-        // =====================================
-        // ORDER DOES NOT EXIST
-        // =====================================
 
         if (!order) {
 
@@ -459,15 +481,13 @@ const getOrderById = async (req, res) => {
 
                 message:
                     "Order not found"
-
             });
-
         }
 
 
-        // =====================================
-        // CHECK ORDER OWNERSHIP
-        // =====================================
+        // ========================================
+        // OWNERSHIP CHECK
+        // ========================================
 
         if (
             order.userId.toString() !==
@@ -479,49 +499,40 @@ const getOrderById = async (req, res) => {
                 success: false,
 
                 message:
-                    "You are not authorized to view this order"
-
+                    "You are not allowed to view this order"
             });
-
         }
 
-
-        // =====================================
-        // SUCCESS
-        // =====================================
 
         return res.status(200).json({
 
             success: true,
 
             order
-
         });
+
 
     } catch (error) {
 
         console.error(
-            "Get Order Error:",
-            error.message
+            "Get order error:",
+            error
         );
+
 
         return res.status(500).json({
 
             success: false,
 
             message:
-                "Failed to fetch order"
+                "Failed to fetch order",
 
+            error:
+                error.message
         });
-
     }
-
 };
 
-
-// =========================================
-// EXPORTS
-// =========================================
 
 module.exports = {
 
@@ -530,5 +541,4 @@ module.exports = {
     getUserOrders,
 
     getOrderById
-
 };

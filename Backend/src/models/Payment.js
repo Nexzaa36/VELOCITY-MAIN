@@ -21,6 +21,16 @@ const paymentSchema = new mongoose.Schema(
             min: 0
         },
 
+        razorpayOrderId: {
+            type: String,
+            default: null
+        },
+
+        razorpayPaymentId: {
+            type: String,
+            default: null
+        },
+
         status: {
             type: String,
 
@@ -31,16 +41,6 @@ const paymentSchema = new mongoose.Schema(
             ],
 
             default: "PENDING"
-        },
-
-        razorpayOrderId: {
-            type: String,
-            default: null
-        },
-
-        razorpayPaymentId: {
-            type: String,
-            default: null
         }
     },
 
@@ -49,9 +49,7 @@ const paymentSchema = new mongoose.Schema(
     }
 );
 
-
-module.exports =
-    mongoose.model(
-        "Payment",
-        paymentSchema
-    );
+module.exports = mongoose.model(
+    "Payment",
+    paymentSchema
+);

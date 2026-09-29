@@ -1,37 +1,24 @@
-const { getChannel } = require("./rabbitmq");
+const {
+    getChannel
+} = require("./rabbitmq");
 
 const {
     EXCHANGE_NAME,
 
     PAYMENT_INVENTORY_RESERVED_QUEUE,
-    PAYMENT_INVENTORY_RESERVED_ROUTING_KEY,
-
-    PAYMENT_PROCESSED_ROUTING_KEY
+    PAYMENT_INVENTORY_RESERVED_ROUTING_KEY
 } = require("./eventConfig");
 
-const Payment =
-    require("../models/Payment");
-
-const crypto =
-    require("crypto");
-
-const {
-    publishEvent
-} = require("./eventPublisher");
-
-
-// =========================================
-// START PAYMENT CONSUMER
-// =========================================
 
 const startPaymentConsumer = async () => {
 
-    const channel = getChannel();
+    const channel =
+        getChannel();
 
 
-    // =========================================
+    // ========================================
     // EXCHANGE
-    // =========================================
+    // ========================================
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -42,9 +29,9 @@ const startPaymentConsumer = async () => {
     );
 
 
-    // =========================================
+    // ========================================
     // QUEUE
-    // =========================================
+    // ========================================
 
     await channel.assertQueue(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
@@ -54,9 +41,9 @@ const startPaymentConsumer = async () => {
     );
 
 
-    // =========================================
+    // ========================================
     // BIND QUEUE
-    // =========================================
+    // ========================================
 
     await channel.bindQueue(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
@@ -70,9 +57,9 @@ const startPaymentConsumer = async () => {
     );
 
 
-    // =========================================
+    // ========================================
     // CONSUME INVENTORY RESERVED
-    // =========================================
+    // ========================================
 
     channel.consume(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
@@ -97,7 +84,7 @@ const startPaymentConsumer = async () => {
                 );
 
                 console.log(
-                    "Payment received InventoryReserved"
+                    "Payment service received InventoryReserved"
                 );
 
                 console.log(
@@ -111,96 +98,7 @@ const startPaymentConsumer = async () => {
                 );
 
                 console.log(
-                    "================================="
-                );
-
-
-                const {
-                    orderId,
-                    userId,
-                    amount
-                } = event.data;
-
-
-                // =====================================
-                // VALIDATE PAYMENT AMOUNT
-                // =====================================
-
-                if (
-                    typeof amount !== "number" ||
-                    amount < 0
-                ) {
-
-                    throw new Error(
-                        "Invalid payment amount"
-                    );
-
-                }
-
-
-                // =====================================
-                // CHECK EXISTING PAYMENT
-                // =====================================
-
-                const existingPayment =
-                    await Payment.findOne({
-                        orderId
-                    });
-
-
-                if (existingPayment) {
-
-                    console.log(
-                        "Payment already processed:",
-                        orderId
-                    );
-
-                    channel.ack(message);
-
-                    return;
-                }
-
-
-                // =====================================
-                // CREATE PAYMENT
-                // =====================================
-
-                const payment =
-                    await Payment.create({
-
-                        orderId,
-
-                        userId,
-
-                        amount,
-
-                        status:
-                            "SUCCESS"
-
-                    });
-
-
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "Payment processed successfully"
-                );
-
-                console.log(
-                    "Payment ID:",
-                    payment._id
-                );
-
-                console.log(
-                    "Order ID:",
-                    orderId
-                );
-
-                console.log(
-                    "Amount:",
-                    payment.amount
+                    "Waiting for Razorpay payment..."
                 );
 
                 console.log(
@@ -208,63 +106,20 @@ const startPaymentConsumer = async () => {
                 );
 
 
-                // =====================================
-                // CREATE PAYMENT PROCESSED EVENT
-                // =====================================
-
-                const paymentProcessedEvent = {
-
-                    eventId:
-                        crypto.randomUUID(),
-
-                    eventType:
-                        "PaymentProcessed",
-
-                    timestamp:
-                        new Date().toISOString(),
-
-                    data: {
-
-                        paymentId:
-                            payment._id.toString(),
-
-                        orderId:
-                            orderId.toString(),
-
-                        userId:
-                            userId.toString(),
-
-                        amount:
-                            payment.amount
-
-                    }
-
-                };
+                /*
+                 * IMPORTANT
+                 *
+                 * We do NOT create a successful
+                 * payment here.
+                 *
+                 * Razorpay payment is now started
+                 * from the checkout flow.
+                 */
 
 
-                // =====================================
-                // PUBLISH EVENT
-                // =====================================
-
-                await publishEvent(
-
-                    PAYMENT_PROCESSED_ROUTING_KEY,
-
-                    paymentProcessedEvent
-
+                channel.ack(
+                    message
                 );
-
-
-                console.log(
-                    "PaymentProcessed event published"
-                );
-
-
-                // =====================================
-                // ACK MESSAGE
-                // =====================================
-
-                channel.ack(message);
 
 
             } catch (error) {
@@ -274,7 +129,7 @@ const startPaymentConsumer = async () => {
                 );
 
                 console.error(
-                    "PAYMENT PROCESSING ERROR"
+                    "PAYMENT EVENT ERROR"
                 );
 
                 console.error(
@@ -291,9 +146,7 @@ const startPaymentConsumer = async () => {
                     false,
                     false
                 );
-
             }
-
         }
     );
 };

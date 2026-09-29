@@ -6,13 +6,16 @@ const protect =
 const {
     createRazorpayOrder,
     verifyPayment
-} =
-    require("../controllers/paymentController");
+} = require("../controllers/paymentController");
 
 
 const router =
     express.Router();
 
+
+// ========================================
+// CREATE RAZORPAY ORDER
+// ========================================
 
 router.post(
     "/create-order",
@@ -21,6 +24,10 @@ router.post(
 );
 
 
+// ========================================
+// VERIFY RAZORPAY PAYMENT
+// ========================================
+
 router.post(
     "/verify",
     protect,
@@ -28,5 +35,4 @@ router.post(
 );
 
 
-module.exports =
-    router;
+module.exports = router;
