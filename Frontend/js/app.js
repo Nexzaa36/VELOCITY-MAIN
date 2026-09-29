@@ -1,10 +1,12 @@
-// =============================
-// RUNFOLD GLOBAL APP
-// =============================
+// ========================================
+// VELOCITY GLOBAL APP
+// MongoDB Cart Version
+// ========================================
 
-// =========================================
+
+// ========================================
 // AUTH HELPERS
-// =========================================
+// ========================================
 
 function getLoggedInUserId() {
 
@@ -13,11 +15,20 @@ function getLoggedInUserId() {
             ? getCurrentUser()
             : null;
 
+
     if (!user) {
+
         return null;
+
     }
 
-    return user.id || user._id || null;
+
+    return (
+        user.id ||
+        user._id ||
+        null
+    );
+
 }
 
 
@@ -30,9 +41,9 @@ function getAuthToken() {
 }
 
 
-// =========================================
+// ========================================
 // GET CART FROM MONGODB
-// =========================================
+// ========================================
 
 async function getCart() {
 
@@ -43,7 +54,42 @@ async function getCart() {
         getAuthToken();
 
 
-    if (!userId || !token) {
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "GET CART"
+    );
+
+    console.log(
+        "Frontend User ID:",
+        userId
+    );
+
+    console.log(
+        "Token exists:",
+        !!token
+    );
+
+    console.log(
+        "API URL:",
+        `${API_BASE_URL}/cart/${userId}`
+    );
+
+    console.log(
+        "================================="
+    );
+
+
+    if (
+        !userId ||
+        !token
+    ) {
+
+        console.warn(
+            "Cannot get cart: user or token missing"
+        );
 
         return [];
 
@@ -59,27 +105,42 @@ async function getCart() {
                     method: "GET",
 
                     headers: {
+
                         "Authorization":
                             `Bearer ${token}`,
 
                         "Content-Type":
                             "application/json"
+
                     }
                 }
             );
 
 
-        if (!response.ok) {
-
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-
-        }
+        console.log(
+            "Cart API Status:",
+            response.status
+        );
 
 
         const data =
             await response.json();
+
+
+        console.log(
+            "Cart API Response:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                `HTTP ${response.status}`
+            );
+
+        }
 
 
         if (
@@ -87,63 +148,131 @@ async function getCart() {
             !data.cart
         ) {
 
+            console.warn(
+                "Cart API returned no cart"
+            );
+
             return [];
 
         }
 
 
-        return data.cart.items.map(
+        const items =
+            Array.isArray(
+                data.cart.items
+            )
+                ? data.cart.items
+                : [];
+
+
+        console.log(
+            "MongoDB Cart Items:",
+            items
+        );
+
+
+        return items.map(
             item => {
 
                 const product =
                     item.productId;
 
 
+                /*
+                 * Mongoose populate may return
+                 * either a product object or an
+                 * ObjectId.
+                 */
+
+                const productId =
+                    product &&
+                    typeof product === "object"
+                        ? (
+                            product._id ||
+                            product.id
+                        )
+                        : product;
+
+
                 return {
 
                     id:
-                        product?.id || null,
+                        productId
+                            ? productId.toString()
+                            : null,
 
                     productId:
-                        product?._id ||
-                        item.productId,
+                        productId
+                            ? productId.toString()
+                            : null,
 
                     name:
-                        product?.name ||
-                        "Product",
+                        product &&
+                        typeof product === "object" &&
+                        product.name
+                            ? product.name
+                            : "Product",
 
                     price:
                         Number(item.price) ||
-                        Number(product?.price) ||
+                        (
+                            product &&
+                            typeof product === "object"
+                                ? Number(
+                                    product.price
+                                )
+                                : 0
+                        ) ||
                         0,
 
                     category:
-                        product?.category ||
-                        "",
+                        product &&
+                        typeof product === "object"
+                            ? (
+                                product.category ||
+                                ""
+                            )
+                            : "",
 
                     image:
-                        product?.image ||
-                        "",
+                        product &&
+                        typeof product === "object"
+                            ? (
+                                product.image ||
+                                ""
+                            )
+                            : "",
 
                     tags:
-                        Array.isArray(product?.tags)
+                        product &&
+                        typeof product === "object" &&
+                        Array.isArray(product.tags)
                             ? product.tags
                             : [],
 
                     sizes:
-                        Array.isArray(product?.sizes)
+                        product &&
+                        typeof product === "object" &&
+                        Array.isArray(product.sizes)
                             ? product.sizes
                             : [],
 
                     stock:
-                        Number(product?.stock) ||
-                        0,
+                        product &&
+                        typeof product === "object"
+                            ? Number(
+                                product.stock
+                            ) || 0
+                            : 0,
 
                     size:
-                        item.size || null,
+                        item.size ||
+                        null,
 
                     quantity:
-                        Number(item.quantity) || 1
+                        Number(
+                            item.quantity
+                        ) || 1
 
                 };
 
@@ -164,9 +293,9 @@ async function getCart() {
 }
 
 
-// =========================================
+// ========================================
 // ADD PRODUCT TO MONGODB CART
-// =========================================
+// ========================================
 
 async function addToCart(product) {
 
@@ -177,31 +306,37 @@ async function addToCart(product) {
         getAuthToken();
 
 
-    // =====================================
-    // USER MUST BE LOGGED IN
-    // =====================================
+    // ========================================
+    // LOGIN CHECK
+    // ========================================
 
-    if (!userId || !token) {
+    if (
+        !userId ||
+        !token
+    ) {
 
         alert(
             "Please login before adding products to your cart."
         );
 
+
         window.location.href =
             "login.html";
+
 
         return;
 
     }
 
 
-    // =====================================
-    // MONGODB PRODUCT ID
-    // =====================================
+    // ========================================
+    // GET MONGODB PRODUCT ID
+    // ========================================
 
     const productId =
         product.productId ||
-        product._id;
+        product._id ||
+        product.id;
 
 
     if (!productId) {
@@ -211,24 +346,35 @@ async function addToCart(product) {
             product
         );
 
+
         alert(
             "Product ID is missing."
         );
+
 
         return;
 
     }
 
 
+    // ========================================
+    // STOCK CHECK
+    // ========================================
+
     const stock =
-        Number(product.stock) || 0;
+        Number(
+            product.stock
+        ) || 0;
 
 
-    if (stock <= 0) {
+    if (
+        stock <= 0
+    ) {
 
         alert(
             "This product is currently out of stock."
         );
+
 
         return;
 
@@ -257,7 +403,6 @@ async function addToCart(product) {
                         JSON.stringify({
 
                             productId:
-
                                 productId,
 
                             quantity:
@@ -277,12 +422,19 @@ async function addToCart(product) {
             await response.json();
 
 
+        console.log(
+            "Add To Cart Response:",
+            data
+        );
+
+
         if (!response.ok) {
 
             alert(
                 data.message ||
                 "Failed to add product to cart."
             );
+
 
             return;
 
@@ -297,12 +449,14 @@ async function addToCart(product) {
 
         await updateCartCount();
 
+
     } catch (error) {
 
         console.error(
             "Add To Cart Error:",
             error
         );
+
 
         alert(
             "Unable to add product to cart."
@@ -313,9 +467,9 @@ async function addToCart(product) {
 }
 
 
-// =========================================
+// ========================================
 // UPDATE CART COUNT
-// =========================================
+// ========================================
 
 async function updateCartCount() {
 
@@ -338,11 +492,21 @@ async function updateCartCount() {
 
     const count =
         cart.reduce(
-            (total, item) =>
+            (
+                total,
+                item
+            ) => {
 
-                total +
-                (Number(item.quantity) || 0),
+                return (
+                    total +
+                    (
+                        Number(
+                            item.quantity
+                        ) || 0
+                    )
+                );
 
+            },
             0
         );
 
@@ -350,29 +514,40 @@ async function updateCartCount() {
     cartCount.textContent =
         count;
 
+
+    console.log(
+        "Cart count:",
+        count
+    );
+
 }
 
 
-// =========================================
+// ========================================
 // FORMAT CURRENCY
-// =========================================
+// ========================================
 
 function formatCurrency(value) {
 
     return new Intl.NumberFormat(
         "en-IN",
         {
-            style: "currency",
-            currency: "INR"
+            style:
+                "currency",
+
+            currency:
+                "INR"
         }
-    ).format(value);
+    ).format(
+        Number(value) || 0
+    );
 
 }
 
 
-// =========================================
+// ========================================
 // AUTHENTICATION NAVIGATION
-// =========================================
+// ========================================
 
 function updateAuthNavigation() {
 
@@ -399,7 +574,9 @@ function updateAuthNavigation() {
     }
 
 
-    if (isLoggedIn()) {
+    if (
+        isLoggedIn()
+    ) {
 
         authNav.innerHTML = `
 
@@ -433,9 +610,9 @@ function updateAuthNavigation() {
 }
 
 
-// =========================================
+// ========================================
 // DOM READY
-// =========================================
+// ========================================
 
 document.addEventListener(
     "DOMContentLoaded",
