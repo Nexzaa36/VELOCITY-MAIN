@@ -8,6 +8,12 @@ const {
     NOTIFICATION_ORDER_CANCELLED_ROUTING_KEY
 } = require("./eventConfig");
 
+const User = require("../models/User");
+
+const {
+    sendEmail
+} = require("../services/emailService");
+
 const startNotificationConsumer = async () => {
     const channel = getChannel();
 
@@ -61,6 +67,50 @@ const startNotificationConsumer = async () => {
                     userId
                 } = event.data;
 
+                const user = await User.findById(userId);
+
+                if (!user) {
+                    throw new Error(
+                        `User not found: ${userId}`
+                    );
+                }
+
+                let subject;
+                let messageText;
+
+                if (
+                    event.eventType ===
+                    "PaymentProcessed"
+                ) {
+                    subject = "VELOCITY - Payment Successful";
+                    messageText =
+                        "Your payment was successful and your order is confirmed.";
+                }
+
+                if (
+                    event.eventType ===
+                    "PaymentFailed"
+                ) {
+                    subject = "VELOCITY - Payment Failed";
+                    messageText =
+                        "Your payment failed. Please try another payment method.";
+                }
+
+                if (
+                    event.eventType ===
+                    "OrderCancelled"
+                ) {
+                    subject = "VELOCITY - Order Cancelled";
+                    messageText =
+                        "Your order has been cancelled.";
+                }
+
+                if (!subject || !messageText) {
+                    throw new Error(
+                        `Unsupported notification event: ${event.eventType}`
+                    );
+                }
+
                 console.log(
                     "================================="
                 );
@@ -84,44 +134,20 @@ const startNotificationConsumer = async () => {
                     userId
                 );
 
-                if (
-                    event.eventType ===
-                    "PaymentProcessed"
-                ) {
-                    console.log(
-                        "Notification: Payment successful"
-                    );
+                console.log(
+                    "Sending email to:",
+                    user.email
+                );
 
-                    console.log(
-                        "Message: Your payment was successful and your order is confirmed."
-                    );
-                }
+                await sendEmail(
+                    user.email,
+                    subject,
+                    messageText
+                );
 
-                if (
-                    event.eventType ===
-                    "PaymentFailed"
-                ) {
-                    console.log(
-                        "Notification: Payment failed"
-                    );
-
-                    console.log(
-                        "Message: Your payment failed. Please try another payment method."
-                    );
-                }
-
-                if (
-                    event.eventType ===
-                    "OrderCancelled"
-                ) {
-                    console.log(
-                        "Notification: Order cancelled"
-                    );
-
-                    console.log(
-                        "Message: Your order has been cancelled."
-                    );
-                }
+                console.log(
+                    "Notification email sent"
+                );
 
                 console.log(
                     "================================="
