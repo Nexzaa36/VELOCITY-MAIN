@@ -142,7 +142,9 @@ const startNotificationConsumer = async () => {
                 await sendEmail(
                     user.email,
                     subject,
-                    messageText
+                    messageText,
+                    orderId,
+                    event.data.amount
                 );
 
                 console.log(
