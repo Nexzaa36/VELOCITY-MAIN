@@ -7,6 +7,8 @@ const productRoutes = require("./src/routes/productRoutes");
 const cartRoutes = require("./src/routes/cartRoutes");
 const orderRoutes = require("./src/routes/orderRoutes");
 const rateLimit = require("express-rate-limit");    
+const paymentRoutes =
+    require("./src/routes/paymentRoutes");
 
 const {
     connectRabbitMQ
@@ -26,7 +28,13 @@ const {
 
 const connectDB = require("./src/config/db");
 
+const {
+    startPaymentConsumer
+} = require("./src/messaging/paymentConsumer");
 
+const {
+    startPaymentProcessedConsumer
+} = require("./src/messaging/paymentProcessedConsumer");
 
 const app = express();
 
@@ -57,6 +65,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/orders", orderRoutes);
 
 // ========================================
 // HEALTH CHECK
@@ -85,6 +94,10 @@ const startServer = async () => {
     await startInventoryConsumer();
 
     await startInventoryReservedConsumer();
+
+    await startPaymentConsumer();
+
+    await startPaymentProcessedConsumer();
     
     app.listen(PORT, () => {
 

@@ -40,6 +40,26 @@ const INVENTORY_RESERVED_QUEUE =
 const INVENTORY_RESERVED_ORDER_ROUTING_KEY =
     "inventory.reserved";
 
+// =========================================
+// PAYMENT
+// =========================================
+
+const PAYMENT_INVENTORY_RESERVED_QUEUE =
+    "velocity.payment.inventory.reserved";
+
+const PAYMENT_INVENTORY_RESERVED_ROUTING_KEY =
+    "inventory.reserved";
+
+
+// =========================================
+// PAYMENT PROCESSED
+// =========================================
+
+const PAYMENT_PROCESSED_ROUTING_KEY =
+    "payment.processed";
+
+const PAYMENT_PROCESSED_QUEUE =
+    "velocity.order.payment.processed";
 
 module.exports = {
 
@@ -54,6 +74,12 @@ module.exports = {
     INVENTORY_RESERVED_ROUTING_KEY,
 
     INVENTORY_RESERVED_QUEUE,
-    INVENTORY_RESERVED_ORDER_ROUTING_KEY
+    INVENTORY_RESERVED_ORDER_ROUTING_KEY,
+
+    PAYMENT_INVENTORY_RESERVED_QUEUE,
+    PAYMENT_INVENTORY_RESERVED_ROUTING_KEY,
+
+    PAYMENT_PROCESSED_QUEUE,
+    PAYMENT_PROCESSED_ROUTING_KEY
 
 };

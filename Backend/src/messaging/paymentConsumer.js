@@ -3,17 +3,14 @@ const { getChannel } = require("./rabbitmq");
 const {
     EXCHANGE_NAME,
 
-    INVENTORY_ORDER_CREATED_QUEUE,
-    INVENTORY_ORDER_CREATED_ROUTING_KEY,
+    PAYMENT_INVENTORY_RESERVED_QUEUE,
+    PAYMENT_INVENTORY_RESERVED_ROUTING_KEY,
 
-    INVENTORY_RESERVED_ROUTING_KEY
+    PAYMENT_PROCESSED_ROUTING_KEY
 } = require("./eventConfig");
 
-const InventoryReservation =
-    require("../models/InventoryReservation");
-
-const Product =
-    require("../models/Product");
+const Payment =
+    require("../models/Payment");
 
 const crypto =
     require("crypto");
@@ -24,10 +21,10 @@ const {
 
 
 // =========================================
-// START INVENTORY CONSUMER
+// START PAYMENT CONSUMER
 // =========================================
 
-const startInventoryConsumer = async () => {
+const startPaymentConsumer = async () => {
 
     const channel = getChannel();
 
@@ -50,7 +47,7 @@ const startInventoryConsumer = async () => {
     // =========================================
 
     await channel.assertQueue(
-        INVENTORY_ORDER_CREATED_QUEUE,
+        PAYMENT_INVENTORY_RESERVED_QUEUE,
         {
             durable: true
         }
@@ -62,23 +59,23 @@ const startInventoryConsumer = async () => {
     // =========================================
 
     await channel.bindQueue(
-        INVENTORY_ORDER_CREATED_QUEUE,
+        PAYMENT_INVENTORY_RESERVED_QUEUE,
         EXCHANGE_NAME,
-        INVENTORY_ORDER_CREATED_ROUTING_KEY
+        PAYMENT_INVENTORY_RESERVED_ROUTING_KEY
     );
 
 
     console.log(
-        "Inventory consumer started"
+        "Payment consumer started"
     );
 
 
     // =========================================
-    // CONSUME ORDER CREATED
+    // CONSUME INVENTORY RESERVED
     // =========================================
 
     channel.consume(
-        INVENTORY_ORDER_CREATED_QUEUE,
+        PAYMENT_INVENTORY_RESERVED_QUEUE,
 
         async (message) => {
 
@@ -100,12 +97,17 @@ const startInventoryConsumer = async () => {
                 );
 
                 console.log(
-                    "Inventory received OrderCreated"
+                    "Payment received InventoryReserved"
                 );
 
                 console.log(
                     "Order ID:",
                     event.data.orderId
+                );
+
+                console.log(
+                    "Amount:",
+                    event.data.amount
                 );
 
                 console.log(
@@ -116,27 +118,42 @@ const startInventoryConsumer = async () => {
                 const {
                     orderId,
                     userId,
-                    items
+                    amount
                 } = event.data;
 
 
                 // =====================================
-                // CHECK IF ALREADY RESERVED
+                // VALIDATE PAYMENT AMOUNT
                 // =====================================
 
-                const existingReservation =
-                    await InventoryReservation.findOne({
+                if (
+                    typeof amount !== "number" ||
+                    amount < 0
+                ) {
+
+                    throw new Error(
+                        "Invalid payment amount"
+                    );
+
+                }
+
+
+                // =====================================
+                // CHECK EXISTING PAYMENT
+                // =====================================
+
+                const existingPayment =
+                    await Payment.findOne({
                         orderId
                     });
 
 
-                if (existingReservation) {
+                if (existingPayment) {
 
                     console.log(
-                        "Inventory already processed for order:",
+                        "Payment already processed:",
                         orderId
                     );
-
 
                     channel.ack(message);
 
@@ -145,77 +162,20 @@ const startInventoryConsumer = async () => {
 
 
                 // =====================================
-                // CHECK ALL PRODUCTS
+                // CREATE PAYMENT
                 // =====================================
 
-                for (
-                    const item of items
-                ) {
-
-                    const product =
-                        await Product.findById(
-                            item.productId
-                        );
-
-
-                    if (!product) {
-
-                        throw new Error(
-                            `Product not found: ${item.productId}`
-                        );
-
-                    }
-
-
-                    console.log(
-                        "Checking stock:",
-                        product.name,
-                        "| Requested:",
-                        item.quantity,
-                        "| Available:",
-                        product.stock
-                    );
-
-
-                    if (
-                        item.quantity >
-                        product.stock
-                    ) {
-
-                        throw new Error(
-                            `Insufficient stock for ${product.name}`
-                        );
-
-                    }
-
-                }
-
-
-                // =====================================
-                // CREATE RESERVATION
-                // =====================================
-
-                const reservation =
-                    await InventoryReservation.create({
+                const payment =
+                    await Payment.create({
 
                         orderId,
 
                         userId,
 
-                        items: items.map(
-                            (item) => ({
-
-                                productId:
-                                    item.productId,
-
-                                quantity:
-                                    item.quantity
-
-                            })
-                        ),
+                        amount,
 
                         status:
-                            "RESERVED"
+                            "SUCCESS"
 
                     });
 
@@ -225,12 +185,12 @@ const startInventoryConsumer = async () => {
                 );
 
                 console.log(
-                    "Inventory reserved successfully"
+                    "Payment processed successfully"
                 );
 
                 console.log(
-                    "Reservation ID:",
-                    reservation._id
+                    "Payment ID:",
+                    payment._id
                 );
 
                 console.log(
@@ -239,52 +199,43 @@ const startInventoryConsumer = async () => {
                 );
 
                 console.log(
+                    "Amount:",
+                    payment.amount
+                );
+
+                console.log(
                     "================================="
                 );
 
 
                 // =====================================
-                // CREATE INVENTORY RESERVED EVENT
+                // CREATE PAYMENT PROCESSED EVENT
                 // =====================================
 
-                const inventoryReservedEvent = {
+                const paymentProcessedEvent = {
 
                     eventId:
                         crypto.randomUUID(),
 
                     eventType:
-                        "InventoryReserved",
+                        "PaymentProcessed",
 
                     timestamp:
                         new Date().toISOString(),
 
                     data: {
 
-                        reservationId:
-                            reservation._id.toString(),
+                        paymentId:
+                            payment._id.toString(),
 
                         orderId:
                             orderId.toString(),
 
                         userId:
                             userId.toString(),
-                            
+
                         amount:
-                            event.data.totalAmount,
-
-                        items:
-                            reservation.items.map(
-                                (item) => ({
-
-                                    productId:
-                                        item.productId.toString(),
-
-                                    quantity:
-                                        item.quantity
-
-                                })
-                            )
-
+                            payment.amount
 
                     }
 
@@ -292,20 +243,20 @@ const startInventoryConsumer = async () => {
 
 
                 // =====================================
-                // PUBLISH INVENTORY RESERVED
+                // PUBLISH EVENT
                 // =====================================
 
                 await publishEvent(
 
-                    INVENTORY_RESERVED_ROUTING_KEY,
+                    PAYMENT_PROCESSED_ROUTING_KEY,
 
-                    inventoryReservedEvent
+                    paymentProcessedEvent
 
                 );
 
 
                 console.log(
-                    "InventoryReserved event published"
+                    "PaymentProcessed event published"
                 );
 
 
@@ -323,7 +274,7 @@ const startInventoryConsumer = async () => {
                 );
 
                 console.error(
-                    "INVENTORY RESERVATION ERROR"
+                    "PAYMENT PROCESSING ERROR"
                 );
 
                 console.error(
@@ -334,15 +285,6 @@ const startInventoryConsumer = async () => {
                     "================================="
                 );
 
-
-                /*
-                 * For now we acknowledge the message
-                 * so an invalid order does not loop
-                 * forever.
-                 *
-                 * Retry/DLQ handling will be added
-                 * later in the event-driven phase.
-                 */
 
                 channel.nack(
                     message,
@@ -358,5 +300,5 @@ const startInventoryConsumer = async () => {
 
 
 module.exports = {
-    startInventoryConsumer
+    startPaymentConsumer
 };

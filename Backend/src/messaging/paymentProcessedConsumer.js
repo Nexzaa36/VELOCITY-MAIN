@@ -2,18 +2,20 @@ const { getChannel } = require("./rabbitmq");
 
 const {
     EXCHANGE_NAME,
-    INVENTORY_RESERVED_QUEUE,
-    INVENTORY_RESERVED_ORDER_ROUTING_KEY
+
+    PAYMENT_PROCESSED_QUEUE,
+    PAYMENT_PROCESSED_ROUTING_KEY
 } = require("./eventConfig");
 
-const Order = require("../models/Order");
+const Order =
+    require("../models/Order");
 
 
 // =========================================
-// START INVENTORY RESERVED CONSUMER
+// START PAYMENT PROCESSED CONSUMER
 // =========================================
 
-const startInventoryReservedConsumer = async () => {
+const startPaymentProcessedConsumer = async () => {
 
     const channel = getChannel();
 
@@ -36,7 +38,7 @@ const startInventoryReservedConsumer = async () => {
     // =========================================
 
     await channel.assertQueue(
-        INVENTORY_RESERVED_QUEUE,
+        PAYMENT_PROCESSED_QUEUE,
         {
             durable: true
         }
@@ -48,23 +50,23 @@ const startInventoryReservedConsumer = async () => {
     // =========================================
 
     await channel.bindQueue(
-        INVENTORY_RESERVED_QUEUE,
+        PAYMENT_PROCESSED_QUEUE,
         EXCHANGE_NAME,
-        INVENTORY_RESERVED_ORDER_ROUTING_KEY
+        PAYMENT_PROCESSED_ROUTING_KEY
     );
 
 
     console.log(
-        "InventoryReserved consumer started"
+        "PaymentProcessed consumer started"
     );
 
 
     // =========================================
-    // CONSUME INVENTORY RESERVED
+    // CONSUME PAYMENT PROCESSED
     // =========================================
 
     channel.consume(
-        INVENTORY_RESERVED_QUEUE,
+        PAYMENT_PROCESSED_QUEUE,
 
         async (message) => {
 
@@ -86,7 +88,7 @@ const startInventoryReservedConsumer = async () => {
                 );
 
                 console.log(
-                    "Order received InventoryReserved"
+                    "Order received PaymentProcessed"
                 );
 
                 console.log(
@@ -95,8 +97,13 @@ const startInventoryReservedConsumer = async () => {
                 );
 
                 console.log(
-                    "Reservation ID:",
-                    event.data.reservationId
+                    "Payment ID:",
+                    event.data.paymentId
+                );
+
+                console.log(
+                    "Amount:",
+                    event.data.amount
                 );
 
                 console.log(
@@ -114,7 +121,9 @@ const startInventoryReservedConsumer = async () => {
                 // =====================================
 
                 const order =
-                    await Order.findById(orderId);
+                    await Order.findById(
+                        orderId
+                    );
 
 
                 if (!order) {
@@ -146,16 +155,39 @@ const startInventoryReservedConsumer = async () => {
 
 
                 // =====================================
-                // INVENTORY RESERVED
+                // UPDATE ORDER
                 // =====================================
 
+                order.status =
+                    "CONFIRMED";
+
+                await order.save();
+
+
                 console.log(
-                    "Inventory reservation confirmed for order:",
+                    "================================="
+                );
+
+                console.log(
+                    "PAYMENT SUCCESS"
+                );
+
+                console.log(
+                    "Order confirmed"
+                );
+
+                console.log(
+                    "Order ID:",
                     orderId
                 );
 
                 console.log(
-                    "Waiting for PaymentProcessed event..."
+                    "Status:",
+                    order.status
+                );
+
+                console.log(
+                    "================================="
                 );
 
 
@@ -173,7 +205,7 @@ const startInventoryReservedConsumer = async () => {
                 );
 
                 console.error(
-                    "INVENTORY RESERVED PROCESSING ERROR"
+                    "PAYMENT PROCESSED ERROR"
                 );
 
                 console.error(
@@ -199,5 +231,5 @@ const startInventoryReservedConsumer = async () => {
 
 
 module.exports = {
-    startInventoryReservedConsumer
+    startPaymentProcessedConsumer
 };
