@@ -11,9 +11,14 @@ const rateLimit = require("express-rate-limit");
 const {
     connectRabbitMQ
 } = require("./src/messaging/rabbitmq");
+
 const {
     startOrderCreatedConsumer
 } = require("./src/messaging/orderCreatedConsumer");
+
+const {
+    startInventoryConsumer
+} = require("./src/messaging/inventoryConsumer");
 
 const connectDB = require("./src/config/db");
 
@@ -66,13 +71,18 @@ app.get("/api/health", (req, res) => {
 // ========================================
 
 const startServer = async () => {
+
     await connectDB();
 
     await connectRabbitMQ();
 
     await startOrderCreatedConsumer();
 
+    await startInventoryConsumer();
+
+
     app.listen(PORT, () => {
+
         console.log(`
 ========================================
        VELOCITY BACKEND SERVER
@@ -84,7 +94,9 @@ Health check:
 http://localhost:${PORT}/api/health
 ========================================
         `);
+
     });
+
 };
 
-startServer();
+startServer(); 

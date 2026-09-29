@@ -1,6 +1,11 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const crypto = require("crypto");
+
+const {
+    publishEvent
+} = require("../messaging/eventPublisher");
 
 
 // =========================================
@@ -230,6 +235,77 @@ const createOrder = async (req, res) => {
             });
 
 
+        console.log(
+            "Order created:",
+            order._id
+        );
+
+
+        // =========================================
+        // CREATE ORDER CREATED EVENT
+        // =========================================
+
+        const orderCreatedEvent = {
+
+            eventId:
+                crypto.randomUUID(),
+
+            eventType:
+                "OrderCreated",
+
+            timestamp:
+                new Date().toISOString(),
+
+            data: {
+
+                orderId:
+                    order._id.toString(),
+
+                userId:
+                    userId.toString(),
+
+                items:
+                    order.items.map((item) => ({
+
+                        productId:
+                            item.productId.toString(),
+
+                        quantity:
+                            item.quantity,
+
+                        price:
+                            item.price
+
+                    })),
+
+                totalAmount:
+                    order.totalAmount
+
+            }
+
+        };
+
+
+        console.log(
+            "Publishing OrderCreated event..."
+        );
+
+
+        // =========================================
+        // PUBLISH EVENT TO RABBITMQ
+        // =========================================
+
+        await publishEvent(
+            "order.created",
+            orderCreatedEvent
+        );
+
+
+        console.log(
+            "OrderCreated event published successfully"
+        );
+
+
         // =========================================
         // CLEAR MONGODB CART
         // =========================================
@@ -238,11 +314,6 @@ const createOrder = async (req, res) => {
 
         await cart.save();
 
-
-        console.log(
-            "Order created:",
-            order._id
-        );
 
         console.log(
             "MongoDB cart cleared"
@@ -447,6 +518,10 @@ const getOrderById = async (req, res) => {
 
 };
 
+
+// =========================================
+// EXPORTS
+// =========================================
 
 module.exports = {
 
