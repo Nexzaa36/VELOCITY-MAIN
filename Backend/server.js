@@ -11,8 +11,12 @@ const rateLimit = require("express-rate-limit");
 const {
     connectRabbitMQ
 } = require("./src/messaging/rabbitmq");
+const {
+    startOrderCreatedConsumer
+} = require("./src/messaging/orderCreatedConsumer");
 
 const connectDB = require("./src/config/db");
+
 
 
 const app = express();
@@ -62,10 +66,11 @@ app.get("/api/health", (req, res) => {
 // ========================================
 
 const startServer = async () => {
-
     await connectDB();
 
     await connectRabbitMQ();
+
+    await startOrderCreatedConsumer();
 
     app.listen(PORT, () => {
         console.log(`
