@@ -1,1 +1,1959 @@
-const API_URL = "http://localhost:5000"; const token = localStorage.getItem("token"); const state = { orders: [], filtered: [] }; const el = id => document.getElementById(id); function headers() { return { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } } function escapeHtml(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;") } function formatMoney(v) { return `₹ ${Number(v || 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` } function formatDate(date) { if (!date) return { day: "—", time: "" }; const d = new Date(date); return { day: d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }), time: d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) } } function prettyStatus(v) { return String(v || "UNKNOWN").replaceAll("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) } function statusClass(v) { return String(v || "").toLowerCase().replaceAll("_", "-") } function paymentLabel(o) { if (o.status === "FAILED" || o.status === "CANCELLED") return "Failed"; if (o.status === "PENDING") return "Pending"; return "Paid" } function renderMetrics() { const o = state.orders, total = o.length, pending = o.filter(x => x.status === "PENDING").length, delivered = o.filter(x => x.trackingStatus === "DELIVERED").length, revenue = o.filter(x => x.status !== "FAILED" && x.status !== "CANCELLED").reduce((s, x) => s + Number(x.totalAmount || 0), 0); el("metric-total").textContent = total; el("metric-pending").textContent = pending; el("metric-delivered").textContent = delivered; el("metric-revenue").textContent = formatMoney(revenue); el("metric-total-trend").textContent = "Live"; el("metric-pending-trend").textContent = "Live"; el("metric-revenue-trend").textContent = "Live"; el("metric-delivered-trend").textContent = "Live"; el("nav-order-count").textContent = total } function renderTable() { const body = el("orders-body"), empty = el("empty"); body.innerHTML = ""; if (!state.filtered.length) { empty.classList.remove("hidden"); return } empty.classList.add("hidden"); state.filtered.forEach(order => { const c = order.userId || {}, d = formatDate(order.createdAt), payment = paymentLabel(order), row = document.createElement("tr"); row.innerHTML = `<td><div class="order-id">${escapeHtml(order._id)}</div></td><td><div class="customer-name">${escapeHtml(c.name || "Customer")}</div><div class="customer-email">${escapeHtml(c.email || "No email")}</div></td><td><div class="date-main">${d.day}</div><div class="date-time">${d.time}</div></td><td><span class="amount">${formatMoney(order.totalAmount)}</span></td><td><span class="badge payment-${payment.toLowerCase()}">${escapeHtml(payment)}</span></td><td><span class="badge tracking tracking-${statusClass(order.trackingStatus)}">${escapeHtml(prettyStatus(order.trackingStatus))}</span></td><td><span class="badge status-${statusClass(order.status)}">${escapeHtml(prettyStatus(order.status))}</span></td><td><button class="view-button" data-id="${escapeHtml(order._id)}">View</button></td>`; body.appendChild(row) }) } function applyFilters() { const q = el("search-input").value.trim().toLowerCase(), status = el("status-filter").value; state.filtered = state.orders.filter(o => { const c = o.userId || {}, s = [o._id, c.name, c.email].join(" ").toLowerCase(); return (!q || s.includes(q)) && (status === "ALL" || o.status === status) }); renderTable() } async function loadOrders() { el("loading").classList.remove("hidden"); el("error").classList.add("hidden"); try { const r = await fetch(`${API_URL}/api/orders/admin/all`, { headers: headers() }), d = await r.json(); if (!r.ok) throw new Error(d.message || "Failed to load orders."); state.orders = Array.isArray(d.orders) ? d.orders : []; state.filtered = [...state.orders]; renderMetrics(); applyFilters() } catch (e) { console.error(e); el("error").textContent = e.message; el("error").classList.remove("hidden") } finally { el("loading").classList.add("hidden") } } function trackingOptions(current) { return ["PLACED", "PAID", "RESERVED", "CONFIRMED", "PREPARING", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"].map(s => `<option value="${s}" ${s === current ? "selected" : ""}>${escapeHtml(prettyStatus(s))}</option>`).join("") } async function openOrder(id) { const modal = el("modal"), body = el("modal-body"); modal.classList.remove("hidden"); body.innerHTML = `<div class="state-message">Loading order...</div>`; try { const r = await fetch(`${API_URL}/api/orders/admin/${encodeURIComponent(id)}`, { headers: headers() }), d = await r.json(); if (!r.ok) throw new Error(d.message || "Failed to load order."); const o = d.order, c = o.userId || {}, items = o.items || []; const products = items.map(i => { const p = i.productId || {}, line = Number(i.price || 0) * Number(i.quantity || 0); return `<div class="product-row"><div><div class="product-name">${escapeHtml(p.name || "Product")}</div><div class="product-meta">Qty ${i.quantity} × ${formatMoney(i.price)}</div></div><strong>${formatMoney(line)}</strong></div>` }).join(""); body.innerHTML = `<div class="modal-kicker">ORDER MANAGEMENT</div><h2 class="modal-title">Order details</h2><div class="modal-order-id">${escapeHtml(o._id)}</div><div class="detail-grid"><div class="detail-block"><div class="detail-label">Customer</div><div class="detail-value">${escapeHtml(c.name || "Unknown")}</div></div><div class="detail-block"><div class="detail-label">Email</div><div class="detail-value">${escapeHtml(c.email || "Not available")}</div></div><div class="detail-block"><div class="detail-label">Order status</div><div class="detail-value">${escapeHtml(prettyStatus(o.status))}</div></div><div class="detail-block"><div class="detail-label">Total amount</div><div class="detail-value">${formatMoney(o.totalAmount)}</div></div></div><div class="product-list">${products || `<div class="state-message">No products in this order.</div>`}</div><div class="tracking-edit"><label for="tracking-select">TRACKING STATUS</label><div class="tracking-edit-row"><select id="tracking-select">${trackingOptions(o.trackingStatus)}</select><button id="update-tracking" class="update-button">Update</button></div></div>`; el("update-tracking").addEventListener("click", async () => { const b = el("update-tracking"), trackingStatus = el("tracking-select").value; b.disabled = true; b.textContent = "Updating..."; try { const r = await fetch(`${API_URL}/api/orders/admin/${encodeURIComponent(id)}/tracking`, { method: "PATCH", headers: headers(), body: JSON.stringify({ trackingStatus }) }), d = await r.json(); if (!r.ok) throw new Error(d.message || "Failed to update tracking."); closeModal(); await loadOrders() } catch (e) { alert(e.message) } finally { b.disabled = false; b.textContent = "Update" } }) } catch (e) { body.innerHTML = `<div class="state-message error-state">${escapeHtml(e.message)}</div>` } } function closeModal() { el("modal").classList.add("hidden") } el("orders-body").addEventListener("click", e => { const b = e.target.closest(".view-button"); if (b) openOrder(b.dataset.id) }); el("search-input").addEventListener("input", applyFilters); el("status-filter").addEventListener("change", applyFilters); el("refresh-btn").addEventListener("click", loadOrders); el("view-all-btn").addEventListener("click", () => { el("status-filter").value = "ALL"; el("search-input").value = ""; applyFilters(); el("recent-orders").scrollIntoView({ behavior: "smooth", block: "start" }) }); el("close-modal").addEventListener("click", closeModal); document.querySelector(".modal-backdrop").addEventListener("click", closeModal); document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal() }); el("logout-btn").addEventListener("click", () => { localStorage.removeItem("token"); localStorage.removeItem("velocity-current-order"); window.location.href = "../login.html" }); if (!token) { el("loading").classList.add("hidden"); el("error").textContent = "Please log in before opening the admin page."; el("error").classList.remove("hidden") } else loadOrders();
+/* =========================================================
+   VELOCITY — ADMIN ORDERS
+   ========================================================= */
+
+const API_URL = "http://localhost:5000";
+
+
+const token =
+    localStorage.getItem("token");
+
+const role =
+    localStorage.getItem("role");
+
+
+const state = {
+
+    orders: [],
+
+    filtered: []
+
+};
+
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+const el = (id) =>
+    document.getElementById(id);
+
+
+
+/* =========================================================
+   ADMIN ACCESS
+   ========================================================= */
+
+(function checkAdminAccess() {
+
+    if (!token || role !== "admin") {
+
+        window.location.replace(
+            "./admin-login.html"
+        );
+
+        return;
+
+    }
+
+
+    document.body.classList.add(
+        "orders-page"
+    );
+
+})();
+
+
+
+/* =========================================================
+   ADMIN PAGE UI
+   ========================================================= */
+
+function setupAdminPageUI() {
+
+    const sidebarItems =
+        document.querySelectorAll(
+            ".sidebar .side-item"
+        );
+
+
+    sidebarItems.forEach(item => {
+
+        item.classList.remove(
+            "active"
+        );
+
+    });
+
+
+    sidebarItems.forEach(item => {
+
+        const text =
+            item.textContent
+                .trim()
+                .toLowerCase();
+
+
+        if (text === "orders") {
+
+            item.classList.add(
+                "active"
+            );
+
+            item.setAttribute(
+                "href",
+                "./admin-orders.html"
+            );
+
+        }
+
+
+        if (text === "dashboard") {
+
+            item.classList.remove(
+                "active"
+            );
+
+            item.setAttribute(
+                "href",
+                "./admin-dashboard.html"
+            );
+
+        }
+
+    });
+
+
+    const eyebrow =
+        document.querySelector(
+            ".intro .eyebrow"
+        );
+
+
+    const heading =
+        document.querySelector(
+            ".intro h1"
+        );
+
+
+    const introText =
+        document.querySelector(
+            ".intro p"
+        );
+
+
+    if (eyebrow) {
+
+        eyebrow.textContent =
+            "ORDER MANAGEMENT";
+
+    }
+
+
+    if (heading) {
+
+        heading.innerHTML = `
+            Manage your<br>
+            <span>Orders.</span>
+        `;
+
+    }
+
+
+    if (introText) {
+
+        introText.textContent =
+            "View customer orders, track delivery progress, and manage order status.";
+
+    }
+
+}
+
+
+setupAdminPageUI();
+
+
+
+/* =========================================================
+   AUTH HEADERS
+   ========================================================= */
+
+function headers() {
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${token}`
+
+    };
+
+}
+
+
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+
+function loadProfile() {
+
+    try {
+
+        const storedUser =
+            localStorage.getItem(
+                "user"
+            );
+
+
+        if (!storedUser) {
+
+            return;
+
+        }
+
+
+        const user =
+            JSON.parse(
+                storedUser
+            );
+
+
+        const nameElement =
+            el("profile-name");
+
+
+        const emailElement =
+            el("profile-email");
+
+
+        if (
+            nameElement &&
+            user.name
+        ) {
+
+            nameElement.textContent =
+                user.name;
+
+        }
+
+
+        if (
+            emailElement &&
+            user.email
+        ) {
+
+            emailElement.textContent =
+                user.email;
+
+        }
+
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to load admin profile.",
+            error
+        );
+
+    }
+
+}
+
+
+loadProfile();
+
+
+
+/* =========================================================
+   PROFILE MENU
+   =========================================================
+   
+   IMPORTANT:
+
+   The profile icon DOES NOT logout.
+
+   Clicking the profile icon only opens/closes
+   the administrator menu.
+
+   Logout is handled only by #logout-btn.
+   ========================================================= */
+
+function setupProfileMenu() {
+
+    const profileButton =
+        el("profile-button");
+
+
+    const profileMenu =
+        el("profile-menu");
+
+
+    if (
+        !profileButton ||
+        !profileMenu
+    ) {
+
+        console.warn(
+            "Profile button or profile menu not found."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Start closed.
+     */
+
+    profileMenu.classList.remove(
+        "show"
+    );
+
+
+    profileButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+
+    /*
+     * Open / close profile menu.
+     */
+
+    profileButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            const isOpen =
+                profileMenu.classList.contains(
+                    "show"
+                );
+
+
+            if (isOpen) {
+
+                profileMenu.classList.remove(
+                    "show"
+                );
+
+                profileButton.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+            } else {
+
+                profileMenu.classList.add(
+                    "show"
+                );
+
+                profileButton.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Clicking inside the menu should not
+     * immediately close it.
+     */
+
+    profileMenu.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+        }
+    );
+
+
+    /*
+     * Clicking anywhere outside closes menu.
+     */
+
+    document.addEventListener(
+        "click",
+        function () {
+
+            profileMenu.classList.remove(
+                "show"
+            );
+
+            profileButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+        }
+    );
+
+
+    /*
+     * LOGOUT BUTTON
+     *
+     * This is the ONLY button that logs out.
+     */
+
+    const logoutButton =
+        el("logout-btn");
+
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                logoutAdmin();
+
+            }
+        );
+
+    }
+
+}
+
+
+setupProfileMenu();
+
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logoutAdmin() {
+
+    localStorage.removeItem(
+        "token"
+    );
+
+
+    localStorage.removeItem(
+        "user"
+    );
+
+
+    localStorage.removeItem(
+        "role"
+    );
+
+
+    localStorage.removeItem(
+        "velocity-current-order"
+    );
+
+
+    window.location.replace(
+        "./admin-login.html"
+    );
+
+}
+
+
+
+/* =========================================================
+   GENERAL HELPERS
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+
+function formatMoney(value) {
+
+    return `₹ ${Number(
+        value || 0
+    ).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+}
+
+
+
+function formatDate(date) {
+
+    if (!date) {
+
+        return {
+
+            day: "—",
+
+            time: ""
+
+        };
+
+    }
+
+
+    const d =
+        new Date(date);
+
+
+    return {
+
+        day:
+            d.toLocaleDateString(
+                "en-IN",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            ),
+
+
+        time:
+            d.toLocaleTimeString(
+                "en-IN",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            )
+
+    };
+
+}
+
+
+
+function prettyStatus(value) {
+
+    return String(
+        value || "UNKNOWN"
+    )
+
+        .replaceAll(
+            "_",
+            " "
+        )
+
+        .toLowerCase()
+
+        .replace(
+            /\b\w/g,
+            char =>
+                char.toUpperCase()
+        );
+
+}
+
+
+
+function statusClass(value) {
+
+    return String(
+        value || ""
+    )
+
+        .toLowerCase()
+
+        .replaceAll(
+            "_",
+            "-"
+        );
+
+}
+
+
+
+function paymentLabel(order) {
+
+    if (
+        order.status === "FAILED" ||
+        order.status === "CANCELLED"
+    ) {
+
+        return "Failed";
+
+    }
+
+
+    if (
+        order.status === "PENDING"
+    ) {
+
+        return "Pending";
+
+    }
+
+
+    return "Paid";
+
+}
+
+
+
+/* =========================================================
+   METRICS
+   ========================================================= */
+
+function renderMetrics() {
+
+    const orders =
+        state.orders;
+
+
+    const total =
+        orders.length;
+
+
+    const pending =
+        orders.filter(
+            order =>
+                order.status ===
+                "PENDING"
+        ).length;
+
+
+    const delivered =
+        orders.filter(
+            order =>
+                order.trackingStatus ===
+                "DELIVERED"
+        ).length;
+
+
+    const revenue =
+        orders
+
+            .filter(
+                order =>
+                    order.status !==
+                        "FAILED" &&
+                    order.status !==
+                        "CANCELLED"
+            )
+
+            .reduce(
+                (
+                    sum,
+                    order
+                ) =>
+                    sum +
+                    Number(
+                        order.totalAmount ||
+                        0
+                    ),
+                0
+            );
+
+
+    const totalElement =
+        el("metric-total");
+
+
+    const pendingElement =
+        el("metric-pending");
+
+
+    const deliveredElement =
+        el("metric-delivered");
+
+
+    const revenueElement =
+        el("metric-revenue");
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total;
+
+    }
+
+
+    if (pendingElement) {
+
+        pendingElement.textContent =
+            pending;
+
+    }
+
+
+    if (deliveredElement) {
+
+        deliveredElement.textContent =
+            delivered;
+
+    }
+
+
+    if (revenueElement) {
+
+        revenueElement.textContent =
+            formatMoney(
+                revenue
+            );
+
+    }
+
+
+    [
+        "metric-total-trend",
+        "metric-pending-trend",
+        "metric-revenue-trend",
+        "metric-delivered-trend"
+    ].forEach(id => {
+
+        const element =
+            el(id);
+
+
+        if (element) {
+
+            element.textContent =
+                "Live";
+
+        }
+
+    });
+
+
+    const navCount =
+        el("nav-order-count");
+
+
+    if (navCount) {
+
+        navCount.textContent =
+            total;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+function renderTable() {
+
+    const body =
+        el("orders-body");
+
+
+    const empty =
+        el("empty");
+
+
+    if (!body) {
+
+        return;
+
+    }
+
+
+    body.innerHTML = "";
+
+
+    if (
+        !state.filtered.length
+    ) {
+
+        if (empty) {
+
+            empty.classList.remove(
+                "hidden"
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    if (empty) {
+
+        empty.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    state.filtered.forEach(
+        order => {
+
+            const customer =
+                order.userId || {};
+
+
+            const date =
+                formatDate(
+                    order.createdAt
+                );
+
+
+            const payment =
+                paymentLabel(
+                    order
+                );
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+
+                    <div class="order-id">
+
+                        ${escapeHtml(
+                            order._id
+                        )}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="customer-name">
+
+                        ${escapeHtml(
+                            customer.name ||
+                            "Customer"
+                        )}
+
+                    </div>
+
+
+                    <div class="customer-email">
+
+                        ${escapeHtml(
+                            customer.email ||
+                            "No email"
+                        )}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="date-main">
+
+                        ${date.day}
+
+                    </div>
+
+
+                    <div class="date-time">
+
+                        ${date.time}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <span class="amount">
+
+                        ${formatMoney(
+                            order.totalAmount
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            badge
+                            payment-${payment.toLowerCase()}
+                        "
+                    >
+
+                        ${escapeHtml(
+                            payment
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            badge
+                            tracking
+                            tracking-${statusClass(
+                                order.trackingStatus
+                            )}
+                        "
+                    >
+
+                        ${escapeHtml(
+                            prettyStatus(
+                                order.trackingStatus
+                            )
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            badge
+                            status-${statusClass(
+                                order.status
+                            )}
+                        "
+                    >
+
+                        ${escapeHtml(
+                            prettyStatus(
+                                order.status
+                            )
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="view-button"
+                        data-id="${escapeHtml(
+                            order._id
+                        )}"
+                        type="button"
+                    >
+                        View
+                    </button>
+
+                </td>
+
+            `;
+
+
+            body.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   FILTER
+   ========================================================= */
+
+function applyFilters() {
+
+    const searchInput =
+        el("search-input");
+
+
+    const statusFilter =
+        el("status-filter");
+
+
+    const query =
+        searchInput
+            ? searchInput.value
+                .trim()
+                .toLowerCase()
+            : "";
+
+
+    const status =
+        statusFilter
+            ? statusFilter.value
+            : "ALL";
+
+
+    state.filtered =
+        state.orders.filter(
+            order => {
+
+                const customer =
+                    order.userId || {};
+
+
+                const searchable = [
+
+                    order._id,
+
+                    customer.name,
+
+                    customer.email
+
+                ]
+
+                    .join(" ")
+
+                    .toLowerCase();
+
+
+                const queryMatch =
+                    !query ||
+                    searchable.includes(
+                        query
+                    );
+
+
+                const statusMatch =
+                    status === "ALL" ||
+                    order.status === status;
+
+
+                return (
+                    queryMatch &&
+                    statusMatch
+                );
+
+            }
+        );
+
+
+    renderTable();
+
+}
+
+
+
+/* =========================================================
+   LOAD ORDERS
+   ========================================================= */
+
+async function loadOrders() {
+
+    const loading =
+        el("loading");
+
+
+    const error =
+        el("error");
+
+
+    if (loading) {
+
+        loading.classList.remove(
+            "hidden"
+        );
+
+    }
+
+
+    if (error) {
+
+        error.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/api/orders/admin/all`,
+                {
+                    headers:
+                        headers()
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Failed to load orders."
+            );
+
+        }
+
+
+        state.orders =
+            Array.isArray(
+                data.orders
+            )
+                ? data.orders
+                : [];
+
+
+        state.filtered =
+            [
+                ...state.orders
+            ];
+
+
+        renderMetrics();
+
+        applyFilters();
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin orders error:",
+            error
+        );
+
+
+        if (
+            error.message.includes(
+                "Invalid or expired"
+            ) ||
+            error.message.includes(
+                "Admin authentication"
+            ) ||
+            error.message.includes(
+                "Admin access denied"
+            )
+        ) {
+
+            logoutAdmin();
+
+            return;
+
+        }
+
+
+        if (el("error")) {
+
+            el("error").textContent =
+                error.message;
+
+
+            el("error")
+                .classList
+                .remove(
+                    "hidden"
+                );
+
+        }
+
+
+    } finally {
+
+        if (loading) {
+
+            loading.classList.add(
+                "hidden"
+            );
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================================
+   TRACKING OPTIONS
+   ========================================================= */
+
+function trackingOptions(current) {
+
+    const statuses = [
+
+        "PLACED",
+
+        "PAID",
+
+        "RESERVED",
+
+        "CONFIRMED",
+
+        "PREPARING",
+
+        "SHIPPED",
+
+        "OUT_FOR_DELIVERY",
+
+        "DELIVERED"
+
+    ];
+
+
+    return statuses
+
+        .map(
+            status => `
+
+                <option
+                    value="${status}"
+                    ${
+                        status === current
+                            ? "selected"
+                            : ""
+                    }
+                >
+
+                    ${escapeHtml(
+                        prettyStatus(
+                            status
+                        )
+                    )}
+
+                </option>
+
+            `
+        )
+
+        .join("");
+
+}
+
+
+
+/* =========================================================
+   OPEN ORDER
+   ========================================================= */
+
+async function openOrder(id) {
+
+    const modal =
+        el("modal");
+
+
+    const body =
+        el("modal-body");
+
+
+    if (
+        !modal ||
+        !body
+    ) {
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+        "hidden"
+    );
+
+
+    body.innerHTML = `
+
+        <div class="state-message">
+
+            Loading order...
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/api/orders/admin/${encodeURIComponent(
+                    id
+                )}`,
+                {
+                    headers:
+                        headers()
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Failed to load order."
+            );
+
+        }
+
+
+        const order =
+            data.order;
+
+
+        const customer =
+            order.userId || {};
+
+
+        const items =
+            order.items || [];
+
+
+        const products =
+            items
+
+                .map(
+                    item => {
+
+                        const product =
+                            item.productId ||
+                            {};
+
+
+                        const line =
+                            Number(
+                                item.price ||
+                                0
+                            ) *
+                            Number(
+                                item.quantity ||
+                                0
+                            );
+
+
+                        return `
+
+                            <div class="product-row">
+
+                                <div>
+
+                                    <div class="product-name">
+
+                                        ${escapeHtml(
+                                            product.name ||
+                                            "Product"
+                                        )}
+
+                                    </div>
+
+
+                                    <div class="product-meta">
+
+                                        Qty
+                                        ${escapeHtml(
+                                            item.quantity
+                                        )}
+
+                                        ×
+
+                                        ${formatMoney(
+                                            item.price
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+
+                                <strong>
+
+                                    ${formatMoney(
+                                        line
+                                    )}
+
+                                </strong>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+
+                .join("");
+
+
+        body.innerHTML = `
+
+            <div class="modal-kicker">
+                ORDER MANAGEMENT
+            </div>
+
+
+            <h2 class="modal-title">
+                Order details
+            </h2>
+
+
+            <div class="modal-order-id">
+
+                ${escapeHtml(
+                    order._id
+                )}
+
+            </div>
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-block">
+
+                    <div class="detail-label">
+                        Customer
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${escapeHtml(
+                            customer.name ||
+                            "Unknown"
+                        )}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-block">
+
+                    <div class="detail-label">
+                        Email
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${escapeHtml(
+                            customer.email ||
+                            "Not available"
+                        )}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-block">
+
+                    <div class="detail-label">
+                        Order status
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${escapeHtml(
+                            prettyStatus(
+                                order.status
+                            )
+                        )}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-block">
+
+                    <div class="detail-label">
+                        Total amount
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${formatMoney(
+                            order.totalAmount
+                        )}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="product-list">
+
+                ${
+                    products ||
+                    `
+                        <div class="state-message">
+                            No products in this order.
+                        </div>
+                    `
+                }
+
+            </div>
+
+
+
+            <div class="tracking-edit">
+
+                <label
+                    for="tracking-select"
+                >
+                    TRACKING STATUS
+                </label>
+
+
+                <div class="tracking-edit-row">
+
+                    <select
+                        id="tracking-select"
+                    >
+
+                        ${trackingOptions(
+                            order.trackingStatus
+                        )}
+
+                    </select>
+
+
+                    <button
+                        id="update-tracking"
+                        class="update-button"
+                        type="button"
+                    >
+                        Update
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        const updateButton =
+            el("update-tracking");
+
+
+        if (updateButton) {
+
+            updateButton.addEventListener(
+                "click",
+                async () => {
+
+                    const button =
+                        el(
+                            "update-tracking"
+                        );
+
+
+                    const select =
+                        el(
+                            "tracking-select"
+                        );
+
+
+                    if (
+                        !button ||
+                        !select
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const trackingStatus =
+                        select.value;
+
+
+                    button.disabled =
+                        true;
+
+
+                    button.textContent =
+                        "Updating...";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `${API_URL}/api/orders/admin/${encodeURIComponent(
+                                    id
+                                )}/tracking`,
+                                {
+                                    method:
+                                        "PATCH",
+
+                                    headers:
+                                        headers(),
+
+                                    body:
+                                        JSON.stringify({
+                                            trackingStatus
+                                        })
+
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.message ||
+                                "Failed to update tracking."
+                            );
+
+                        }
+
+
+                        closeModal();
+
+                        await loadOrders();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+
+                        alert(
+                            error.message
+                        );
+
+
+                    } finally {
+
+                        button.disabled =
+                            false;
+
+
+                        button.textContent =
+                            "Update";
+
+                    }
+
+                }
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        body.innerHTML = `
+
+            <div
+                class="
+                    state-message
+                    error-state
+                "
+            >
+
+                ${escapeHtml(
+                    error.message
+                )}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+function closeModal() {
+
+    const modal =
+        el("modal");
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.classList.add(
+        "hidden"
+    );
+
+}
+
+
+
+/* =========================================================
+   EVENT LISTENERS
+   ========================================================= */
+
+const ordersBody =
+    el("orders-body");
+
+
+if (ordersBody) {
+
+    ordersBody.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    ".view-button"
+                );
+
+
+            if (button) {
+
+                openOrder(
+                    button.dataset.id
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+
+const searchInput =
+    el("search-input");
+
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        applyFilters
+    );
+
+}
+
+
+
+const statusFilter =
+    el("status-filter");
+
+
+if (statusFilter) {
+
+    statusFilter.addEventListener(
+        "change",
+        applyFilters
+    );
+
+}
+
+
+
+const refreshButton =
+    el("refresh-btn");
+
+
+if (refreshButton) {
+
+    refreshButton.addEventListener(
+        "click",
+        loadOrders
+    );
+
+}
+
+
+
+const viewAllButton =
+    el("view-all-btn");
+
+
+if (viewAllButton) {
+
+    viewAllButton.addEventListener(
+        "click",
+        () => {
+
+            if (statusFilter) {
+
+                statusFilter.value =
+                    "ALL";
+
+            }
+
+
+            if (searchInput) {
+
+                searchInput.value =
+                    "";
+
+            }
+
+
+            applyFilters();
+
+
+            const recentOrders =
+                el("recent-orders");
+
+
+            if (recentOrders) {
+
+                recentOrders.scrollIntoView({
+
+                    behavior:
+                        "smooth",
+
+                    block:
+                        "start"
+
+                });
+
+            }
+
+        }
+    );
+
+}
+
+
+
+const closeModalButton =
+    el("close-modal");
+
+
+if (closeModalButton) {
+
+    closeModalButton.addEventListener(
+        "click",
+        closeModal
+    );
+
+}
+
+
+
+const modalBackdrop =
+    document.querySelector(
+        ".modal-backdrop"
+    );
+
+
+if (modalBackdrop) {
+
+    modalBackdrop.addEventListener(
+        "click",
+        closeModal
+    );
+
+}
+
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+if (
+    token &&
+    role === "admin"
+) {
+
+    loadOrders();
+
+}

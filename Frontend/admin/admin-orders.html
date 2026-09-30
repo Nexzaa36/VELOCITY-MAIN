@@ -10,265 +10,17 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>VELOCITY — Admin</title>
+    <title>VELOCITY — Orders</title>
 
     <link
         rel="stylesheet"
         href="admin-orders.css"
     >
 
-    <style>
-        /* =========================================
-           ADMIN PROFILE MENU
-           ========================================= */
-
-        .profile-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .avatar-button {
-            width: 38px;
-            height: 38px;
-            padding: 0;
-            border: 1px solid #d5d5cf;
-            border-radius: 50%;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background .2s ease, border-color .2s ease;
-        }
-
-        .avatar-button:hover {
-            background: #f1f1ed;
-            border-color: #bdbdb7;
-        }
-
-        .avatar-icon {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #777;
-            border-radius: 50%;
-            position: relative;
-            display: block;
-        }
-
-        .avatar-icon::before {
-            content: "";
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border: 1px solid #777;
-            border-radius: 50%;
-            top: 3px;
-            left: 6px;
-        }
-
-        .avatar-icon::after {
-            content: "";
-            position: absolute;
-            width: 11px;
-            height: 6px;
-            border: 1px solid #777;
-            border-bottom: 0;
-            border-radius: 10px 10px 0 0;
-            bottom: 2px;
-            left: 3px;
-        }
-
-        .profile-menu {
-            position: absolute;
-            top: calc(100% + 14px);
-            right: 0;
-            width: 245px;
-            background: #fafaf7;
-            border: 1px solid #dcdcd6;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, .09);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-7px);
-            transition:
-                opacity .18s ease,
-                visibility .18s ease,
-                transform .18s ease;
-        }
-
-        .profile-menu.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .profile-info {
-            padding: 18px 18px 16px;
-            border-bottom: 1px solid #e2e2dc;
-        }
-
-        .profile-role {
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            color: #777;
-            margin-bottom: 7px;
-        }
-
-        .profile-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: #111;
-            margin-bottom: 4px;
-        }
-
-        .profile-email {
-            font-size: 11px;
-            color: #888;
-            word-break: break-word;
-        }
-
-        .profile-links {
-            padding: 8px;
-        }
-
-        .profile-menu-link,
-        .profile-logout {
-            width: 100%;
-            min-height: 42px;
-            padding: 0 11px;
-            border: 0;
-            background: transparent;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-decoration: none;
-            font-family: inherit;
-            font-size: 12px;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .profile-menu-link:hover,
-        .profile-logout:hover {
-            background: #f0f0eb;
-        }
-
-        .profile-logout {
-            color: #222;
-        }
-
-        .profile-divider {
-            height: 1px;
-            background: #e2e2dc;
-            margin: 7px 0;
-        }
-
-        .menu-arrow {
-            color: #888;
-            font-size: 14px;
-        }
-
-
-        /* =========================================
-           ADMIN SESSION LOADING
-           ========================================= */
-
-        .admin-page-loading {
-            position: fixed;
-            inset: 0;
-            background: #f7f7f3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: #777;
-        }
-
-        .admin-page-loading.hidden {
-            display: none;
-        }
-
-
-        /* =========================================
-           SMALL NAVIGATION IMPROVEMENTS
-           ========================================= */
-
-        .topnav {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .topnav a {
-            text-decoration: none;
-        }
-
-        .orders-link {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .admin-link {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .tiny-arrow {
-            font-size: 10px;
-            opacity: .65;
-        }
-
-
-        /* =========================================
-           MOBILE
-           ========================================= */
-
-        @media (max-width: 800px) {
-
-            .topbar {
-                padding-left: 18px;
-                padding-right: 18px;
-            }
-
-            .topnav {
-                gap: 12px;
-            }
-
-            .topnav > a {
-                display: none;
-            }
-
-            .profile-menu {
-                right: -5px;
-            }
-
-        }
-    </style>
-
 </head>
 
 
 <body>
-
-
-<!-- =========================================
-     ADMIN SESSION CHECK
-     ========================================= -->
-
-<div
-    id="admin-page-loading"
-    class="admin-page-loading"
->
-    VERIFYING ACCESS...
-</div>
 
 
 <!-- =========================================
@@ -287,19 +39,16 @@
 
     <nav class="topnav">
 
-        <!-- CUSTOMER HOME -->
         <a href="../index.html">
             Home
         </a>
 
 
-        <!-- CUSTOMER CATALOGUE -->
         <a href="../catalogue.html">
             Catalogue
         </a>
 
 
-        <!-- ADMIN ORDERS -->
         <a
             class="orders-link"
             href="./admin-orders.html"
@@ -312,10 +61,9 @@
         </a>
 
 
-        <!-- ADMIN HOME -->
         <a
             class="admin-link"
-            href="./admin-orders.html"
+            href="./admin-dashboard.html"
         >
             Admin
 
@@ -325,11 +73,14 @@
         </a>
 
 
-        <!-- =====================================
-             PROFILE
-             ===================================== -->
+        <!-- =================================
+             PROFILE WRAPPER
+             ================================= -->
 
-        <div class="profile-wrap">
+        <div class="profile-wrapper">
+
+
+            <!-- PROFILE BUTTON -->
 
             <button
                 id="profile-button"
@@ -338,76 +89,112 @@
                 aria-label="Open administrator menu"
                 aria-expanded="false"
             >
+
                 <span class="avatar-icon"></span>
+
             </button>
 
 
-            <!-- PROFILE DROPDOWN -->
+            <!-- PROFILE MENU -->
 
             <div
                 id="profile-menu"
                 class="profile-menu"
             >
 
-                <div class="profile-info">
 
-                    <div class="profile-role">
+                <!-- PROFILE HEADER -->
+
+                <div class="profile-menu-header">
+
+                    <div class="profile-menu-label">
                         ADMINISTRATOR
                     </div>
 
+
                     <div
                         id="profile-name"
-                        class="profile-name"
+                        class="profile-menu-name"
                     >
-                        Administrator
+                        VELOCITY Administrator
                     </div>
+
 
                     <div
                         id="profile-email"
-                        class="profile-email"
+                        class="profile-menu-email"
                     >
-                        Admin account
+                        admin@velocity.com
                     </div>
 
                 </div>
 
 
-                <div class="profile-links">
+                <!-- PROFILE LINKS -->
 
-                    <!-- ADMIN PAGE -->
+                <div class="profile-menu-links">
+
+
+                    <!-- DASHBOARD -->
+
                     <a
-                        href="./admin-orders.html"
-                        class="profile-menu-link"
+                        href="./admin-dashboard.html"
+                        class="profile-menu-item"
                     >
+
                         <span>
                             Admin Dashboard
                         </span>
 
-                        <span class="menu-arrow">
+                        <span>
                             →
                         </span>
+
                     </a>
 
 
-                    <div class="profile-divider"></div>
+                    <!-- ORDERS -->
 
-
-                    <!-- LOGOUT -->
-                    <button
-                        id="logout-btn"
-                        class="profile-logout"
-                        type="button"
+                    <a
+                        href="./admin-orders.html"
+                        class="profile-menu-item"
                     >
+
+                        <span>
+                            Manage Orders
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+
+                <!-- LOGOUT -->
+
+                <div class="profile-menu-footer">
+
+                    <button
+                        type="button"
+                        id="logout-btn"
+                        class="profile-menu-item logout-item"
+                    >
+
                         <span>
                             Logout
                         </span>
 
-                        <span class="menu-arrow">
+                        <span>
                             ↗
                         </span>
+
                     </button>
 
                 </div>
+
 
             </div>
 
@@ -416,6 +203,7 @@
     </nav>
 
 </header>
+
 
 
 <!-- =========================================
@@ -431,17 +219,15 @@
 
     <aside class="sidebar">
 
+
         <div class="sidebar-nav">
 
 
-            <!-- DASHBOARD
-                 Currently points to admin-orders
-                 because separate dashboard doesn't exist yet.
-            -->
+            <!-- DASHBOARD -->
 
             <a
-                class="side-item active"
-                href="./admin-orders.html"
+                class="side-item"
+                href="./admin-dashboard.html"
             >
 
                 <span
@@ -458,8 +244,8 @@
             <!-- ORDERS -->
 
             <a
-                class="side-item"
-                href="#recent-orders"
+                class="side-item active"
+                href="./admin-orders.html"
             >
 
                 <span
@@ -491,12 +277,10 @@
             </a>
 
 
-            <!-- USERS
-                 Not built yet.
-            -->
+            <!-- USERS -->
 
             <a
-                class="side-item"
+                class="side-item disabled-item"
                 href="#"
                 onclick="return false;"
             >
@@ -509,15 +293,17 @@
                     Users
                 </span>
 
+                <small>
+                    SOON
+                </small>
+
             </a>
 
 
-            <!-- PAYMENTS
-                 Not built yet.
-            -->
+            <!-- PAYMENTS -->
 
             <a
-                class="side-item"
+                class="side-item disabled-item"
                 href="#"
                 onclick="return false;"
             >
@@ -530,15 +316,17 @@
                     Payments
                 </span>
 
+                <small>
+                    SOON
+                </small>
+
             </a>
 
 
-            <!-- INVENTORY
-                 Not built yet.
-            -->
+            <!-- INVENTORY -->
 
             <a
-                class="side-item"
+                class="side-item disabled-item"
                 href="#"
                 onclick="return false;"
             >
@@ -551,7 +339,12 @@
                     Inventory
                 </span>
 
+                <small>
+                    SOON
+                </small>
+
             </a>
+
 
         </div>
 
@@ -572,6 +365,7 @@
             </div>
 
         </div>
+
 
     </aside>
 
@@ -601,36 +395,36 @@
         </div>
 
 
-        <!-- =================================
-             INTRO
-             ================================= -->
+
+        <!-- INTRO -->
 
         <section class="intro">
 
             <div class="eyebrow">
-                ADMIN DASHBOARD
+                ORDER MANAGEMENT
             </div>
 
+
             <h1>
-                Welcome back,<br>
+                Manage your<br>
 
                 <span>
-                    Administrator.
+                    Orders.
                 </span>
 
             </h1>
 
+
             <p>
-                Manage your store, track orders,
-                and keep everything running smoothly.
+                Review customer orders, monitor status,
+                and manage delivery tracking.
             </p>
 
         </section>
 
 
-        <!-- =================================
-             METRICS
-             ================================= -->
+
+        <!-- METRICS -->
 
         <section class="metrics">
 
@@ -643,13 +437,12 @@
 
                     <div class="metric-name">
 
-                        <span
-                            class="metric-icon cube-icon"
-                        ></span>
+                        <span class="metric-icon cube-icon"></span>
 
                         Total Orders
 
                     </div>
+
 
                     <span class="metric-symbol">
                         ◫
@@ -669,15 +462,20 @@
                 <div class="metric-bottom">
 
                     <span class="trend">
+
                         ↑
+
                         <b id="metric-total-trend">
-                            —
+                            Live
                         </b>
+
                     </span>
+
 
                     <span>
                         live
                     </span>
+
 
                     <svg
                         class="sparkline"
@@ -695,6 +493,7 @@
             </article>
 
 
+
             <!-- PENDING -->
 
             <article class="metric-card">
@@ -703,13 +502,12 @@
 
                     <div class="metric-name">
 
-                        <span
-                            class="metric-icon clock-icon"
-                        ></span>
+                        <span class="metric-icon clock-icon"></span>
 
                         Pending Orders
 
                     </div>
+
 
                     <span class="metric-symbol">
                         ◷
@@ -729,15 +527,20 @@
                 <div class="metric-bottom">
 
                     <span class="trend">
+
                         ↑
+
                         <b id="metric-pending-trend">
-                            —
+                            Live
                         </b>
+
                     </span>
 
+
                     <span>
-                        live
+                        awaiting
                     </span>
+
 
                     <svg
                         class="sparkline"
@@ -755,6 +558,7 @@
             </article>
 
 
+
             <!-- REVENUE -->
 
             <article class="metric-card">
@@ -770,6 +574,7 @@
                         Revenue
 
                     </div>
+
 
                     <span class="metric-symbol">
                         ⌁
@@ -789,15 +594,20 @@
                 <div class="metric-bottom">
 
                     <span class="trend">
+
                         ↑
+
                         <b id="metric-revenue-trend">
-                            —
+                            Live
                         </b>
+
                     </span>
+
 
                     <span>
                         live
                     </span>
+
 
                     <svg
                         class="sparkline"
@@ -815,6 +625,7 @@
             </article>
 
 
+
             <!-- DELIVERED -->
 
             <article class="metric-card">
@@ -830,6 +641,7 @@
                         Delivered Orders
 
                     </div>
+
 
                     <span class="metric-symbol">
                         ✓
@@ -849,15 +661,20 @@
                 <div class="metric-bottom">
 
                     <span class="trend">
+
                         ↑
+
                         <b id="metric-delivered-trend">
-                            —
+                            Live
                         </b>
+
                     </span>
 
+
                     <span>
-                        live
+                        completed
                     </span>
+
 
                     <svg
                         class="sparkline"
@@ -874,26 +691,33 @@
 
             </article>
 
+
         </section>
 
 
 
-        <!-- =================================
-             ORDERS PANEL
-             ================================= -->
+        <!-- ORDERS TABLE -->
 
         <section
             class="orders-panel"
             id="recent-orders"
         >
 
+
             <div class="panel-head">
+
 
                 <div>
 
+                    <div class="panel-eyebrow">
+                        ACTIVITY
+                    </div>
+
+
                     <h2>
-                        Recent Orders
+                        All Orders
                     </h2>
+
 
                     <p>
                         Latest orders from your customers.
@@ -902,16 +726,16 @@
                 </div>
 
 
+
                 <div class="panel-actions">
 
-
-                    <!-- SEARCH -->
 
                     <label class="search">
 
                         <span class="search-icon">
                             ⌕
                         </span>
+
 
                         <input
                             id="search-input"
@@ -922,7 +746,6 @@
                     </label>
 
 
-                    <!-- STATUS FILTER -->
 
                     <select
                         id="status-filter"
@@ -933,17 +756,21 @@
                             All statuses
                         </option>
 
+
                         <option value="PENDING">
                             Pending
                         </option>
+
 
                         <option value="CONFIRMED">
                             Confirmed
                         </option>
 
+
                         <option value="FAILED">
                             Failed
                         </option>
+
 
                         <option value="CANCELLED">
                             Cancelled
@@ -952,19 +779,17 @@
                     </select>
 
 
-                    <!-- REFRESH -->
 
                     <button
                         id="refresh-btn"
                         class="icon-button"
-                        type="button"
                         title="Refresh"
+                        type="button"
                     >
                         ↻
                     </button>
 
 
-                    <!-- VIEW ALL -->
 
                     <button
                         id="view-all-btn"
@@ -980,12 +805,12 @@
 
                     </button>
 
+
                 </div>
 
             </div>
 
 
-            <!-- LOADING -->
 
             <div
                 id="loading"
@@ -995,15 +820,12 @@
             </div>
 
 
-            <!-- ERROR -->
-
             <div
                 id="error"
                 class="state-message error-state hidden"
             ></div>
 
 
-            <!-- TABLE -->
 
             <div class="table-wrap">
 
@@ -1050,15 +872,13 @@
                     </thead>
 
 
-                    <tbody id="orders-body">
-                    </tbody>
+                    <tbody id="orders-body"></tbody>
 
                 </table>
 
             </div>
 
 
-            <!-- EMPTY -->
 
             <div
                 id="empty"
@@ -1067,7 +887,9 @@
                 No orders found.
             </div>
 
+
         </section>
+
 
     </main>
 
@@ -1076,7 +898,7 @@
 
 
 <!-- =========================================
-     ORDER DETAILS MODAL
+     ORDER MODAL
      ========================================= -->
 
 <div
@@ -1110,226 +932,6 @@
 </div>
 
 
-
-<!-- =========================================
-     ADMIN PROFILE / AUTH LOGIC
-     ========================================= -->
-
-<script>
-
-    /*
-     * FRONTEND ADMIN GUARD
-     *
-     * This is only a UI guard.
-     * Your backend adminOnly middleware remains
-     * the actual security layer.
-     */
-
-    (function () {
-
-        const token =
-            localStorage.getItem("token");
-
-        const role =
-            localStorage.getItem("role");
-
-        const loading =
-            document.getElementById(
-                "admin-page-loading"
-            );
-
-
-        if (!token || role !== "admin") {
-
-            window.location.replace(
-                "./admin-login.html"
-            );
-
-            return;
-
-        }
-
-
-        /*
-         * Allow page to render
-         */
-
-        if (loading) {
-            loading.classList.add("hidden");
-        }
-
-    })();
-
-
-
-    /* =========================================
-       PROFILE MENU
-       ========================================= */
-
-    const profileButton =
-        document.getElementById(
-            "profile-button"
-        );
-
-    const profileMenu =
-        document.getElementById(
-            "profile-menu"
-        );
-
-
-    profileButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.stopPropagation();
-
-            const isOpen =
-                profileMenu.classList.contains(
-                    "show"
-                );
-
-            profileMenu.classList.toggle(
-                "show"
-            );
-
-            profileButton.setAttribute(
-                "aria-expanded",
-                String(!isOpen)
-            );
-
-        }
-    );
-
-
-    /*
-     * Close menu when clicking outside
-     */
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                !profileMenu.contains(event.target) &&
-                !profileButton.contains(event.target)
-            ) {
-
-                profileMenu.classList.remove(
-                    "show"
-                );
-
-                profileButton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-            }
-
-        }
-    );
-
-
-
-    /* =========================================
-       LOAD ADMIN INFORMATION
-       ========================================= */
-
-    try {
-
-        const storedUser =
-            localStorage.getItem("user");
-
-        if (storedUser) {
-
-            const user =
-                JSON.parse(storedUser);
-
-
-            const nameElement =
-                document.getElementById(
-                    "profile-name"
-                );
-
-            const emailElement =
-                document.getElementById(
-                    "profile-email"
-                );
-
-
-            if (
-                nameElement &&
-                user.name
-            ) {
-
-                nameElement.textContent =
-                    user.name;
-
-            }
-
-
-            if (
-                emailElement &&
-                user.email
-            ) {
-
-                emailElement.textContent =
-                    user.email;
-
-            }
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Unable to load admin profile."
-        );
-
-    }
-
-
-
-    /* =========================================
-       LOGOUT
-       ========================================= */
-
-    const logoutButton =
-        document.getElementById(
-            "logout-btn"
-        );
-
-
-    logoutButton.addEventListener(
-        "click",
-        function () {
-
-            localStorage.removeItem(
-                "token"
-            );
-
-            localStorage.removeItem(
-                "user"
-            );
-
-            localStorage.removeItem(
-                "role"
-            );
-
-
-            window.location.replace(
-                "./admin-login.html"
-            );
-
-        }
-    );
-
-</script>
-
-
-
-<!-- =========================================
-     EXISTING ADMIN ORDERS JAVASCRIPT
-     ========================================= -->
 
 <script src="admin-orders.js"></script>
 
