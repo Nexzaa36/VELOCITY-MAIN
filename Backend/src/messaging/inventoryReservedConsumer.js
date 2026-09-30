@@ -8,19 +8,12 @@ const {
 
 const Order = require("../models/Order");
 
-
-// =========================================
-// START INVENTORY RESERVED CONSUMER
-// =========================================
+const {
+    updateTrackingStatus
+} = require("../services/trackingService");
 
 const startInventoryReservedConsumer = async () => {
-
     const channel = getChannel();
-
-
-    // =========================================
-    // EXCHANGE
-    // =========================================
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -30,11 +23,6 @@ const startInventoryReservedConsumer = async () => {
         }
     );
 
-
-    // =========================================
-    // QUEUE
-    // =========================================
-
     await channel.assertQueue(
         INVENTORY_RESERVED_QUEUE,
         {
@@ -42,44 +30,29 @@ const startInventoryReservedConsumer = async () => {
         }
     );
 
-
-    // =========================================
-    // BIND QUEUE
-    // =========================================
-
     await channel.bindQueue(
         INVENTORY_RESERVED_QUEUE,
         EXCHANGE_NAME,
         INVENTORY_RESERVED_ORDER_ROUTING_KEY
     );
 
-
     console.log(
         "InventoryReserved consumer started"
     );
 
-
-    // =========================================
-    // CONSUME INVENTORY RESERVED
-    // =========================================
-
     channel.consume(
         INVENTORY_RESERVED_QUEUE,
 
-        async (message) => {
-
+        async message => {
             if (!message) {
                 return;
             }
 
-
             try {
-
                 const event =
                     JSON.parse(
                         message.content.toString()
                     );
-
 
                 console.log(
                     "================================="
@@ -103,39 +76,27 @@ const startInventoryReservedConsumer = async () => {
                     "================================="
                 );
 
-
                 const {
                     orderId
                 } = event.data;
 
-
-                // =====================================
-                // FIND ORDER
-                // =====================================
-
                 const order =
-                    await Order.findById(orderId);
-
+                    await Order.findById(
+                        orderId
+                    );
 
                 if (!order) {
-
                     throw new Error(
                         `Order not found: ${orderId}`
                     );
-
                 }
 
-
-                // =====================================
-                // IDEMPOTENCY
-                // =====================================
-
                 if (
-                    order.status === "CONFIRMED"
+                    order.status === "FAILED" ||
+                    order.status === "CANCELLED"
                 ) {
-
                     console.log(
-                        "Order already confirmed:",
+                        "Order is no longer active:",
                         orderId
                     );
 
@@ -144,30 +105,53 @@ const startInventoryReservedConsumer = async () => {
                     return;
                 }
 
+                if (
+                    order.trackingStatus ===
+                    "RESERVED"
+                ) {
+                    console.log(
+                        "Inventory already reserved for order:",
+                        orderId
+                    );
 
-                // =====================================
-                // INVENTORY RESERVED
-                // =====================================
+                    channel.ack(message);
+
+                    return;
+                }
+
+                await updateTrackingStatus(
+                    order,
+                    "RESERVED"
+                );
 
                 console.log(
-                    "Inventory reservation confirmed for order:",
+                    "================================="
+                );
+
+                console.log(
+                    "INVENTORY RESERVED"
+                );
+
+                console.log(
+                    "Order ID:",
                     orderId
+                );
+
+                console.log(
+                    "Tracking Status:",
+                    order.trackingStatus
                 );
 
                 console.log(
                     "Waiting for PaymentProcessed event..."
                 );
 
-
-                // =====================================
-                // ACK MESSAGE
-                // =====================================
+                console.log(
+                    "================================="
+                );
 
                 channel.ack(message);
-
-
             } catch (error) {
-
                 console.error(
                     "================================="
                 );
@@ -184,19 +168,15 @@ const startInventoryReservedConsumer = async () => {
                     "================================="
                 );
 
-
                 channel.nack(
                     message,
                     false,
                     false
                 );
-
             }
-
         }
     );
 };
-
 
 module.exports = {
     startInventoryReservedConsumer

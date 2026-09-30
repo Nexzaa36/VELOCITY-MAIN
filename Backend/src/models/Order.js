@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 
+const trackingStatuses = [
+    "PLACED",
+    "PAID",
+    "RESERVED",
+    "CONFIRMED",
+    "PREPARING",
+    "SHIPPED",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED"
+];
+
 const orderItemSchema = new mongoose.Schema(
     {
         productId: {
@@ -18,7 +29,26 @@ const orderItemSchema = new mongoose.Schema(
             min: 0
         }
     },
-    { _id: false }
+    {
+        _id: false
+    }
+);
+
+const trackingHistorySchema = new mongoose.Schema(
+    {
+        status: {
+            type: String,
+            enum: trackingStatuses,
+            required: true
+        },
+        changedAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+    {
+        _id: false
+    }
 );
 
 const orderSchema = new mongoose.Schema(
@@ -59,16 +89,7 @@ const orderSchema = new mongoose.Schema(
 
         trackingStatus: {
             type: String,
-            enum: [
-                "PLACED",
-                "PAID",
-                "RESERVED",
-                "CONFIRMED",
-                "PREPARING",
-                "SHIPPED",
-                "OUT_FOR_DELIVERY",
-                "DELIVERED"
-            ],
+            enum: trackingStatuses,
             default: "PLACED"
         },
 
@@ -77,27 +98,14 @@ const orderSchema = new mongoose.Schema(
             default: Date.now
         },
 
-        trackingHistory: [
-            {
-                status: {
-                    type: String,
-                    enum: [
-                        "PLACED",
-                        "PAID",
-                        "RESERVED",
-                        "CONFIRMED",
-                        "PREPARING",
-                        "SHIPPED",
-                        "OUT_FOR_DELIVERY",
-                        "DELIVERED"
-                    ]
-                },
-                changedAt: {
-                    type: Date,
-                    default: Date.now
+        trackingHistory: {
+            type: [trackingHistorySchema],
+            default: [
+                {
+                    status: "PLACED"
                 }
-            }
-        ]
+            ]
+        }
     },
     {
         timestamps: true

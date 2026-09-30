@@ -1,0 +1,17 @@
+const TRACKING_STEP_SECONDS = 10;
+
+const TRACKING_STEPS = [
+    "PLACED",
+    "PAID",
+    "RESERVED",
+    "CONFIRMED",
+    "PREPARING",
+    "SHIPPED",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED"
+];
+
+module.exports = {
+    TRACKING_STEP_SECONDS,
+    TRACKING_STEPS
+};

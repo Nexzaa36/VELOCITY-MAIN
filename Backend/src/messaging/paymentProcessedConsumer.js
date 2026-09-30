@@ -2,27 +2,18 @@ const { getChannel } = require("./rabbitmq");
 
 const {
     EXCHANGE_NAME,
-
     PAYMENT_PROCESSED_QUEUE,
     PAYMENT_PROCESSED_ROUTING_KEY
 } = require("./eventConfig");
 
-const Order =
-    require("../models/Order");
+const Order = require("../models/Order");
 
-
-// =========================================
-// START PAYMENT PROCESSED CONSUMER
-// =========================================
+const {
+    updateTrackingStatus
+} = require("../services/trackingService");
 
 const startPaymentProcessedConsumer = async () => {
-
     const channel = getChannel();
-
-
-    // =========================================
-    // EXCHANGE
-    // =========================================
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -32,11 +23,6 @@ const startPaymentProcessedConsumer = async () => {
         }
     );
 
-
-    // =========================================
-    // QUEUE
-    // =========================================
-
     await channel.assertQueue(
         PAYMENT_PROCESSED_QUEUE,
         {
@@ -44,44 +30,29 @@ const startPaymentProcessedConsumer = async () => {
         }
     );
 
-
-    // =========================================
-    // BIND QUEUE
-    // =========================================
-
     await channel.bindQueue(
         PAYMENT_PROCESSED_QUEUE,
         EXCHANGE_NAME,
         PAYMENT_PROCESSED_ROUTING_KEY
     );
 
-
     console.log(
         "PaymentProcessed consumer started"
     );
 
-
-    // =========================================
-    // CONSUME PAYMENT PROCESSED
-    // =========================================
-
     channel.consume(
         PAYMENT_PROCESSED_QUEUE,
 
-        async (message) => {
-
+        async message => {
             if (!message) {
                 return;
             }
 
-
             try {
-
                 const event =
                     JSON.parse(
                         message.content.toString()
                     );
-
 
                 console.log(
                     "================================="
@@ -110,39 +81,24 @@ const startPaymentProcessedConsumer = async () => {
                     "================================="
                 );
 
-
                 const {
                     orderId
                 } = event.data;
-
-
-                // =====================================
-                // FIND ORDER
-                // =====================================
 
                 const order =
                     await Order.findById(
                         orderId
                     );
 
-
                 if (!order) {
-
                     throw new Error(
                         `Order not found: ${orderId}`
                     );
-
                 }
-
-
-                // =====================================
-                // IDEMPOTENCY
-                // =====================================
 
                 if (
                     order.status === "CONFIRMED"
                 ) {
-
                     console.log(
                         "Order already confirmed:",
                         orderId
@@ -153,16 +109,20 @@ const startPaymentProcessedConsumer = async () => {
                     return;
                 }
 
-
-                // =====================================
-                // UPDATE ORDER
-                // =====================================
-
                 order.status =
                     "CONFIRMED";
 
                 await order.save();
 
+                await updateTrackingStatus(
+                    order,
+                    "PAID"
+                );
+
+                await updateTrackingStatus(
+                    order,
+                    "CONFIRMED"
+                );
 
                 console.log(
                     "================================="
@@ -187,19 +147,16 @@ const startPaymentProcessedConsumer = async () => {
                 );
 
                 console.log(
+                    "Tracking Status:",
+                    order.trackingStatus
+                );
+
+                console.log(
                     "================================="
                 );
 
-
-                // =====================================
-                // ACK MESSAGE
-                // =====================================
-
                 channel.ack(message);
-
-
             } catch (error) {
-
                 console.error(
                     "================================="
                 );
@@ -216,19 +173,15 @@ const startPaymentProcessedConsumer = async () => {
                     "================================="
                 );
 
-
                 channel.nack(
                     message,
                     false,
                     false
                 );
-
             }
-
         }
     );
 };
-
 
 module.exports = {
     startPaymentProcessedConsumer
