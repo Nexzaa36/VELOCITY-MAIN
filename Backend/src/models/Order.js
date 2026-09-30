@@ -7,13 +7,11 @@ const orderItemSchema = new mongoose.Schema(
             ref: "Product",
             required: true
         },
-
         quantity: {
             type: Number,
             required: true,
             min: 1
         },
-
         price: {
             type: Number,
             required: true,
@@ -57,7 +55,49 @@ const orderSchema = new mongoose.Schema(
                 "CANCELLED"
             ],
             default: "PENDING"
-        }
+        },
+
+        trackingStatus: {
+            type: String,
+            enum: [
+                "PLACED",
+                "PAID",
+                "RESERVED",
+                "CONFIRMED",
+                "PREPARING",
+                "SHIPPED",
+                "OUT_FOR_DELIVERY",
+                "DELIVERED"
+            ],
+            default: "PLACED"
+        },
+
+        trackingStatusChangedAt: {
+            type: Date,
+            default: Date.now
+        },
+
+        trackingHistory: [
+            {
+                status: {
+                    type: String,
+                    enum: [
+                        "PLACED",
+                        "PAID",
+                        "RESERVED",
+                        "CONFIRMED",
+                        "PREPARING",
+                        "SHIPPED",
+                        "OUT_FOR_DELIVERY",
+                        "DELIVERED"
+                    ]
+                },
+                changedAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ]
     },
     {
         timestamps: true
