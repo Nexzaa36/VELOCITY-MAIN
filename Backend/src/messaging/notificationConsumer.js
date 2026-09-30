@@ -46,9 +46,7 @@ const startNotificationConsumer = async () => {
         NOTIFICATION_ORDER_CANCELLED_ROUTING_KEY
     );
 
-    console.log(
-        "Notification consumer started"
-    );
+    console.log("Notification consumer started");
 
     channel.consume(
         NOTIFICATION_QUEUE,
@@ -82,7 +80,9 @@ const startNotificationConsumer = async () => {
                     event.eventType ===
                     "PaymentProcessed"
                 ) {
-                    subject = "VELOCITY - Payment Successful";
+                    subject =
+                        "VELOCITY - Payment Successful";
+
                     messageText =
                         "Your payment was successful and your order is confirmed.";
                 }
@@ -91,7 +91,9 @@ const startNotificationConsumer = async () => {
                     event.eventType ===
                     "PaymentFailed"
                 ) {
-                    subject = "VELOCITY - Payment Failed";
+                    subject =
+                        "VELOCITY - Payment Failed";
+
                     messageText =
                         "Your payment failed. Please try another payment method.";
                 }
@@ -100,7 +102,9 @@ const startNotificationConsumer = async () => {
                     event.eventType ===
                     "OrderCancelled"
                 ) {
-                    subject = "VELOCITY - Order Cancelled";
+                    subject =
+                        "VELOCITY - Order Cancelled";
+
                     messageText =
                         "Your order has been cancelled.";
                 }
@@ -111,49 +115,24 @@ const startNotificationConsumer = async () => {
                     );
                 }
 
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "NOTIFICATION SERVICE"
-                );
-
-                console.log(
-                    "Event:",
-                    event.eventType
-                );
-
-                console.log(
-                    "Order ID:",
-                    orderId
-                );
-
-                console.log(
-                    "User ID:",
-                    userId
-                );
-
-                console.log(
-                    "Sending email to:",
-                    user.email
-                );
+                console.log("=================================");
+                console.log("NOTIFICATION SERVICE");
+                console.log("Event:", event.eventType);
+                console.log("Order ID:", orderId);
+                console.log("User ID:", userId);
+                console.log("Sending email to:", user.email);
 
                 await sendEmail(
                     user.email,
                     subject,
                     messageText,
                     orderId,
-                    event.data.amount
+                    event.data.amount,
+                    event.eventType
                 );
 
-                console.log(
-                    "Notification email sent"
-                );
-
-                console.log(
-                    "================================="
-                );
+                console.log("Notification email sent");
+                console.log("=================================");
 
                 channel.ack(message);
 

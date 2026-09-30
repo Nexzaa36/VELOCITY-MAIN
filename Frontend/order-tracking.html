@@ -1,203 +1,547 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | VELOCITY</title>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/order-tracking.css">
-
 </head>
 
-<body>
+<body class="velocity-tracking-page">
 
-    <!-- NAVBAR -->
+<header class="tracking-navbar">
 
-    <header class="navbar">
+    <a href="index.html" class="logo">
+        VELOCITY
+    </a>
 
-        <a href="index.html" class="logo">
-            VELOCITY
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="catalogue.html">Catalogue</a>
+        <a href="cart.html">
+            Cart <span id="cart-count" class="cart-count">0</span>
         </a>
+        <a href="order-tracking.html" class="active">
+            Track Order
+        </a>
+        <a href="#" id="logout-link">
+            Logout
+        </a>
+    </nav>
 
-        <nav>
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="catalogue.html">
-                Catalogue
-            </a>
-
-            <a href="cart.html">
-                Cart
-            </a>
-
-        </nav>
-
-    </header>
+</header>
 
 
-    <main class="tracking-page">
+<main class="tracking-page">
 
-        <!-- HEADER -->
+    <section class="tracking-layout">
 
-        <section class="tracking-header">
+        <!-- LEFT SIDE -->
+
+        <div class="tracking-intro">
 
             <span class="eyebrow">
-                ORDER TRACKING
+                STAY INFORMED
             </span>
 
             <h1>
-                Track Your Order
+                Track Your
+                <span>Order</span>
             </h1>
 
             <p>
-                Follow your order journey in real time.
+                Enter your order ID below to get the latest
+                status of your order.
             </p>
 
-        </section>
+            <form id="order-search-form" class="order-search">
+
+                <div class="search-input">
+
+                    <span>⌕</span>
+
+                    <input
+                        type="text"
+                        id="order-id-input"
+                        placeholder="Enter your Order ID"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <button type="submit">
+                    Track Order
+                    <span>→</span>
+                </button>
+
+            </form>
 
 
-        <!-- ORDER INFO -->
+            <div class="tracking-features">
 
-        <section class="tracking-card">
+                <div class="feature">
 
-            <div class="tracking-top">
+                    <div class="feature-icon">
+                        ϟ
+                    </div>
 
-                <div>
+                    <div>
+                        <strong>
+                            Real-time Updates
+                        </strong>
 
-                    <span class="label">
-                        Order ID
+                        <small>
+                            Know exactly where your order is
+                        </small>
+                    </div>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        ◇
+                    </div>
+
+                    <div>
+                        <strong>
+                            Secure & Reliable
+                        </strong>
+
+                        <small>
+                            Your order is safe with us
+                        </small>
+                    </div>
+
+                </div>
+
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        ♧
+                    </div>
+
+                    <div>
+                        <strong>
+                            Dedicated Support
+                        </strong>
+
+                        <small>
+                            We're here to help
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+
+        <div class="tracking-dashboard">
+
+            <div class="dashboard-globe"></div>
+
+
+            <!-- ORDER TRACKING CARD -->
+
+            <section class="tracking-card">
+
+                <div class="order-header">
+
+                    <div>
+
+                        <span class="label">
+                            ORDER ID
+                        </span>
+
+                        <h2 id="order-id">
+                            --
+                        </h2>
+
+                    </div>
+
+                    <span
+                        class="payment-badge"
+                        id="payment-badge"
+                    >
+                        ORDER
                     </span>
 
-                    <h2 id="order-id">
+                </div>
+
+
+                <div class="order-meta">
+
+                    <span>
+                        ▣
+                        Ordered
+                        <strong id="order-date">
+                            --
+                        </strong>
+                    </span>
+
+                    <span class="divider"></span>
+
+                    <span>
+                        ▤
+                        Amount Paid
+                        <strong id="order-total-meta">
+                            ₹0.00
+                        </strong>
+                    </span>
+
+                </div>
+
+
+                <!-- TIMELINE -->
+
+                <div class="timeline">
+
+                    <div
+                        class="timeline-step"
+                        data-status="PLACED"
+                    >
+
+                        <div class="timeline-marker">
+                            ✓
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Order Placed
+                            </strong>
+
+                            <span>
+                                Your order has been placed successfully.
+                            </span>
+
+                        </div>
+
+                        <time id="placed-time">
+                            --
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="PAID"
+                    >
+
+                        <div class="timeline-marker">
+                            ✓
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Payment Successful
+                            </strong>
+
+                            <span>
+                                Your payment has been confirmed.
+                            </span>
+
+                        </div>
+
+                        <time id="paid-time">
+                            --
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="RESERVED"
+                    >
+
+                        <div class="timeline-marker">
+                            ✓
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Inventory Reserved
+                            </strong>
+
+                            <span>
+                                Items are reserved in our warehouse.
+                            </span>
+
+                        </div>
+
+                        <time id="reserved-time">
+                            --
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="CONFIRMED"
+                    >
+
+                        <div class="timeline-marker">
+                            ✓
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Order Confirmed
+                            </strong>
+
+                            <span>
+                                Your order is confirmed and will be processed soon.
+                            </span>
+
+                        </div>
+
+                        <time id="confirmed-time">
+                            --
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="PREPARING"
+                    >
+
+                        <div class="timeline-marker">
+                            ○
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Preparing for Shipment
+                            </strong>
+
+                            <span>
+                                Your order is being packed and prepared for dispatch.
+                            </span>
+
+                        </div>
+
+                        <em>
+                            Current
+                        </em>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="SHIPPED"
+                    >
+
+                        <div class="timeline-marker">
+                            ○
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Shipped
+                            </strong>
+
+                            <span>
+                                Your order has been dispatched.
+                            </span>
+
+                        </div>
+
+                        <time>
+                            —
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="OUT_FOR_DELIVERY"
+                    >
+
+                        <div class="timeline-marker">
+                            ○
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Out for Delivery
+                            </strong>
+
+                            <span>
+                                Your order is out for delivery.
+                            </span>
+
+                        </div>
+
+                        <time>
+                            —
+                        </time>
+
+                    </div>
+
+
+                    <div
+                        class="timeline-step"
+                        data-status="DELIVERED"
+                    >
+
+                        <div class="timeline-marker">
+                            ○
+                        </div>
+
+                        <div class="timeline-content">
+
+                            <strong>
+                                Delivered
+                            </strong>
+
+                            <span>
+                                Your order has been delivered.
+                            </span>
+
+                        </div>
+
+                        <time>
+                            —
+                        </time>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- RIGHT INFORMATION -->
+
+            <aside class="tracking-sidebar">
+
+                <section class="side-card">
+
+                    <span class="label">
+                        ORDER SUMMARY
+                    </span>
+
+                    <div id="order-items"></div>
+
+                    <div class="summary-lines">
+
+                        <div>
+                            <span>
+                                Subtotal
+                            </span>
+
+                            <span id="order-subtotal">
+                                ₹0.00
+                            </span>
+                        </div>
+
+                        <div>
+                            <span>
+                                Tax (5%)
+                            </span>
+
+                            <span id="order-tax">
+                                ₹0.00
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="order-total">
+                            ₹0.00
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <section class="side-card">
+
+                    <span class="label">
+                        SHIPPING ADDRESS
+                    </span>
+
+                    <div
+                        class="address-block"
+                        id="customer-details"
+                    >
+                        <strong>
+                            --
+                        </strong>
+
+                        <span>
+                            --
+                        </span>
+                    </div>
+
+
+                    <div class="notification-note">
+
+                        <span>
+                            ⓘ
+                        </span>
+
+                        <p>
+                            You'll receive an email notification
+                            once your order is shipped.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <div class="estimated-delivery">
+
+                    <span>
+                        ESTIMATED DELIVERY
+                    </span>
+
+                    <strong id="delivery-date">
                         --
-                    </h2>
+                    </strong>
 
                 </div>
 
-                <div>
+            </aside>
 
-                    <span class="label">
-                        Status
-                    </span>
+        </div>
 
-                    <h3 id="order-status">
-                        Processing
-                    </h3>
+    </section>
 
-                </div>
-
-                <div>
-
-                    <span class="label">
-                        Estimated Delivery
-                    </span>
-
-                    <h3 id="delivery-date">
-                        --
-                    </h3>
-
-                </div>
-
-            </div>
-
-        </section>
+</main>
 
 
-        <!-- TIMELINE -->
-
-        <section class="timeline-card">
-
-            <h2>
-                Order Progress
-            </h2>
-
-            <div class="timeline">
-
-                <div class="timeline-step active">
-                    ✓ Order Placed
-                </div>
-
-                <div class="timeline-step active">
-                    ✓ Payment Confirmed
-                </div>
-
-                <div class="timeline-step active">
-                    ✓ Inventory Reserved
-                </div>
-
-                <div class="timeline-step current">
-                    ● Preparing For Dispatch
-                </div>
-
-                <div class="timeline-step">
-                    ○ Shipped
-                </div>
-
-                <div class="timeline-step">
-                    ○ Out For Delivery
-                </div>
-
-                <div class="timeline-step">
-                    ○ Delivered
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- CUSTOMER -->
-
-        <section class="customer-card">
-
-            <h2>
-                Delivery Information
-            </h2>
-
-            <div id="customer-details">
-            </div>
-
-        </section>
-
-
-        <!-- ITEMS -->
-
-        <section class="items-card">
-
-            <h2>
-                Order Items
-            </h2>
-
-            <div id="order-items">
-            </div>
-
-            <div class="order-total">
-
-                <span>Total</span>
-
-                <strong id="order-total">
-                    ₹0
-                </strong>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="js/order-tracking.js"></script>
+<script src="js/order-tracking.js"></script>
 
 </body>
-
 </html>
