@@ -16,6 +16,7 @@ const rateLimit =require("express-rate-limit");
 
 const paymentRoutes =require("./src/routes/paymentRoutes");
 
+const adminAuthRoutes = require("./src/routes/adminAuthRoutes");
 
 // ========================================
 // RABBITMQ
@@ -161,6 +162,8 @@ app.use(
     authRoutes
 );
 
+app.use("/api/admin/auth", adminAuthRoutes);
+
 app.use(
     "/api/users",
     userRoutes
@@ -185,6 +188,7 @@ app.use(
     "/api/payments",
     paymentRoutes
 );
+
 
 
 // ========================================

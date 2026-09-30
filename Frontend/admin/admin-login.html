@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VELOCITY — Administrator Access</title>
+
+    <link
+        rel="stylesheet"
+        href="./admin-login.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="login-page">
+
+        <section class="login-visual">
+
+            <div class="brand">
+                VELOCITY
+            </div>
+
+            <div class="visual-content">
+
+                <span class="eyebrow">
+                    PRIVATE CONTROL CENTER
+                </span>
+
+                <h1>
+                    Commerce that
+                    <span>keeps moving.</span>
+                </h1>
+
+                <p>
+                    Secure administrator access to the
+                    VELOCITY commerce control center.
+                </p>
+
+            </div>
+
+            <div class="orb"></div>
+
+        </section>
+
+
+        <section class="login-panel">
+
+            <div class="login-box">
+
+                <div class="mobile-brand">
+                    VELOCITY
+                </div>
+
+                <span class="eyebrow">
+                    ADMINISTRATOR ACCESS
+                </span>
+
+                <h2>
+                    Welcome back.
+                </h2>
+
+                <p class="subtitle">
+                    Sign in to manage your VELOCITY operation.
+                </p>
+
+
+                <form id="adminLoginForm">
+
+                    <div class="field">
+
+                        <label for="email">
+                            ADMIN EMAIL
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="admin@velocity.com"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="password">
+                            PASSWORD
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="password-toggle"
+                            >
+                                SHOW
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                        id="loginButton"
+                    >
+                        SIGN IN
+                        <span>→</span>
+                    </button>
+
+                    <div
+                        id="loginMessage"
+                        class="login-message"
+                    ></div>
+
+                </form>
+
+
+                <div class="security-note">
+
+                    <span class="security-dot"></span>
+
+                    Protected administrator access
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="./admin-login.js"></script>
+
+</body>
+
+</html>

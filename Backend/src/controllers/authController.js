@@ -324,6 +324,114 @@ const loginUser = async (req, res) => {
 
 };
 
+// =========================================
+// ADMIN LOGIN
+// =========================================
+
+const adminLogin = async (req, res) => {
+    try {
+        const {
+            email,
+            password
+        } = req.body;
+
+        // =========================================
+        // CHECK REQUIRED FIELDS
+        // =========================================
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Please provide email and password"
+            });
+        }
+
+        // =========================================
+        // FIND USER
+        // =========================================
+
+        const user = await User.findOne({
+            email: email.toLowerCase().trim()
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid admin credentials"
+            });
+        }
+
+        // =========================================
+        // CHECK ADMIN ROLE
+        // =========================================
+
+        if (user.role !== "admin") {
+            return res.status(403).json({
+                success: false,
+                message: "Administrator access required"
+            });
+        }
+
+        // =========================================
+        // CHECK PASSWORD
+        // =========================================
+
+        const passwordMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!passwordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid admin credentials"
+            });
+        }
+
+        // =========================================
+        // CREATE ADMIN JWT
+        // =========================================
+
+        const token = jwt.sign(
+            {
+                userId: user._id.toString(),
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d"
+            }
+        );
+
+        // =========================================
+        // RESPONSE
+        // =========================================
+
+        return res.status(200).json({
+            success: true,
+            message: "Admin login successful",
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error(
+            "Admin Login Error:",
+            error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
 
 module.exports = {
 

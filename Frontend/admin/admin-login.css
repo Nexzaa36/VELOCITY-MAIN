@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background: #f7f7f3;
+    color: #111;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+}
+
+.login-visual {
+    position: relative;
+    overflow: hidden;
+    padding: 42px 56px;
+    border-right: 1px solid #deded8;
+    background: #f5f5f1;
+}
+
+.brand {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+}
+
+.visual-content {
+    position: absolute;
+    left: 12%;
+    top: 38%;
+    max-width: 650px;
+    z-index: 2;
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 22px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #777;
+}
+
+.visual-content h1 {
+    font-size: clamp(55px, 6vw, 92px);
+    line-height: .92;
+    letter-spacing: -5px;
+    font-weight: 800;
+}
+
+.visual-content h1 span {
+    display: block;
+    color: #a9a9a5;
+}
+
+.visual-content p {
+    margin-top: 28px;
+    max-width: 500px;
+    color: #666;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.orb {
+    position: absolute;
+    width: 540px;
+    height: 540px;
+    right: -80px;
+    top: 16%;
+    border: 1px solid #d9d9d4;
+    border-radius: 50%;
+    opacity: .75;
+}
+
+.orb::before,
+.orb::after {
+    content: "";
+    position: absolute;
+    inset: 20%;
+    border: 1px solid #d9d9d4;
+    border-radius: 50%;
+}
+
+.orb::before {
+    transform: rotate(60deg) scaleX(.45);
+}
+
+.orb::after {
+    transform: rotate(-60deg) scaleX(.45);
+}
+
+.login-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    background: #fafaf7;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 440px;
+}
+
+.mobile-brand {
+    display: none;
+}
+
+.login-box h2 {
+    font-size: 46px;
+    line-height: 1;
+    letter-spacing: -2.5px;
+    margin-bottom: 14px;
+}
+
+.subtitle {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.field {
+    margin-bottom: 22px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    color: #666;
+}
+
+.field input {
+    width: 100%;
+    height: 55px;
+    border: 1px solid #d6d6d0;
+    background: #fff;
+    padding: 0 16px;
+    font: inherit;
+    outline: none;
+    transition: border .2s;
+}
+
+.field input:focus {
+    border-color: #111;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 70px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #666;
+}
+
+.login-button {
+    width: 100%;
+    height: 58px;
+    border: 0;
+    background: #111;
+    color: white;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    transition: transform .2s, background .2s;
+}
+
+.login-button:hover {
+    background: #222;
+    transform: translateY(-1px);
+}
+
+.login-button span {
+    font-size: 18px;
+}
+
+.login-message {
+    min-height: 22px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #b3261e;
+}
+
+.security-note {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #deded8;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #888;
+    font-size: 11px;
+}
+
+.security-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7e9a7b;
+}
+
+
+@media (max-width: 900px) {
+
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .login-visual {
+        display: none;
+    }
+
+    .login-panel {
+        min-height: 100vh;
+        padding: 30px;
+    }
+
+    .mobile-brand {
+        display: block;
+        margin-bottom: 70px;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+}
