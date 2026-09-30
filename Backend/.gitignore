@@ -4,3 +4,6 @@ node_modules/
 npm-debug.log*
 .DS_Store
 coverage/
+db pass.txt
+razorpay_test_api_keys_1790678639322.csv
+ROADMAP.txt

@@ -288,7 +288,9 @@ const createTruck = () => {
         </div>
     `;
 
-    timeline.appendChild(truck);
+    timeline.appendChild(
+        truck
+    );
 
     return truck;
 };
@@ -392,46 +394,105 @@ const setTimeline = order => {
         );
 
     document
-        .querySelectorAll(
-            ".timeline-step"
-        )
+        .querySelectorAll(".timeline-step")
         .forEach(step => {
+
             const status =
                 normalizeStatus(
                     step.dataset.status
                 );
 
             const stepIndex =
-                getTrackingIndex(
-                    status
+                getTrackingIndex(status);
+
+            const marker =
+                step.querySelector(
+                    ".timeline-marker"
                 );
+
+            /*
+             * Save the original icon only once.
+             * This means truck/location/delivery icons
+             * can always be restored when needed.
+             */
+            if (
+                marker &&
+                !marker.dataset.originalIcon
+            ) {
+                marker.dataset.originalIcon =
+                    marker.innerHTML;
+            }
 
             step.classList.remove(
                 "is-complete",
                 "is-current",
                 "is-pending",
                 "complete",
-                "current"
+                "current",
+                "pending"
             );
 
+            /*
+             * COMPLETED
+             * Show a green tick.
+             */
             if (
                 stepIndex <
                 currentIndex
             ) {
                 step.classList.add(
-                    "is-complete"
+                    "is-complete",
+                    "complete"
                 );
-            } else if (
+
+                if (marker) {
+                    marker.innerHTML = `
+                        <svg
+                            class="check-icon"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M5 12.5l4 4L19 7"
+                            />
+                        </svg>
+                    `;
+                }
+            }
+
+            /*
+             * CURRENT
+             * Restore the original icon.
+             */
+            else if (
                 stepIndex ===
                 currentIndex
             ) {
                 step.classList.add(
-                    "is-current"
+                    "is-current",
+                    "current"
                 );
-            } else {
+
+                if (marker) {
+                    marker.innerHTML =
+                        marker.dataset.originalIcon;
+                }
+            }
+
+            /*
+             * FUTURE
+             * Restore the original icon.
+             */
+            else {
                 step.classList.add(
-                    "is-pending"
+                    "is-pending",
+                    "pending"
                 );
+
+                if (marker) {
+                    marker.innerHTML =
+                        marker.dataset.originalIcon;
+                }
             }
         });
 
@@ -463,16 +524,26 @@ const updatePaymentBadge = order => {
         );
 
         paymentBadge.innerHTML = `
-            <svg viewBox="0 0 24 24">
-                <path d="M5 12.5l4 4L19 7"/>
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M5 12.5L9 16.5L19 7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
             </svg>
             PAID
         `;
     } else if (
         order.status ===
-        "CANCELLED" ||
+            "CANCELLED" ||
         order.status ===
-        "FAILED"
+            "FAILED"
     ) {
         paymentBadge.classList.add(
             "failed"
@@ -513,8 +584,7 @@ const calculateSubtotal = order => {
 
             return (
                 sum +
-                price *
-                quantity
+                price * quantity
             );
         },
         0
@@ -643,8 +713,7 @@ const renderItems = order => {
 
             <div class="order-item-price">
                 ${formatCurrency(
-                    price *
-                    quantity
+                    price * quantity
                 )}
             </div>
         `;
@@ -785,6 +854,12 @@ const fetchOrder = async orderId => {
         );
     }
 
+    if (!data?.order) {
+        throw new Error(
+            "Order data was not returned by the server."
+        );
+    }
+
     return data.order;
 };
 
@@ -821,15 +896,14 @@ const loadOrder = async (
         );
 
         if (
-            startPolling &&
-            !pollingInterval
+            startPolling
         ) {
             startTrackingPolling();
         }
     } catch (error) {
         console.error(
             "Tracking error:",
-            error.message
+            error
         );
 
         stopTrackingPolling();
@@ -858,6 +932,7 @@ const startTrackingPolling = () => {
                     )
                 ) {
                     stopTrackingPolling();
+
                     return;
                 }
 
@@ -873,7 +948,7 @@ const startTrackingPolling = () => {
                 } catch (error) {
                     console.error(
                         "Tracking update error:",
-                        error.message
+                        error
                     );
 
                     stopTrackingPolling();
@@ -996,6 +1071,8 @@ if (searchForm) {
                 "",
                 newUrl
             );
+
+            currentOrderId = null;
 
             loadOrder(
                 enteredId

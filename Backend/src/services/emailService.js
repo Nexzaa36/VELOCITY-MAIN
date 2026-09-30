@@ -202,7 +202,7 @@ const sendEmail = async (
     We'll keep you updated about your order.
 </p>
 
-<a href="${process.env.FRONTEND_URL || "http://localhost:3000"}"
+<a href="http://127.0.0.1:5500/Frontend/order-tracking.html" id="view-order-btn""
 style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:15px 38px;border-radius:7px;font-size:12px;font-weight:bold;letter-spacing:1.5px;">
     VIEW YOUR ORDER →
 </a>

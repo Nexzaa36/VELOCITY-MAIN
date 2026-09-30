@@ -485,16 +485,6 @@ body.velocity-tracking-page {
     font-size: 12px;
 }
 
-.timeline-step.is-current em {
-    padding: 8px 13px;
-    border-radius: 18px;
-    background: #dcefe2;
-    color: #177544;
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 800;
-    white-space: nowrap;
-}
 
 .timeline-step.is-pending .timeline-content strong {
     color: #777772;
@@ -1029,8 +1019,7 @@ body.velocity-tracking-page {
         font-size: 10px;
     }
 
-    .timeline-step time,
-    .timeline-step em {
+    .timeline-step time {
         grid-column: 2;
         justify-self: start;
     }
