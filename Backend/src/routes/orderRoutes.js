@@ -1,19 +1,64 @@
 const express = require("express");
 
-const protect = require("../middleware/authMiddleware");
+const protect =
+    require("../middleware/authMiddleware");
 
 const {
+
     createOrder,
+
     getUserOrders,
-    getOrderById
+
+    getOrderById,
+
+    getAllOrdersForAdmin,
+
+    getAdminOrderById,
+
+    updateOrderTrackingStatus
+
 } = require("../controllers/orderController");
 
-const router = express.Router();
+const router =
+    express.Router();
 
 
-// =========================================
-// GET ONE ORDER
-// =========================================
+// ========================================
+// ADMIN - GET ALL ORDERS
+// ========================================
+
+router.get(
+    "/admin/all",
+    protect,
+    getAllOrdersForAdmin
+);
+
+
+// ========================================
+// ADMIN - GET SINGLE ORDER
+// ========================================
+
+router.get(
+    "/admin/:orderId",
+    protect,
+    getAdminOrderById
+);
+
+
+// ========================================
+// ADMIN - UPDATE TRACKING STATUS
+// ========================================
+
+router.patch(
+    "/admin/:orderId/tracking",
+    protect,
+    updateOrderTrackingStatus
+);
+
+
+// ========================================
+// CUSTOMER - GET ONE ORDER
+// ========================================
 
 router.get(
     "/order/:orderId",
@@ -22,9 +67,9 @@ router.get(
 );
 
 
-// =========================================
-// CREATE ORDER FROM USER CART
-// =========================================
+// ========================================
+// CREATE ORDER
+// ========================================
 
 router.post(
     "/:userId",
@@ -33,9 +78,9 @@ router.post(
 );
 
 
-// =========================================
-// GET ALL ORDERS FOR USER
-// =========================================
+// ========================================
+// GET USER ORDERS
+// ========================================
 
 router.get(
     "/:userId",

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCITY — Admin</title><link rel="stylesheet" href="admin-orders.css">
+</head>
+<body>
+<header class="topbar"><a class="logo" href="../index.html">VELOCITY</a><nav class="topnav"><a href="../index.html">Home</a><a href="../catalogue.html">Catalogue</a><a class="orders-link" href="admin-orders.html">Orders <span id="nav-order-count">0</span></a><a class="admin-link" href="admin-orders.html">Admin <span class="tiny-arrow">↗</span></a><button id="logout-btn" class="avatar-button" aria-label="Logout"><span class="avatar-icon"></span></button></nav></header>
+<div class="app-shell">
+<aside class="sidebar"><div class="sidebar-nav">
+<a class="side-item active" href="admin-orders.html"><span class="side-icon grid-icon"></span><span>Dashboard</span></a>
+<a class="side-item" href="#recent-orders"><span class="side-icon bag-icon"></span><span>Orders</span></a>
+<a class="side-item" href="../catalogue.html"><span class="side-icon cube-icon"></span><span>Products</span></a>
+<a class="side-item" href="#"><span class="side-icon users-icon"></span><span>Users</span></a>
+<a class="side-item" href="#"><span class="side-icon card-icon"></span><span>Payments</span></a>
+<a class="side-item" href="#"><span class="side-icon inventory-icon"></span><span>Inventory</span></a>
+</div><div class="sidebar-footer"><div class="footer-rule"></div><div class="footer-label">VELOCITY ADMIN</div><div class="footer-copy">Better commerce.<br>Faster.</div></div></aside>
+<main class="main-content">
+<div class="hero-orbit" aria-hidden="true"><div class="globe globe-one"></div><div class="globe globe-two"></div><div class="globe globe-three"></div><div class="globe globe-four"></div><div class="globe globe-five"></div><div class="globe globe-six"></div></div>
+<section class="intro"><div class="eyebrow">ADMIN DASHBOARD</div><h1>Welcome back,<br><span>Administrator.</span></h1><p>Manage your store, track orders, and keep everything running smoothly.</p></section>
+<section class="metrics">
+<article class="metric-card"><div class="metric-top"><div class="metric-name"><span class="metric-icon cube-icon"></span>Total Orders</div><span class="metric-symbol">◫</span></div><div class="metric-value" id="metric-total">0</div><div class="metric-bottom"><span class="trend">↑ <b id="metric-total-trend">—</b></span><span>live</span><svg class="sparkline" viewBox="0 0 120 42"><path d="M2 31 C14 35,20 22,31 26 S46 31,58 17 S74 28,86 18 S100 22,118 6"></path></svg></div></article>
+<article class="metric-card"><div class="metric-top"><div class="metric-name"><span class="metric-icon clock-icon"></span>Pending Orders</div><span class="metric-symbol">◷</span></div><div class="metric-value" id="metric-pending">0</div><div class="metric-bottom"><span class="trend">↑ <b id="metric-pending-trend">—</b></span><span>live</span><svg class="sparkline" viewBox="0 0 120 42"><path d="M2 29 C15 35,21 19,34 25 S49 29,60 15 S76 31,88 18 S104 25,118 8"></path></svg></div></article>
+<article class="metric-card"><div class="metric-top"><div class="metric-name"><span class="rupee-icon">₹</span>Revenue</div><span class="metric-symbol">⌁</span></div><div class="metric-value money" id="metric-revenue">₹ 0</div><div class="metric-bottom"><span class="trend">↑ <b id="metric-revenue-trend">—</b></span><span>live</span><svg class="sparkline" viewBox="0 0 120 42"><path d="M2 33 C15 36,23 19,36 24 S49 27,61 14 S78 28,89 16 S103 23,118 5"></path></svg></div></article>
+<article class="metric-card"><div class="metric-top"><div class="metric-name"><span class="check-icon">✓</span>Delivered Orders</div><span class="metric-symbol">✓</span></div><div class="metric-value" id="metric-delivered">0</div><div class="metric-bottom"><span class="trend">↑ <b id="metric-delivered-trend">—</b></span><span>live</span><svg class="sparkline" viewBox="0 0 120 42"><path d="M2 30 C15 34,21 20,34 25 S49 30,60 16 S75 27,88 17 S102 22,118 6"></path></svg></div></article>
+</section>
+<section class="orders-panel" id="recent-orders"><div class="panel-head"><div><h2>Recent Orders</h2><p>Latest orders from your customers.</p></div><div class="panel-actions"><label class="search"><span class="search-icon">⌕</span><input id="search-input" type="search" placeholder="Search by order ID or customer..."></label><select id="status-filter" class="filter"><option value="ALL">All statuses</option><option value="PENDING">Pending</option><option value="CONFIRMED">Confirmed</option><option value="FAILED">Failed</option><option value="CANCELLED">Cancelled</option></select><button id="refresh-btn" class="icon-button" title="Refresh">↻</button><button id="view-all-btn" class="primary-button">View All Orders <span>→</span></button></div></div>
+<div id="loading" class="state-message">Loading orders...</div><div id="error" class="state-message error-state hidden"></div>
+<div class="table-wrap"><table><thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>DATE</th><th>AMOUNT</th><th>PAYMENT</th><th>TRACKING STATUS</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="orders-body"></tbody></table></div><div id="empty" class="state-message hidden">No orders found.</div>
+</section></main></div>
+<div id="modal" class="modal hidden"><div class="modal-backdrop"></div><section class="modal-card" role="dialog" aria-modal="true"><button id="close-modal" class="modal-close" aria-label="Close">×</button><div id="modal-body"></div></section></div>
+<script src="admin-orders.js"></script>
+</body></html>

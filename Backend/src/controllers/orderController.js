@@ -377,8 +377,212 @@ const getOrderById = async (req, res) => {
     }
 };
 
+// ========================================
+// ADMIN - GET ALL ORDERS
+// ========================================
+
+const getAllOrdersForAdmin = async (req, res) => {
+    try {
+
+        const orders = await Order.find()
+            .populate("userId", "name email")
+            .populate("items.productId", "name price image")
+            .sort({
+                createdAt: -1
+            });
+
+        return res.status(200).json({
+            success: true,
+            orders
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Admin get orders error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch admin orders",
+            error: error.message
+        });
+
+    }
+};
+
+
+// ========================================
+// ADMIN - GET SINGLE ORDER
+// ========================================
+
+const getAdminOrderById = async (req, res) => {
+
+    try {
+
+        const { orderId } = req.params;
+
+        if (
+            !/^[0-9a-fA-F]{24}$/.test(orderId)
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            });
+
+        }
+
+        const order =
+            await Order.findById(orderId)
+                .populate(
+                    "userId",
+                    "name email"
+                )
+                .populate(
+                    "items.productId",
+                    "name price image"
+                );
+
+        if (!order) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            order
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Admin get order error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch order",
+            error: error.message
+        });
+
+    }
+};
+
+
+// ========================================
+// ADMIN - UPDATE TRACKING STATUS
+// ========================================
+
+const updateOrderTrackingStatus = async (req, res) => {
+
+    try {
+
+        const { orderId } = req.params;
+        const { trackingStatus } = req.body;
+
+        const allowedStatuses = [
+            "PLACED",
+            "PAID",
+            "RESERVED",
+            "CONFIRMED",
+            "PREPARING",
+            "SHIPPED",
+            "OUT_FOR_DELIVERY",
+            "DELIVERED"
+        ];
+
+        if (
+            !allowedStatuses.includes(
+                trackingStatus
+            )
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid tracking status"
+            });
+
+        }
+
+        if (
+            !/^[0-9a-fA-F]{24}$/.test(orderId)
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order ID"
+            });
+
+        }
+
+        const order =
+            await Order.findById(orderId);
+
+        if (!order) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+
+        }
+
+        // Don't create a new history entry
+        // if status has not actually changed.
+        if (
+            order.trackingStatus !==
+            trackingStatus
+        ) {
+
+            order.trackingStatus =
+                trackingStatus;
+
+            order.trackingStatusChangedAt =
+                new Date();
+
+            order.trackingHistory.push({
+                status: trackingStatus,
+                changedAt: new Date()
+            });
+
+            await order.save();
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Tracking status updated successfully",
+            order
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Admin update tracking error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update tracking status",
+            error: error.message
+        });
+
+    }
+};
+
 module.exports = {
     createOrder,
     getUserOrders,
-    getOrderById
+    getOrderById,
+    getAllOrdersForAdmin,
+    getAdminOrderById,
+    updateOrderTrackingStatus
 };
