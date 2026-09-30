@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VELOCITY — Products</title>
+
+    <link rel="stylesheet" href="admin-products.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <a class="logo" href="../index.html">
+            VELOCITY
+        </a>
+
+        <nav class="topnav">
+
+            <a href="../index.html">
+                Home
+            </a>
+
+            <a href="../catalogue.html">
+                Catalogue
+            </a>
+
+            <a href="./admin-orders.html">
+                Orders
+                <span id="nav-order-count">0</span>
+            </a>
+
+            <a class="admin-link" href="./admin-dashboard.html">
+                Admin
+                <span class="tiny-arrow">↗</span>
+            </a>
+
+            <button id="logout-btn" class="avatar-button" type="button" aria-label="Logout">
+                <span class="avatar-icon"></span>
+            </button>
+
+        </nav>
+
+    </header>
+
+
+    <div class="app-shell">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-nav">
+
+                <a class="side-item" href="./admin-dashboard.html">
+                    <span class="side-icon grid-icon"></span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a class="side-item" href="./admin-orders.html">
+                    <span class="side-icon bag-icon"></span>
+                    <span>Orders</span>
+                </a>
+
+                <a class="side-item active" href="./admin-products.html">
+                    <span class="side-icon cube-icon"></span>
+                    <span>Products</span>
+                </a>
+
+                <a class="side-item disabled-item" href="#">
+                    <span class="side-icon users-icon"></span>
+                    <span>Users</span>
+                </a>
+
+                <a class="side-item disabled-item" href="#">
+                    <span class="side-icon card-icon"></span>
+                    <span>Payments</span>
+                </a>
+
+                <a class="side-item disabled-item" href="#">
+                    <span class="side-icon inventory-icon"></span>
+                    <span>Inventory</span>
+                </a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <div class="footer-rule"></div>
+
+                <div class="footer-label">
+                    VELOCITY ADMIN
+                </div>
+
+                <div class="footer-copy">
+                    Better commerce.<br>
+                    Faster.
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <main class="main-content">
+
+            <section class="intro">
+
+                <div class="eyebrow">
+                    PRODUCT MANAGEMENT
+                </div>
+
+                <h1>
+                    Manage your<br>
+                    <span>products.</span>
+                </h1>
+
+                <p>
+                    Create, update, remove, and monitor the products available in your store.
+                </p>
+
+            </section>
+
+
+            <section class="product-stats">
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        TOTAL PRODUCTS
+                    </span>
+
+                    <strong id="total-products">
+                        0
+                    </strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        IN STOCK
+                    </span>
+
+                    <strong id="in-stock-products">
+                        0
+                    </strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        LOW STOCK
+                    </span>
+
+                    <strong id="low-stock-products">
+                        0
+                    </strong>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        OUT OF STOCK
+                    </span>
+
+                    <strong id="out-stock-products">
+                        0
+                    </strong>
+                </article>
+
+            </section>
+
+
+            <section class="toolbar">
+
+                <div class="toolbar-left">
+
+                    <div class="panel-eyebrow">
+                        CATALOGUE
+                    </div>
+
+                    <h2>
+                        Products
+                    </h2>
+
+                </div>
+
+                <div class="toolbar-right">
+
+                    <input type="search" id="search-input" placeholder="Search products...">
+
+                    <select id="category-filter">
+                        <option value="ALL">All categories</option>
+                    </select>
+
+                    <button type="button" id="add-product-btn" class="primary-button">
+                        + Add Product
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <section class="products-panel">
+
+                <div id="loading" class="state-message">
+                    Loading products...
+                </div>
+
+                <div id="error" class="state-message error-state hidden"></div>
+
+                <div id="empty" class="state-message hidden">
+                    No products found.
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>PRODUCT</th>
+                                <th>CATEGORY</th>
+                                <th>PRICE</th>
+                                <th>STOCK</th>
+                                <th>STATUS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="products-body"></tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- PRODUCT MODAL -->
+
+    <div id="modal" class="modal hidden" aria-hidden="true">
+
+        <div class="modal-backdrop"></div>
+
+        <div class="modal-card">
+
+            <button id="close-modal" class="modal-close" type="button">
+                ×
+            </button>
+
+            <div class="modal-kicker">
+                PRODUCT MANAGEMENT
+            </div>
+
+            <h2 id="modal-title">
+                Add product
+            </h2>
+
+            <form id="product-form">
+
+                <input type="hidden" id="product-id">
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label for="product-name">
+                            PRODUCT NAME
+                        </label>
+
+                        <input id="product-name" type="text" required>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label for="product-category">
+                            CATEGORY
+                        </label>
+
+                        <input id="product-category" type="text" required>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label for="product-price">
+                            PRICE
+                        </label>
+
+                        <input id="product-price" type="number" min="0" step="0.01" required>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="product-stock">
+                            STOCK
+                        </label>
+
+                        <input id="product-stock" type="number" min="0" step="1" required>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label for="product-image">
+                            IMAGE URL
+                        </label>
+
+                        <input id="product-image" type="url" placeholder="https://...">
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label for="product-description">
+                            DESCRIPTION
+                        </label>
+
+                        <textarea id="product-description" rows="4"></textarea>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label for="product-tags">
+                            TAGS
+                        </label>
+
+                        <input id="product-tags" type="text" placeholder="running, premium, new">
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label for="product-sizes">
+                            SIZES
+                        </label>
+
+                        <input id="product-sizes" type="text" placeholder="7, 8, 9, 10, 11">
+
+                    </div>
+
+                </div>
+
+
+                <div id="form-error" class="form-error hidden"></div>
+
+
+                <div class="modal-actions">
+
+                    <button type="button" id="cancel-btn" class="secondary-button">
+                        Cancel
+                    </button>
+
+                    <button type="submit" id="save-btn" class="primary-button">
+                        Save Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="./admin-products.js"></script>
+
+</body>
+
+</html>

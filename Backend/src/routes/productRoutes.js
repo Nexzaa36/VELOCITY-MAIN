@@ -8,12 +8,17 @@ const {
     deleteProduct
 } = require("../controllers/productController");
 
+const adminProtect = require("../middleware/adminMiddleware");
+
 const router = express.Router();
 
+// Public product routes
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+
+// Admin product management routes
+router.post("/", adminProtect, createProduct);
+router.put("/:id", adminProtect, updateProduct);
+router.delete("/:id", adminProtect, deleteProduct);
 
 module.exports = router;
