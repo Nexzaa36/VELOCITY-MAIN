@@ -23,6 +23,7 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="catalogue.html">Catalogue</a>
+
             <a href="cart.html">
                 Cart <span id="cart-count">0</span>
             </a>
@@ -52,77 +53,261 @@
 
         <section class="checkout-layout">
 
-            <form id="checkout-form" class="checkout-form">
+            <form
+                id="checkout-form"
+                class="checkout-form"
+                novalidate
+            >
 
                 <div class="checkout-card">
 
+                    <!-- ============================= -->
+                    <!-- CUSTOMER INFORMATION -->
+                    <!-- ============================= -->
+
                     <div class="section-title">
-                        <span class="step-number">1</span>
-                        <h2>Customer Information</h2>
+
+                        <span class="step-number">
+                            1
+                        </span>
+
+                        <h2>
+                            Customer Information
+                        </h2>
+
                     </div>
+
 
                     <div class="form-grid">
 
-                        <div class="input-group">
-                            <label>Full Name *</label>
-                            <input type="text" id="name" placeholder="Enter your full name" required>
-                        </div>
+
+                        <!-- FULL NAME -->
 
                         <div class="input-group">
-                            <label>Email Address *</label>
-                            <input type="email" id="email" placeholder="Enter your email address" required>
+
+                            <label for="name">
+                                Full Name *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                placeholder="Enter your full name"
+                                autocomplete="name"
+                                minlength="2"
+                                maxlength="50"
+                                required
+                            >
+
+                            <small
+                                class="field-error"
+                                id="name-error"
+                            ></small>
+
                         </div>
 
+
+                        <!-- EMAIL -->
+
                         <div class="input-group">
-                            <label>Phone Number *</label>
-                            <input type="tel" id="phone" placeholder="Enter your phone number" required>
+
+                            <label for="email">
+                                Email Address *
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Enter your email address"
+                                autocomplete="email"
+                                maxlength="100"
+                                required
+                            >
+
+                            <small
+                                class="field-error"
+                                id="email-error"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="input-group">
+
+                            <label for="phone">
+                                Phone Number *
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="10-digit mobile number"
+                                autocomplete="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                required
+                            >
+
+                            <small
+                                class="field-error"
+                                id="phone-error"
+                            ></small>
+
                         </div>
 
                     </div>
+
 
                     <hr>
 
+
+                    <!-- ============================= -->
+                    <!-- SHIPPING ADDRESS -->
+                    <!-- ============================= -->
+
                     <div class="section-title">
-                        <span class="step-number">2</span>
-                        <h2>Shipping Address</h2>
+
+                        <span class="step-number">
+                            2
+                        </span>
+
+                        <h2>
+                            Shipping Address
+                        </h2>
+
                     </div>
+
+
+                    <!-- ADDRESS -->
 
                     <div class="input-group full-width">
 
-                        <label>Street Address *</label>
+                        <label for="address">
+                            Street Address *
+                        </label>
 
-                        <input type="text" id="address" placeholder="House number, street name, area" required>
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            placeholder="House number, street name, area"
+                            autocomplete="street-address"
+                            minlength="10"
+                            maxlength="150"
+                            required
+                        >
+
+                        <small
+                            class="field-error"
+                            id="address-error"
+                        ></small>
 
                     </div>
 
+
                     <div class="form-grid">
 
+
+                        <!-- CITY -->
+
                         <div class="input-group">
-                            <label>City *</label>
-                            <input type="text" id="city" placeholder="Enter your city" required>
+
+                            <label for="city">
+                                City *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="city"
+                                name="city"
+                                placeholder="Enter your city"
+                                autocomplete="address-level2"
+                                minlength="2"
+                                maxlength="50"
+                                required
+                            >
+
+                            <small
+                                class="field-error"
+                                id="city-error"
+                            ></small>
+
                         </div>
 
-                        <div class="input-group">
-                            <label>State *</label>
 
-                            <select id="state" required>
+                        <!-- STATE -->
+
+                        <div class="input-group">
+
+                            <label for="state">
+                                State *
+                            </label>
+
+                            <select
+                                id="state"
+                                name="state"
+                                required
+                            >
 
                                 <option value="">
                                     Select state
                                 </option>
 
-                                <option>Maharashtra</option>
-                                <option>Delhi</option>
-                                <option>Karnataka</option>
-                                <option>Tamil Nadu</option>
+                                <option value="Maharashtra">
+                                    Maharashtra
+                                </option>
+
+                                <option value="Delhi">
+                                    Delhi
+                                </option>
+
+                                <option value="Karnataka">
+                                    Karnataka
+                                </option>
+
+                                <option value="Tamil Nadu">
+                                    Tamil Nadu
+                                </option>
 
                             </select>
 
+                            <small
+                                class="field-error"
+                                id="state-error"
+                            ></small>
+
                         </div>
 
+
+                        <!-- PIN CODE -->
+
                         <div class="input-group">
-                            <label>ZIP Code *</label>
-                            <input type="text" id="postal" placeholder="Enter ZIP code" required>
+
+                            <label for="postal">
+                                ZIP / PIN Code *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="postal"
+                                name="postal"
+                                placeholder="6-digit PIN code"
+                                autocomplete="postal-code"
+                                inputmode="numeric"
+                                maxlength="6"
+                                required
+                            >
+
+                            <small
+                                class="field-error"
+                                id="postal-error"
+                            ></small>
+
                         </div>
 
                     </div>
@@ -132,35 +317,69 @@
             </form>
 
 
+            <!-- ============================= -->
+            <!-- ORDER SUMMARY -->
+            <!-- ============================= -->
+
             <aside class="order-summary">
 
-                <h2>Order Summary</h2>
+                <h2>
+                    Order Summary
+                </h2>
+
 
                 <div id="checkout-items">
                 </div>
 
+
                 <div class="summary-breakdown">
 
                     <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span id="checkout-subtotal">₹0</span>
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <span id="checkout-subtotal">
+                            ₹0
+                        </span>
+
                     </div>
 
-                    <div class="summary-row">
-                        <span>Shipping</span>
-                        <span>FREE</span>
-                    </div>
 
                     <div class="summary-row">
-                        <span>Tax (5%)</span>
-                        <span id="checkout-tax">₹0</span>
+
+                        <span>
+                            Shipping
+                        </span>
+
+                        <span>
+                            FREE
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Tax (5%)
+                        </span>
+
+                        <span id="checkout-tax">
+                            ₹0
+                        </span>
+
                     </div>
 
                 </div>
 
+
                 <div class="summary-total">
 
-                    <span>Total</span>
+                    <span>
+                        Total
+                    </span>
 
                     <strong id="checkout-total">
                         ₹0
@@ -168,7 +387,12 @@
 
                 </div>
 
-                <button type="submit" form="checkout-form" class="place-order-btn">
+
+                <button
+                    type="submit"
+                    form="checkout-form"
+                    class="place-order-btn"
+                >
                     🔒 Pay Now
                 </button>
 
@@ -180,14 +404,19 @@
 
 
     <script src="js/app.js"></script>
+
     <script src="js/auth.js"></script>
 
 
-    <!-- Razorpay Checkout -->
+    <!-- Razorpay -->
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+
     <!-- VELOCITY Checkout -->
+
     <script src="js/checkout.js"></script>
 
 </body>
+
 </html>

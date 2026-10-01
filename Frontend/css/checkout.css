@@ -381,7 +381,32 @@
     color: #64748b;
     margin: 0 0 20px;
 }
+/* =========================================
+   CHECKOUT VALIDATION
+========================================= */
 
+.input-group {
+    position: relative;
+}
+
+.input-error {
+    border-color: #dc2626 !important;
+    outline: none;
+}
+
+.input-error:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
+.field-error {
+    display: block;
+    min-height: 18px;
+    margin-top: 5px;
+    color: #dc2626;
+    font-size: 12px;
+    line-height: 1.4;
+}
 
 /* =========================================
    CHECKOUT MOBILE / RESPONSIVE FIX
