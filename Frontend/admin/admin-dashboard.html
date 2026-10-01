@@ -4,17 +4,11 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>VELOCITY — Admin Dashboard</title>
 
-    <link
-        rel="stylesheet"
-        href="admin-dashboard.css"
-    >
+    <link rel="stylesheet" href="admin-dashboard.css">
 </head>
 
 <body>
@@ -23,10 +17,7 @@
          ACCESS CHECK
          ========================================= -->
 
-    <div
-        id="admin-page-loading"
-        class="admin-page-loading"
-    >
+    <div id="admin-page-loading" class="admin-page-loading">
         VERIFYING ACCESS...
     </div>
 
@@ -37,10 +28,7 @@
 
     <header class="topbar">
 
-        <a
-            href="../index.html"
-            class="logo"
-        >
+        <a href="../index.html" class="logo">
             VELOCITY
         </a>
 
@@ -51,14 +39,11 @@
                 Home
             </a>
 
-            <a href="../catalogue.html">
-                Catalogue
+            <a href="./admin-products.html">
+                Products
             </a>
 
-            <a
-                href="./admin-orders.html"
-                class="orders-link"
-            >
+            <a href="./admin-orders.html" class="orders-link">
                 Orders
 
                 <span id="nav-order-count">
@@ -66,10 +51,7 @@
                 </span>
             </a>
 
-            <a
-                href="./admin-dashboard.html"
-                class="admin-link active"
-            >
+            <a href="./admin-dashboard.html" class="admin-link active">
                 Admin
                 <span>↗</span>
             </a>
@@ -79,21 +61,13 @@
 
             <div class="profile-wrap">
 
-                <button
-                    id="profile-button"
-                    class="avatar-button"
-                    type="button"
-                    aria-label="Open administrator menu"
-                    aria-expanded="false"
-                >
+                <button id="profile-button" class="avatar-button" type="button" aria-label="Open administrator menu"
+                    aria-expanded="false">
                     <span class="avatar-icon"></span>
                 </button>
 
 
-                <div
-                    id="profile-menu"
-                    class="profile-menu"
-                >
+                <div id="profile-menu" class="profile-menu">
 
                     <div class="profile-info">
 
@@ -101,17 +75,11 @@
                             ADMINISTRATOR
                         </div>
 
-                        <div
-                            id="profile-name"
-                            class="profile-name"
-                        >
+                        <div id="profile-name" class="profile-name">
                             Administrator
                         </div>
 
-                        <div
-                            id="profile-email"
-                            class="profile-email"
-                        >
+                        <div id="profile-email" class="profile-email">
                             Admin account
                         </div>
 
@@ -120,10 +88,7 @@
 
                     <div class="profile-links">
 
-                        <a
-                            href="./admin-dashboard.html"
-                            class="profile-menu-link"
-                        >
+                        <a href="./admin-dashboard.html" class="profile-menu-link">
                             <span>
                                 Admin Dashboard
                             </span>
@@ -134,12 +99,19 @@
                         </a>
 
 
-                        <a
-                            href="./admin-orders.html"
-                            class="profile-menu-link"
-                        >
+                        <a href="./admin-orders.html" class="profile-menu-link">
                             <span>
                                 Manage Orders
+                            </span>
+
+                            <span>
+                                →
+                            </span>
+                        </a>
+
+                        <a href="./admin-products.html" class="profile-menu-link">
+                            <span>
+                                Manage Products
                             </span>
 
                             <span>
@@ -151,11 +123,7 @@
                         <div class="profile-divider"></div>
 
 
-                        <button
-                            id="logout-btn"
-                            class="profile-logout"
-                            type="button"
-                        >
+                        <button id="logout-btn" class="profile-logout" type="button">
                             <span>
                                 Logout
                             </span>
@@ -192,10 +160,7 @@
 
             <nav class="sidebar-nav">
 
-                <a
-                    href="./admin-dashboard.html"
-                    class="side-item active"
-                >
+                <a href="./admin-dashboard.html" class="side-item active">
 
                     <span class="side-icon grid-icon"></span>
 
@@ -206,10 +171,7 @@
                 </a>
 
 
-                <a
-                    href="./admin-orders.html"
-                    class="side-item"
-                >
+                <a href="./admin-orders.html" class="side-item">
 
                     <span class="side-icon bag-icon"></span>
 
@@ -220,10 +182,7 @@
                 </a>
 
 
-                <a
-                    href="./admin-products.html"
-                    class="side-item"
-                >
+                <a href="./admin-products.html" class="side-item">
 
                     <span class="side-icon cube-icon"></span>
 
@@ -234,11 +193,7 @@
                 </a>
 
 
-                <a
-                    href="#"
-                    class="side-item disabled"
-                    onclick="return false;"
-                >
+                <a href="#" class="side-item disabled" onclick="return false;">
 
                     <span class="side-icon users-icon"></span>
 
@@ -253,11 +208,7 @@
                 </a>
 
 
-                <a
-                    href="#"
-                    class="side-item disabled"
-                    onclick="return false;"
-                >
+                <a href="#" class="side-item disabled" onclick="return false;">
 
                     <span class="side-icon card-icon"></span>
 
@@ -272,11 +223,7 @@
                 </a>
 
 
-                <a
-                    href="#"
-                    class="side-item disabled"
-                    onclick="return false;"
-                >
+                <a href="#" class="side-item disabled" onclick="return false;">
 
                     <span class="side-icon inventory-icon"></span>
 
@@ -312,11 +259,7 @@
                 </div>
 
 
-                <button
-                    id="sidebar-logout"
-                    class="sidebar-logout"
-                    type="button"
-                >
+                <button id="sidebar-logout" class="sidebar-logout" type="button">
                     ↪
                     <span>
                         Logout
@@ -338,10 +281,7 @@
 
             <!-- DECORATION -->
 
-            <div
-                class="hero-orbit"
-                aria-hidden="true"
-            >
+            <div class="hero-orbit" aria-hidden="true">
                 <div class="globe globe-one"></div>
                 <div class="globe globe-two"></div>
                 <div class="globe globe-three"></div>
@@ -370,13 +310,20 @@
                 </div>
 
 
-                <a
-                    href="./admin-orders.html"
-                    class="header-action"
-                >
-                    Manage Orders
-                    <span>→</span>
-                </a>
+                <div class="header-actions">
+
+                    <a href="./admin-orders.html" class="header-action">
+                        Manage Orders
+                        <span>→</span>
+                    </a>
+
+
+                    <a href="./admin-products.html" class="header-action">
+                        Manage Products
+                        <span>→</span>
+                    </a>
+
+                </div>
 
             </section>
 
@@ -403,10 +350,7 @@
 
                     </div>
 
-                    <div
-                        id="metric-total"
-                        class="metric-value"
-                    >
+                    <div id="metric-total" class="metric-value">
                         0
                     </div>
 
@@ -440,10 +384,7 @@
 
                     </div>
 
-                    <div
-                        id="metric-pending"
-                        class="metric-value"
-                    >
+                    <div id="metric-pending" class="metric-value">
                         0
                     </div>
 
@@ -477,10 +418,7 @@
 
                     </div>
 
-                    <div
-                        id="metric-delivered"
-                        class="metric-value"
-                    >
+                    <div id="metric-delivered" class="metric-value">
                         0
                     </div>
 
@@ -514,10 +452,7 @@
 
                     </div>
 
-                    <div
-                        id="metric-revenue"
-                        class="metric-value revenue"
-                    >
+                    <div id="metric-revenue" class="metric-value revenue">
                         ₹ 0
                     </div>
 
@@ -569,10 +504,7 @@
                         </div>
 
 
-                        <a
-                            href="./admin-orders.html"
-                            class="view-all-link"
-                        >
+                        <a href="./admin-orders.html" class="view-all-link">
                             View all
                             <span>→</span>
                         </a>
@@ -580,25 +512,16 @@
                     </div>
 
 
-                    <div
-                        id="dashboard-loading"
-                        class="dashboard-message"
-                    >
+                    <div id="dashboard-loading" class="dashboard-message">
                         Loading orders...
                     </div>
 
 
-                    <div
-                        id="dashboard-error"
-                        class="dashboard-message error hidden"
-                    >
+                    <div id="dashboard-error" class="dashboard-message error hidden">
                     </div>
 
 
-                    <div
-                        id="recent-orders-list"
-                        class="recent-orders-list"
-                    >
+                    <div id="recent-orders-list" class="recent-orders-list">
                     </div>
 
                 </article>
@@ -770,10 +693,7 @@
 
                 <div class="quick-links">
 
-                    <a
-                        href="./admin-orders.html"
-                        class="quick-card"
-                    >
+                    <a href="./admin-orders.html" class="quick-card">
 
                         <span class="quick-icon">
                             ◫
@@ -796,29 +716,24 @@
                     </a>
 
 
-                    <a
-                        href="./admin-products.html"
-                        class="quick-card"
-                    >
-
+                    <a href="./admin-products.html" class="quick-card">
                         <span class="quick-icon">
                             ◇
                         </span>
 
                         <div>
                             <strong>
-                                Catalogue
+                                Manage Products
                             </strong>
 
                             <small>
-                                View your products
+                                Add, edit and manage products
                             </small>
                         </div>
 
                         <span class="quick-arrow">
                             →
                         </span>
-
                     </a>
 
                 </div>
@@ -833,4 +748,5 @@
     <script src="admin-dashboard.js"></script>
 
 </body>
+
 </html>

@@ -4,31 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>VELOCITY — Products</title>
-
-    <link rel="stylesheet" href="admin-products.css">
+    <link rel="stylesheet" href="./admin-products.css">
 </head>
 
 <body>
 
+    <!-- TOPBAR -->
     <header class="topbar">
-
-        <a class="logo" href="../index.html">
-            VELOCITY
-        </a>
+        <a class="logo" href="../index.html">VELOCITY</a>
 
         <nav class="topnav">
+            <a href="../index.html">Home</a>
 
-            <a href="../index.html">
-                Home
-            </a>
+            <a href="../catalogue.html">Catalogue</a>
 
-            <a href="../catalogue.html">
-                Catalogue
-            </a>
-
-            <a href="./admin-orders.html">
+            <a href="./admin-orders.html" class="orders-link">
                 Orders
                 <span id="nav-order-count">0</span>
             </a>
@@ -38,78 +29,134 @@
                 <span class="tiny-arrow">↗</span>
             </a>
 
-            <button id="logout-btn" class="avatar-button" type="button" aria-label="Logout">
-                <span class="avatar-icon"></span>
-            </button>
+            <!-- PROFILE -->
+            <div class="profile-wrap">
+                <button id="profile-button" class="avatar-button" type="button" aria-label="Administrator profile"
+                    aria-expanded="false" aria-controls="profile-menu">
+                    <span class="avatar-icon"></span>
+                </button>
 
+                <!-- PROFILE DROPDOWN -->
+                <div id="profile-menu" class="profile-menu hidden">
+                    <div class="profile-menu-header">
+                        <div class="profile-menu-label">ADMINISTRATOR</div>
+
+                        <div id="profile-name" class="profile-menu-name">
+                            VELOCITY Administrator
+                        </div>
+
+                        <div id="profile-email" class="profile-menu-email">
+                            admin@velocity.com
+                        </div>
+                    </div>
+
+                    <div class="profile-menu-links">
+                        <a href="./admin-dashboard.html" class="profile-menu-item">
+                            <span>Admin Dashboard</span>
+                            <span>→</span>
+                        </a>
+
+                        <a href="./admin-orders.html" class="profile-menu-item">
+                            <span>Manage Orders</span>
+                            <span>→</span>
+                        </a>
+
+                        <a href="./admin-products.html" class="profile-menu-item">
+                            <span>Manage Products</span>
+                            <span>→</span>
+                        </a>
+                    </div>
+
+                    <div class="profile-menu-footer">
+                        <button id="logout-btn" class="profile-menu-item logout-item" type="button">
+                            <span>Logout</span>
+                            <span>↗</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </nav>
-
     </header>
 
-
+    <!-- APP SHELL -->
     <div class="app-shell">
 
+        <!-- SIDEBAR -->
         <aside class="sidebar">
+            <nav class="sidebar-nav">
 
-            <div class="sidebar-nav">
-
-                <a class="side-item" href="./admin-dashboard.html">
-                    <span class="side-icon grid-icon"></span>
-                    <span>Dashboard</span>
+                <!-- DASHBOARD -->
+                <a href="./admin-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon dashboard-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Dashboard</span>
                 </a>
 
-                <a class="side-item" href="./admin-orders.html">
-                    <span class="side-icon bag-icon"></span>
-                    <span>Orders</span>
+                <!-- ORDERS -->
+                <a href="./admin-orders.html" class="sidebar-link">
+                    <span class="sidebar-icon orders-icon">
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Orders</span>
                 </a>
 
-                <a class="side-item active" href="./admin-products.html">
-                    <span class="side-icon cube-icon"></span>
-                    <span>Products</span>
+                <!-- PRODUCTS -->
+                <a href="./admin-products.html" class="sidebar-link active">
+                    <span class="sidebar-icon products-icon">
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Products</span>
                 </a>
 
-                <a class="side-item disabled-item" href="#">
-                    <span class="side-icon users-icon"></span>
-                    <span>Users</span>
+                <!-- USERS -->
+                <a href="#" class="sidebar-link disabled">
+                    <span class="sidebar-icon users-icon">
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Users</span>
+                    <span class="sidebar-soon">SOON</span>
                 </a>
 
-                <a class="side-item disabled-item" href="#">
-                    <span class="side-icon card-icon"></span>
-                    <span>Payments</span>
+                <!-- PAYMENTS -->
+                <a href="#" class="sidebar-link disabled">
+                    <span class="sidebar-icon payments-icon">
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Payments</span>
+                    <span class="sidebar-soon">SOON</span>
                 </a>
 
-                <a class="side-item disabled-item" href="#">
-                    <span class="side-icon inventory-icon"></span>
-                    <span>Inventory</span>
+                <!-- INVENTORY -->
+                <a href="#" class="sidebar-link disabled">
+                    <span class="sidebar-icon inventory-icon">
+                        <span></span>
+                    </span>
+                    <span class="sidebar-text">Inventory</span>
+                    <span class="sidebar-soon">SOON</span>
                 </a>
 
-            </div>
+            </nav>
 
+            <!-- SIDEBAR FOOTER -->
             <div class="sidebar-footer">
-
-                <div class="footer-rule"></div>
-
-                <div class="footer-label">
-                    VELOCITY ADMIN
-                </div>
-
-                <div class="footer-copy">
+                <div class="sidebar-footer-title">VELOCITY ADMIN</div>
+                <div class="sidebar-footer-text">
                     Better commerce.<br>
                     Faster.
                 </div>
-
             </div>
-
         </aside>
 
-
+        <!-- MAIN CONTENT -->
         <main class="main-content">
 
+            <!-- INTRO -->
             <section class="intro">
-
-                <div class="eyebrow">
-                    PRODUCT MANAGEMENT
-                </div>
+                <div class="eyebrow">PRODUCT MANAGEMENT</div>
 
                 <h1>
                     Manage your<br>
@@ -117,73 +164,42 @@
                 </h1>
 
                 <p>
-                    Create, update, remove, and monitor the products available in your store.
+                    Create, update, remove, and monitor
+                    the products available in your store.
                 </p>
-
             </section>
 
-
+            <!-- STATS -->
             <section class="product-stats">
-
                 <article class="stat-card">
-                    <span class="stat-label">
-                        TOTAL PRODUCTS
-                    </span>
-
-                    <strong id="total-products">
-                        0
-                    </strong>
+                    <span class="stat-label">TOTAL PRODUCTS</span>
+                    <strong id="total-products">0</strong>
                 </article>
 
                 <article class="stat-card">
-                    <span class="stat-label">
-                        IN STOCK
-                    </span>
-
-                    <strong id="in-stock-products">
-                        0
-                    </strong>
+                    <span class="stat-label">IN STOCK</span>
+                    <strong id="in-stock-products">0</strong>
                 </article>
 
                 <article class="stat-card">
-                    <span class="stat-label">
-                        LOW STOCK
-                    </span>
-
-                    <strong id="low-stock-products">
-                        0
-                    </strong>
+                    <span class="stat-label">LOW STOCK</span>
+                    <strong id="low-stock-products">0</strong>
                 </article>
 
                 <article class="stat-card">
-                    <span class="stat-label">
-                        OUT OF STOCK
-                    </span>
-
-                    <strong id="out-stock-products">
-                        0
-                    </strong>
+                    <span class="stat-label">OUT OF STOCK</span>
+                    <strong id="out-stock-products">0</strong>
                 </article>
-
             </section>
 
-
+            <!-- TOOLBAR -->
             <section class="toolbar">
-
                 <div class="toolbar-left">
-
-                    <div class="panel-eyebrow">
-                        CATALOGUE
-                    </div>
-
-                    <h2>
-                        Products
-                    </h2>
-
+                    <div class="panel-eyebrow">CATALOGUE</div>
+                    <h2>Products</h2>
                 </div>
 
                 <div class="toolbar-right">
-
                     <input type="search" id="search-input" placeholder="Search products...">
 
                     <select id="category-filter">
@@ -193,14 +209,11 @@
                     <button type="button" id="add-product-btn" class="primary-button">
                         + Add Product
                     </button>
-
                 </div>
-
             </section>
 
-
+            <!-- PRODUCTS TABLE -->
             <section class="products-panel">
-
                 <div id="loading" class="state-message">
                     Loading products...
                 </div>
@@ -211,11 +224,8 @@
                     No products found.
                 </div>
 
-
                 <div class="table-wrap">
-
                     <table>
-
                         <thead>
                             <tr>
                                 <th>PRODUCT</th>
@@ -226,139 +236,91 @@
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
-
                         <tbody id="products-body"></tbody>
-
                     </table>
-
                 </div>
-
             </section>
 
         </main>
-
     </div>
 
-
     <!-- PRODUCT MODAL -->
-
     <div id="modal" class="modal hidden" aria-hidden="true">
-
         <div class="modal-backdrop"></div>
 
         <div class="modal-card">
-
-            <button id="close-modal" class="modal-close" type="button">
+            <button id="close-modal" class="modal-close" type="button" aria-label="Close">
                 ×
             </button>
 
-            <div class="modal-kicker">
-                PRODUCT MANAGEMENT
-            </div>
+            <div class="modal-kicker">PRODUCT MANAGEMENT</div>
 
-            <h2 id="modal-title">
-                Add product
-            </h2>
+            <h2 id="modal-title">Add product</h2>
 
             <form id="product-form">
-
                 <input type="hidden" id="product-id">
 
                 <div class="form-grid">
 
+                    <!-- PRODUCT NAME -->
                     <div class="field">
-
-                        <label for="product-name">
-                            PRODUCT NAME
-                        </label>
-
+                        <label for="product-name">PRODUCT NAME</label>
                         <input id="product-name" type="text" required>
-
                     </div>
 
+                    <!-- CATEGORY -->
+                    <!-- CATEGORY -->
                     <div class="field">
-
-                        <label for="product-category">
-                            CATEGORY
-                        </label>
-
-                        <input id="product-category" type="text" required>
-
+                        <label for="product-category">CATEGORY</label>
+                        <select id="product-category" required>
+                            <option value="" disabled selected>Select category</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Apparel">Apparel</option>
+                            <option value="Footwear">Footwear</option>
+                        </select>
                     </div>
 
+                    <!-- PRICE -->
                     <div class="field">
-
-                        <label for="product-price">
-                            PRICE
-                        </label>
-
+                        <label for="product-price">PRICE</label>
                         <input id="product-price" type="number" min="0" step="0.01" required>
-
                     </div>
 
-
+                    <!-- STOCK -->
                     <div class="field">
-
-                        <label for="product-stock">
-                            STOCK
-                        </label>
-
+                        <label for="product-stock">STOCK</label>
                         <input id="product-stock" type="number" min="0" step="1" required>
-
                     </div>
 
-
+                    <!-- IMAGE -->
                     <div class="field full">
-
-                        <label for="product-image">
-                            IMAGE URL
-                        </label>
-
-                        <input id="product-image" type="url" placeholder="https://...">
-
+                        <label for="product-image">IMAGE URL</label>
+                        <input id="product-image" type="text" placeholder="images/product.jpg or https://...">
                     </div>
 
-
+                    <!-- DESCRIPTION -->
                     <div class="field full">
-
-                        <label for="product-description">
-                            DESCRIPTION
-                        </label>
-
+                        <label for="product-description">DESCRIPTION</label>
                         <textarea id="product-description" rows="4"></textarea>
-
                     </div>
 
-
+                    <!-- TAGS -->
                     <div class="field full">
-
-                        <label for="product-tags">
-                            TAGS
-                        </label>
-
+                        <label for="product-tags">TAGS</label>
                         <input id="product-tags" type="text" placeholder="running, premium, new">
-
                     </div>
 
-
+                    <!-- SIZES -->
                     <div class="field full">
-
-                        <label for="product-sizes">
-                            SIZES
-                        </label>
-
+                        <label for="product-sizes">SIZES</label>
                         <input id="product-sizes" type="text" placeholder="7, 8, 9, 10, 11">
-
                     </div>
 
                 </div>
 
-
                 <div id="form-error" class="form-error hidden"></div>
 
-
                 <div class="modal-actions">
-
                     <button type="button" id="cancel-btn" class="secondary-button">
                         Cancel
                     </button>
@@ -366,18 +328,12 @@
                     <button type="submit" id="save-btn" class="primary-button">
                         Save Product
                     </button>
-
                 </div>
-
             </form>
-
         </div>
-
     </div>
 
-
     <script src="./admin-products.js"></script>
-
 </body>
 
 </html>

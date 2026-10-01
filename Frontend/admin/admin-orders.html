@@ -5,17 +5,11 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>VELOCITY — Orders</title>
 
-    <link
-        rel="stylesheet"
-        href="admin-orders.css"
-    >
+    <link rel="stylesheet" href="admin-orders.css">
 
 </head>
 
@@ -23,917 +17,795 @@
 <body>
 
 
-<!-- =========================================
+    <!-- =========================================
      TOP NAVIGATION
      ========================================= -->
 
-<header class="topbar">
+    <header class="topbar">
 
-    <a
-        class="logo"
-        href="../index.html"
-    >
-        VELOCITY
-    </a>
-
-
-    <nav class="topnav">
-
-        <a href="../index.html">
-            Home
+        <a class="logo" href="../index.html">
+            VELOCITY
         </a>
 
 
-        <a href="../catalogue.html">
-            Catalogue
-        </a>
+        <nav class="topnav">
+
+            <a href="../index.html">
+                Home
+            </a>
 
 
-        <a
-            class="orders-link"
-            href="./admin-orders.html"
-        >
-            Orders
-
-            <span id="nav-order-count">
-                0
-            </span>
-        </a>
+            <a href="../catalogue.html">
+                Catalogue
+            </a>
 
 
-        <a
-            class="admin-link"
-            href="./admin-dashboard.html"
-        >
-            Admin
+            <a class="orders-link" href="./admin-orders.html">
+                Orders
 
-            <span class="tiny-arrow">
-                ↗
-            </span>
-        </a>
+                <span id="nav-order-count">
+                    0
+                </span>
+            </a>
 
 
-        <!-- =================================
+            <a class="admin-link" href="./admin-dashboard.html">
+                Admin
+
+                <span class="tiny-arrow">
+                    ↗
+                </span>
+            </a>
+
+
+            <!-- =================================
              PROFILE WRAPPER
              ================================= -->
 
-        <div class="profile-wrapper">
+            <div class="profile-wrapper">
 
 
-            <!-- PROFILE BUTTON -->
+                <!-- PROFILE BUTTON -->
 
-            <button
-                id="profile-button"
-                class="avatar-button"
-                type="button"
-                aria-label="Open administrator menu"
-                aria-expanded="false"
-            >
+                <button id="profile-button" class="avatar-button" type="button" aria-label="Open administrator menu"
+                    aria-expanded="false">
 
-                <span class="avatar-icon"></span>
+                    <span class="avatar-icon"></span>
 
-            </button>
+                </button>
 
 
-            <!-- PROFILE MENU -->
+                <!-- PROFILE MENU -->
 
-            <div
-                id="profile-menu"
-                class="profile-menu"
-            >
+                <div id="profile-menu" class="profile-menu">
 
 
-                <!-- PROFILE HEADER -->
+                    <!-- PROFILE HEADER -->
 
-                <div class="profile-menu-header">
+                    <div class="profile-menu-header">
 
-                    <div class="profile-menu-label">
-                        ADMINISTRATOR
+                        <div class="profile-menu-label">
+                            ADMINISTRATOR
+                        </div>
+
+
+                        <div id="profile-name" class="profile-menu-name">
+                            VELOCITY Administrator
+                        </div>
+
+
+                        <div id="profile-email" class="profile-menu-email">
+                            admin@velocity.com
+                        </div>
+
                     </div>
 
 
-                    <div
-                        id="profile-name"
-                        class="profile-menu-name"
-                    >
-                        VELOCITY Administrator
+                    <!-- PROFILE LINKS -->
+
+                    <div class="profile-menu-links">
+
+
+                        <!-- DASHBOARD -->
+
+                        <a href="./admin-dashboard.html" class="profile-menu-item">
+
+                            <span>
+                                Admin Dashboard
+                            </span>
+
+                            <span>
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <!-- ORDERS -->
+
+                        <a href="./admin-orders.html" class="profile-menu-item">
+
+                            <span>
+                                Manage Orders
+                            </span>
+
+                            <span>
+                                →
+                            </span>
+
+                        </a>
+
+                        <a href="./admin-products.html" class="profile-menu-item">
+                            <span>
+                                Manage Products
+                            </span>
+
+                            <span>
+                                →
+                            </span>
+                        </a>
+
                     </div>
 
 
-                    <div
-                        id="profile-email"
-                        class="profile-menu-email"
-                    >
-                        admin@velocity.com
+                    <!-- LOGOUT -->
+
+                    <div class="profile-menu-footer">
+
+                        <button type="button" id="logout-btn" class="profile-menu-item logout-item">
+
+                            <span>
+                                Logout
+                            </span>
+
+                            <span>
+                                ↗
+                            </span>
+
+                        </button>
+
                     </div>
 
-                </div>
-
-
-                <!-- PROFILE LINKS -->
-
-                <div class="profile-menu-links">
-
-
-                    <!-- DASHBOARD -->
-
-                    <a
-                        href="./admin-dashboard.html"
-                        class="profile-menu-item"
-                    >
-
-                        <span>
-                            Admin Dashboard
-                        </span>
-
-                        <span>
-                            →
-                        </span>
-
-                    </a>
-
-
-                    <!-- ORDERS -->
-
-                    <a
-                        href="./admin-orders.html"
-                        class="profile-menu-item"
-                    >
-
-                        <span>
-                            Manage Orders
-                        </span>
-
-                        <span>
-                            →
-                        </span>
-
-                    </a>
 
                 </div>
-
-
-                <!-- LOGOUT -->
-
-                <div class="profile-menu-footer">
-
-                    <button
-                        type="button"
-                        id="logout-btn"
-                        class="profile-menu-item logout-item"
-                    >
-
-                        <span>
-                            Logout
-                        </span>
-
-                        <span>
-                            ↗
-                        </span>
-
-                    </button>
-
-                </div>
-
 
             </div>
 
-        </div>
+        </nav>
 
-    </nav>
-
-</header>
+    </header>
 
 
 
-<!-- =========================================
+    <!-- =========================================
      ADMIN APPLICATION
      ========================================= -->
 
-<div class="app-shell">
+    <div class="app-shell">
 
 
-    <!-- =====================================
+        <!-- =====================================
          SIDEBAR
          ===================================== -->
 
-    <aside class="sidebar">
+        <aside class="sidebar">
 
 
-        <div class="sidebar-nav">
+            <div class="sidebar-nav">
 
 
-            <!-- DASHBOARD -->
+                <!-- DASHBOARD -->
 
-            <a
-                class="side-item"
-                href="./admin-dashboard.html"
-            >
+                <a class="side-item" href="./admin-dashboard.html">
 
-                <span
-                    class="side-icon grid-icon"
-                ></span>
+                    <span class="side-icon grid-icon"></span>
 
-                <span>
-                    Dashboard
-                </span>
+                    <span>
+                        Dashboard
+                    </span>
 
-            </a>
+                </a>
 
 
-            <!-- ORDERS -->
+                <!-- ORDERS -->
 
-            <a
-                class="side-item active"
-                href="./admin-orders.html"
-            >
+                <a class="side-item active" href="./admin-orders.html">
 
-                <span
-                    class="side-icon bag-icon"
-                ></span>
+                    <span class="side-icon bag-icon"></span>
 
-                <span>
-                    Orders
-                </span>
+                    <span>
+                        Orders
+                    </span>
 
-            </a>
+                </a>
 
 
-            <!-- PRODUCTS -->
+                <!-- PRODUCTS -->
 
-            <a
-                class="side-item"
-                href="./admin-products.html"
-            >
+                <a class="side-item" href="./admin-products.html">
 
-                <span
-                    class="side-icon cube-icon"
-                ></span>
+                    <span class="side-icon cube-icon"></span>
 
-                <span>
-                    Products
-                </span>
+                    <span>
+                        Products
+                    </span>
 
-            </a>
+                </a>
 
 
-            <!-- USERS -->
+                <!-- USERS -->
 
-            <a
-                class="side-item disabled-item"
-                href="#"
-                onclick="return false;"
-            >
+                <a class="side-item disabled-item" href="#" onclick="return false;">
 
-                <span
-                    class="side-icon users-icon"
-                ></span>
+                    <span class="side-icon users-icon"></span>
 
-                <span>
-                    Users
-                </span>
+                    <span>
+                        Users
+                    </span>
 
-                <small>
-                    SOON
-                </small>
+                    <small>
+                        SOON
+                    </small>
 
-            </a>
+                </a>
 
 
-            <!-- PAYMENTS -->
+                <!-- PAYMENTS -->
 
-            <a
-                class="side-item disabled-item"
-                href="#"
-                onclick="return false;"
-            >
+                <a class="side-item disabled-item" href="#" onclick="return false;">
 
-                <span
-                    class="side-icon card-icon"
-                ></span>
+                    <span class="side-icon card-icon"></span>
 
-                <span>
-                    Payments
-                </span>
+                    <span>
+                        Payments
+                    </span>
 
-                <small>
-                    SOON
-                </small>
+                    <small>
+                        SOON
+                    </small>
 
-            </a>
+                </a>
 
 
-            <!-- INVENTORY -->
+                <!-- INVENTORY -->
 
-            <a
-                class="side-item disabled-item"
-                href="#"
-                onclick="return false;"
-            >
+                <a class="side-item disabled-item" href="#" onclick="return false;">
 
-                <span
-                    class="side-icon inventory-icon"
-                ></span>
+                    <span class="side-icon inventory-icon"></span>
 
-                <span>
-                    Inventory
-                </span>
+                    <span>
+                        Inventory
+                    </span>
 
-                <small>
-                    SOON
-                </small>
+                    <small>
+                        SOON
+                    </small>
 
-            </a>
+                </a>
 
 
-        </div>
-
-
-        <!-- SIDEBAR FOOTER -->
-
-        <div class="sidebar-footer">
-
-            <div class="footer-rule"></div>
-
-            <div class="footer-label">
-                VELOCITY ADMIN
             </div>
 
-            <div class="footer-copy">
-                Better commerce.<br>
-                Faster.
+
+            <!-- SIDEBAR FOOTER -->
+
+            <div class="sidebar-footer">
+
+                <div class="footer-rule"></div>
+
+                <div class="footer-label">
+                    VELOCITY ADMIN
+                </div>
+
+                <div class="footer-copy">
+                    Better commerce.<br>
+                    Faster.
+                </div>
+
             </div>
 
-        </div>
 
-
-    </aside>
+        </aside>
 
 
 
-    <!-- =====================================
+        <!-- =====================================
          MAIN CONTENT
          ===================================== -->
 
-    <main class="main-content">
+        <main class="main-content">
 
 
-        <!-- DECORATIVE ORBIT -->
+            <!-- DECORATIVE ORBIT -->
 
-        <div
-            class="hero-orbit"
-            aria-hidden="true"
-        >
+            <div class="hero-orbit" aria-hidden="true">
 
-            <div class="globe globe-one"></div>
-            <div class="globe globe-two"></div>
-            <div class="globe globe-three"></div>
-            <div class="globe globe-four"></div>
-            <div class="globe globe-five"></div>
-            <div class="globe globe-six"></div>
+                <div class="globe globe-one"></div>
+                <div class="globe globe-two"></div>
+                <div class="globe globe-three"></div>
+                <div class="globe globe-four"></div>
+                <div class="globe globe-five"></div>
+                <div class="globe globe-six"></div>
 
-        </div>
-
-
-
-        <!-- INTRO -->
-
-        <section class="intro">
-
-            <div class="eyebrow">
-                ORDER MANAGEMENT
             </div>
 
 
-            <h1>
-                Manage your<br>
 
-                <span>
-                    Orders.
-                </span>
+            <!-- INTRO -->
 
-            </h1>
+           <section class="intro">
 
+    <div class="eyebrow">
+        ORDER MANAGEMENT
+    </div>
 
-            <p>
-                Review customer orders, monitor status,
-                and manage delivery tracking.
-            </p>
+    <h1>
+        Manage your<br>
+        <span>
+            Orders.
+        </span>
+    </h1>
 
-        </section>
+    <p>
+        Review customer orders, monitor status,
+        and manage delivery tracking.
+    </p>
 
 
+    <div class="intro-actions">
 
-        <!-- METRICS -->
+        <a
+            href="./admin-products.html"
+            class="intro-action"
+        >
+            Manage Products
+            <span>→</span>
+        </a>
 
-        <section class="metrics">
+    </div>
 
+</section>
 
-            <!-- TOTAL ORDERS -->
 
-            <article class="metric-card">
 
-                <div class="metric-top">
+            <!-- METRICS -->
 
-                    <div class="metric-name">
+            <section class="metrics">
 
-                        <span class="metric-icon cube-icon"></span>
 
-                        Total Orders
+                <!-- TOTAL ORDERS -->
 
-                    </div>
+                <article class="metric-card">
 
+                    <div class="metric-top">
 
-                    <span class="metric-symbol">
-                        ◫
-                    </span>
+                        <div class="metric-name">
 
-                </div>
+                            <span class="metric-icon cube-icon"></span>
 
+                            Total Orders
 
-                <div
-                    class="metric-value"
-                    id="metric-total"
-                >
-                    0
-                </div>
+                        </div>
 
 
-                <div class="metric-bottom">
-
-                    <span class="trend">
-
-                        ↑
-
-                        <b id="metric-total-trend">
-                            Live
-                        </b>
-
-                    </span>
-
-
-                    <span>
-                        live
-                    </span>
-
-
-                    <svg
-                        class="sparkline"
-                        viewBox="0 0 120 42"
-                    >
-
-                        <path
-                            d="M2 31 C14 35,20 22,31 26 S46 31,58 17 S74 28,86 18 S100 22,118 6"
-                        ></path>
-
-                    </svg>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- PENDING -->
-
-            <article class="metric-card">
-
-                <div class="metric-top">
-
-                    <div class="metric-name">
-
-                        <span class="metric-icon clock-icon"></span>
-
-                        Pending Orders
-
-                    </div>
-
-
-                    <span class="metric-symbol">
-                        ◷
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="metric-value"
-                    id="metric-pending"
-                >
-                    0
-                </div>
-
-
-                <div class="metric-bottom">
-
-                    <span class="trend">
-
-                        ↑
-
-                        <b id="metric-pending-trend">
-                            Live
-                        </b>
-
-                    </span>
-
-
-                    <span>
-                        awaiting
-                    </span>
-
-
-                    <svg
-                        class="sparkline"
-                        viewBox="0 0 120 42"
-                    >
-
-                        <path
-                            d="M2 29 C15 35,21 19,34 25 S49 29,60 15 S76 31,88 18 S104 25,118 8"
-                        ></path>
-
-                    </svg>
-
-                </div>
-
-            </article>
-
-
-
-            <!-- REVENUE -->
-
-            <article class="metric-card">
-
-                <div class="metric-top">
-
-                    <div class="metric-name">
-
-                        <span class="rupee-icon">
-                            ₹
+                        <span class="metric-symbol">
+                            ◫
                         </span>
 
-                        Revenue
+                    </div>
+
+
+                    <div class="metric-value" id="metric-total">
+                        0
+                    </div>
+
+
+                    <div class="metric-bottom">
+
+                        <span class="trend">
+
+                            ↑
+
+                            <b id="metric-total-trend">
+                                Live
+                            </b>
+
+                        </span>
+
+
+                        <span>
+                            live
+                        </span>
+
+
+                        <svg class="sparkline" viewBox="0 0 120 42">
+
+                            <path d="M2 31 C14 35,20 22,31 26 S46 31,58 17 S74 28,86 18 S100 22,118 6"></path>
+
+                        </svg>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- PENDING -->
+
+                <article class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-name">
+
+                            <span class="metric-icon clock-icon"></span>
+
+                            Pending Orders
+
+                        </div>
+
+
+                        <span class="metric-symbol">
+                            ◷
+                        </span>
 
                     </div>
 
 
-                    <span class="metric-symbol">
-                        ⌁
-                    </span>
-
-                </div>
+                    <div class="metric-value" id="metric-pending">
+                        0
+                    </div>
 
 
-                <div
-                    class="metric-value money"
-                    id="metric-revenue"
-                >
-                    ₹ 0
-                </div>
+                    <div class="metric-bottom">
+
+                        <span class="trend">
+
+                            ↑
+
+                            <b id="metric-pending-trend">
+                                Live
+                            </b>
+
+                        </span>
 
 
-                <div class="metric-bottom">
-
-                    <span class="trend">
-
-                        ↑
-
-                        <b id="metric-revenue-trend">
-                            Live
-                        </b>
-
-                    </span>
+                        <span>
+                            awaiting
+                        </span>
 
 
-                    <span>
-                        live
-                    </span>
+                        <svg class="sparkline" viewBox="0 0 120 42">
 
+                            <path d="M2 29 C15 35,21 19,34 25 S49 29,60 15 S76 31,88 18 S104 25,118 8"></path>
 
-                    <svg
-                        class="sparkline"
-                        viewBox="0 0 120 42"
-                    >
+                        </svg>
 
-                        <path
-                            d="M2 33 C15 36,23 19,36 24 S49 27,61 14 S78 28,89 16 S103 23,118 5"
-                        ></path>
+                    </div>
 
-                    </svg>
-
-                </div>
-
-            </article>
+                </article>
 
 
 
-            <!-- DELIVERED -->
+                <!-- REVENUE -->
 
-            <article class="metric-card">
+                <article class="metric-card">
 
-                <div class="metric-top">
+                    <div class="metric-top">
 
-                    <div class="metric-name">
+                        <div class="metric-name">
 
-                        <span class="check-icon">
+                            <span class="rupee-icon">
+                                ₹
+                            </span>
+
+                            Revenue
+
+                        </div>
+
+
+                        <span class="metric-symbol">
+                            ⌁
+                        </span>
+
+                    </div>
+
+
+                    <div class="metric-value money" id="metric-revenue">
+                        ₹ 0
+                    </div>
+
+
+                    <div class="metric-bottom">
+
+                        <span class="trend">
+
+                            ↑
+
+                            <b id="metric-revenue-trend">
+                                Live
+                            </b>
+
+                        </span>
+
+
+                        <span>
+                            live
+                        </span>
+
+
+                        <svg class="sparkline" viewBox="0 0 120 42">
+
+                            <path d="M2 33 C15 36,23 19,36 24 S49 27,61 14 S78 28,89 16 S103 23,118 5"></path>
+
+                        </svg>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- DELIVERED -->
+
+                <article class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-name">
+
+                            <span class="check-icon">
+                                ✓
+                            </span>
+
+                            Delivered Orders
+
+                        </div>
+
+
+                        <span class="metric-symbol">
                             ✓
                         </span>
 
-                        Delivered Orders
-
                     </div>
 
 
-                    <span class="metric-symbol">
-                        ✓
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="metric-value"
-                    id="metric-delivered"
-                >
-                    0
-                </div>
-
-
-                <div class="metric-bottom">
-
-                    <span class="trend">
-
-                        ↑
-
-                        <b id="metric-delivered-trend">
-                            Live
-                        </b>
-
-                    </span>
-
-
-                    <span>
-                        completed
-                    </span>
-
-
-                    <svg
-                        class="sparkline"
-                        viewBox="0 0 120 42"
-                    >
-
-                        <path
-                            d="M2 30 C15 34,21 20,34 25 S49 30,60 16 S75 27,88 17 S102 22,118 6"
-                        ></path>
-
-                    </svg>
-
-                </div>
-
-            </article>
-
-
-        </section>
-
-
-
-        <!-- ORDERS TABLE -->
-
-        <section
-            class="orders-panel"
-            id="recent-orders"
-        >
-
-
-            <div class="panel-head">
-
-
-                <div>
-
-                    <div class="panel-eyebrow">
-                        ACTIVITY
+                    <div class="metric-value" id="metric-delivered">
+                        0
                     </div>
 
 
-                    <h2>
-                        All Orders
-                    </h2>
+                    <div class="metric-bottom">
 
+                        <span class="trend">
 
-                    <p>
-                        Latest orders from your customers.
-                    </p>
+                            ↑
 
-                </div>
+                            <b id="metric-delivered-trend">
+                                Live
+                            </b>
 
-
-
-                <div class="panel-actions">
-
-
-                    <label class="search">
-
-                        <span class="search-icon">
-                            ⌕
                         </span>
 
-
-                        <input
-                            id="search-input"
-                            type="search"
-                            placeholder="Search by order ID or customer..."
-                        >
-
-                    </label>
-
-
-
-                    <select
-                        id="status-filter"
-                        class="filter"
-                    >
-
-                        <option value="ALL">
-                            All statuses
-                        </option>
-
-
-                        <option value="PENDING">
-                            Pending
-                        </option>
-
-
-                        <option value="CONFIRMED">
-                            Confirmed
-                        </option>
-
-
-                        <option value="FAILED">
-                            Failed
-                        </option>
-
-
-                        <option value="CANCELLED">
-                            Cancelled
-                        </option>
-
-                    </select>
-
-
-
-                    <button
-                        id="refresh-btn"
-                        class="icon-button"
-                        title="Refresh"
-                        type="button"
-                    >
-                        ↻
-                    </button>
-
-
-
-                    <button
-                        id="view-all-btn"
-                        class="primary-button"
-                        type="button"
-                    >
-
-                        View All Orders
 
                         <span>
-                            →
+                            completed
                         </span>
 
-                    </button>
 
+                        <svg class="sparkline" viewBox="0 0 120 42">
+
+                            <path d="M2 30 C15 34,21 20,34 25 S49 30,60 16 S75 27,88 17 S102 22,118 6"></path>
+
+                        </svg>
+
+                    </div>
+
+                </article>
+
+
+            </section>
+
+
+
+            <!-- ORDERS TABLE -->
+
+            <section class="orders-panel" id="recent-orders">
+
+
+                <div class="panel-head">
+
+
+                    <div>
+
+                        <div class="panel-eyebrow">
+                            ACTIVITY
+                        </div>
+
+
+                        <h2>
+                            All Orders
+                        </h2>
+
+
+                        <p>
+                            Latest orders from your customers.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="panel-actions">
+
+
+                        <label class="search">
+
+                            <span class="search-icon">
+                                ⌕
+                            </span>
+
+
+                            <input id="search-input" type="search" placeholder="Search by order ID or customer...">
+
+                        </label>
+
+
+
+                        <select id="status-filter" class="filter">
+
+                            <option value="ALL">
+                                All statuses
+                            </option>
+
+
+                            <option value="PENDING">
+                                Pending
+                            </option>
+
+
+                            <option value="CONFIRMED">
+                                Confirmed
+                            </option>
+
+
+                            <option value="FAILED">
+                                Failed
+                            </option>
+
+
+                            <option value="CANCELLED">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+
+
+                        <button id="refresh-btn" class="icon-button" title="Refresh" type="button">
+                            ↻
+                        </button>
+
+
+
+                        <button id="view-all-btn" class="primary-button" type="button">
+
+                            View All Orders
+
+                            <span>
+                                →
+                            </span>
+
+                        </button>
+
+
+                    </div>
 
                 </div>
 
-            </div>
+
+
+                <div id="loading" class="state-message">
+                    Loading orders...
+                </div>
+
+
+                <div id="error" class="state-message error-state hidden"></div>
 
 
 
-            <div
-                id="loading"
-                class="state-message"
-            >
-                Loading orders...
-            </div>
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ORDER ID
+                                </th>
+
+                                <th>
+                                    CUSTOMER
+                                </th>
+
+                                <th>
+                                    DATE
+                                </th>
+
+                                <th>
+                                    AMOUNT
+                                </th>
+
+                                <th>
+                                    PAYMENT
+                                </th>
+
+                                <th>
+                                    TRACKING STATUS
+                                </th>
+
+                                <th>
+                                    STATUS
+                                </th>
+
+                                <th>
+                                    ACTION
+                                </th>
+
+                            </tr>
+
+                        </thead>
 
 
-            <div
-                id="error"
-                class="state-message error-state hidden"
-            ></div>
+                        <tbody id="orders-body"></tbody>
 
+                    </table>
 
-
-            <div class="table-wrap">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ORDER ID
-                            </th>
-
-                            <th>
-                                CUSTOMER
-                            </th>
-
-                            <th>
-                                DATE
-                            </th>
-
-                            <th>
-                                AMOUNT
-                            </th>
-
-                            <th>
-                                PAYMENT
-                            </th>
-
-                            <th>
-                                TRACKING STATUS
-                            </th>
-
-                            <th>
-                                STATUS
-                            </th>
-
-                            <th>
-                                ACTION
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="orders-body"></tbody>
-
-                </table>
-
-            </div>
+                </div>
 
 
 
-            <div
-                id="empty"
-                class="state-message hidden"
-            >
-                No orders found.
-            </div>
+                <div id="empty" class="state-message hidden">
+                    No orders found.
+                </div>
 
 
-        </section>
+            </section>
 
 
-    </main>
+        </main>
 
-</div>
+    </div>
 
 
 
-<!-- =========================================
+    <!-- =========================================
      ORDER MODAL
      ========================================= -->
 
-<div
-    id="modal"
-    class="modal hidden"
->
+    <div id="modal" class="modal hidden">
 
-    <div class="modal-backdrop"></div>
+        <div class="modal-backdrop"></div>
 
 
-    <section
-        class="modal-card"
-        role="dialog"
-        aria-modal="true"
-    >
+        <section class="modal-card" role="dialog" aria-modal="true">
 
-        <button
-            id="close-modal"
-            class="modal-close"
-            aria-label="Close"
-            type="button"
-        >
-            ×
-        </button>
+            <button id="close-modal" class="modal-close" aria-label="Close" type="button">
+                ×
+            </button>
 
 
-        <div id="modal-body"></div>
+            <div id="modal-body"></div>
 
-    </section>
+        </section>
 
-</div>
+    </div>
 
 
 
-<script src="admin-orders.js"></script>
+    <script src="admin-orders.js"></script>
 
 
 </body>

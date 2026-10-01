@@ -1306,3 +1306,14 @@ a {
         width: fit-content;
     }
 }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.header-actions .header-action {
+    white-space: nowrap;
+}

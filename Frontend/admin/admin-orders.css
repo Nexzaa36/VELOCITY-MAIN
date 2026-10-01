@@ -2249,3 +2249,46 @@ tbody tr:last-child td {
     }
 
 }
+
+.intro-actions {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.intro-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    min-height: 44px;
+    padding: 0 18px;
+
+    border: 1px solid #d8d8d2;
+    background: #ffffff;
+
+    color: #222;
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.intro-action:hover {
+    background: #f2f2ed;
+    border-color: #bdbdb5;
+    transform: translateY(-1px);
+}
+
+.intro-action span {
+    font-size: 15px;
+}
