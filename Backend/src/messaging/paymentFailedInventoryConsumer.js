@@ -10,7 +10,11 @@ const {
 const InventoryReservation =
     require("../models/InventoryReservation");
 
-const crypto = require("crypto");
+const Product =
+    require("../models/Product");
+
+const crypto =
+    require("crypto");
 
 const {
     publishEvent
@@ -22,12 +26,16 @@ const startPaymentFailedInventoryConsumer = async () => {
     await channel.assertExchange(
         EXCHANGE_NAME,
         "topic",
-        { durable: true }
+        {
+            durable: true
+        }
     );
 
     await channel.assertQueue(
         INVENTORY_PAYMENT_FAILED_QUEUE,
-        { durable: true }
+        {
+            durable: true
+        }
     );
 
     await channel.bindQueue(
@@ -42,6 +50,7 @@ const startPaymentFailedInventoryConsumer = async () => {
 
     channel.consume(
         INVENTORY_PAYMENT_FAILED_QUEUE,
+
         async (message) => {
             if (!message) {
                 return;
@@ -59,12 +68,20 @@ const startPaymentFailedInventoryConsumer = async () => {
                 } = event.data;
 
                 console.log(
+                    "================================="
+                );
+
+                console.log(
                     "Inventory received PaymentFailed"
                 );
 
                 console.log(
                     "Order ID:",
                     orderId
+                );
+
+                console.log(
+                    "================================="
                 );
 
                 const reservation =
@@ -79,6 +96,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     );
 
                     channel.ack(message);
+
                     return;
                 }
 
@@ -92,6 +110,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     );
 
                     channel.ack(message);
+
                     return;
                 }
 
@@ -105,8 +124,49 @@ const startPaymentFailedInventoryConsumer = async () => {
                     );
 
                     channel.ack(message);
+
                     return;
                 }
+
+                // =====================================
+                // RESTORE PRODUCT STOCK
+                // =====================================
+
+                for (
+                    const item of reservation.items
+                ) {
+                    const product =
+                        await Product.findByIdAndUpdate(
+                            item.productId,
+                            {
+                                $inc: {
+                                    stock: item.quantity
+                                }
+                            },
+                            {
+                                new: true
+                            }
+                        );
+
+                    if (!product) {
+                        throw new Error(
+                            `Product not found while restoring stock: ${item.productId}`
+                        );
+                    }
+
+                    console.log(
+                        "Stock restored:",
+                        product.name,
+                        "| Quantity:",
+                        item.quantity,
+                        "| Current stock:",
+                        product.stock
+                    );
+                }
+
+                // =====================================
+                // MARK RESERVATION RELEASED
+                // =====================================
 
                 reservation.status =
                     "RELEASED";
@@ -118,31 +178,46 @@ const startPaymentFailedInventoryConsumer = async () => {
                     orderId
                 );
 
+                // =====================================
+                // CREATE INVENTORY RELEASED EVENT
+                // =====================================
+
                 const inventoryReleasedEvent = {
                     eventId:
                         crypto.randomUUID(),
+
                     eventType:
                         "InventoryReleased",
+
                     timestamp:
                         new Date().toISOString(),
+
                     data: {
                         reservationId:
                             reservation._id.toString(),
+
                         orderId:
                             orderId.toString(),
+
                         userId:
                             userId.toString(),
+
                         items:
                             reservation.items.map(
                                 (item) => ({
                                     productId:
                                         item.productId.toString(),
+
                                     quantity:
                                         item.quantity
                                 })
                             )
                     }
                 };
+
+                // =====================================
+                // PUBLISH INVENTORY RELEASED
+                // =====================================
 
                 await publishEvent(
                     INVENTORY_RELEASED_ROUTING_KEY,
@@ -154,10 +229,19 @@ const startPaymentFailedInventoryConsumer = async () => {
                 );
 
                 channel.ack(message);
+
             } catch (error) {
+                console.error(
+                    "================================="
+                );
+
                 console.error(
                     "Inventory release error:",
                     error.message
+                );
+
+                console.error(
+                    "================================="
                 );
 
                 channel.nack(

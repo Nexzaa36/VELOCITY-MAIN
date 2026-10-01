@@ -2,64 +2,32 @@ const { getChannel } = require("./rabbitmq");
 
 const {
     EXCHANGE_NAME,
-
     INVENTORY_ORDER_CREATED_QUEUE,
     INVENTORY_ORDER_CREATED_ROUTING_KEY,
-
     INVENTORY_RESERVED_ROUTING_KEY
 } = require("./eventConfig");
 
-const InventoryReservation =
-    require("../models/InventoryReservation");
-
-const Product =
-    require("../models/Product");
-
-const crypto =
-    require("crypto");
+const InventoryReservation = require("../models/InventoryReservation");
+const Product = require("../models/Product");
+const crypto = require("crypto");
 
 const {
     publishEvent
 } = require("./eventPublisher");
 
-
-// =========================================
-// START INVENTORY CONSUMER
-// =========================================
-
 const startInventoryConsumer = async () => {
-
     const channel = getChannel();
-
-
-    // =========================================
-    // EXCHANGE
-    // =========================================
 
     await channel.assertExchange(
         EXCHANGE_NAME,
         "topic",
-        {
-            durable: true
-        }
+        { durable: true }
     );
-
-
-    // =========================================
-    // QUEUE
-    // =========================================
 
     await channel.assertQueue(
         INVENTORY_ORDER_CREATED_QUEUE,
-        {
-            durable: true
-        }
+        { durable: true }
     );
-
-
-    // =========================================
-    // BIND QUEUE
-    // =========================================
 
     await channel.bindQueue(
         INVENTORY_ORDER_CREATED_QUEUE,
@@ -67,51 +35,25 @@ const startInventoryConsumer = async () => {
         INVENTORY_ORDER_CREATED_ROUTING_KEY
     );
 
-
-    console.log(
-        "Inventory consumer started"
-    );
-
-
-    // =========================================
-    // CONSUME ORDER CREATED
-    // =========================================
+    console.log("Inventory consumer started");
 
     channel.consume(
         INVENTORY_ORDER_CREATED_QUEUE,
-
-        async (message) => {
-
+        async message => {
             if (!message) {
                 return;
             }
 
-
             try {
-
                 const event =
                     JSON.parse(
                         message.content.toString()
                     );
 
-
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "Inventory received OrderCreated"
-                );
-
-                console.log(
-                    "Order ID:",
-                    event.data.orderId
-                );
-
-                console.log(
-                    "================================="
-                );
-
+                console.log("=================================");
+                console.log("Inventory received OrderCreated");
+                console.log("Order ID:", event.data.orderId);
+                console.log("=================================");
 
                 const {
                     orderId,
@@ -119,53 +61,34 @@ const startInventoryConsumer = async () => {
                     items
                 } = event.data;
 
-
-                // =====================================
-                // CHECK IF ALREADY RESERVED
-                // =====================================
-
                 const existingReservation =
                     await InventoryReservation.findOne({
                         orderId
                     });
 
-
                 if (existingReservation) {
-
                     console.log(
                         "Inventory already processed for order:",
                         orderId
                     );
 
-
                     channel.ack(message);
-
                     return;
                 }
 
+                const reservedProducts = [];
 
-                // =====================================
-                // CHECK ALL PRODUCTS
-                // =====================================
-
-                for (
-                    const item of items
-                ) {
-
+                for (const item of items) {
                     const product =
                         await Product.findById(
                             item.productId
                         );
 
-
                     if (!product) {
-
                         throw new Error(
                             `Product not found: ${item.productId}`
                         );
-
                     }
-
 
                     console.log(
                         "Checking stock:",
@@ -176,79 +99,77 @@ const startInventoryConsumer = async () => {
                         product.stock
                     );
 
+                    const updatedProduct =
+                        await Product.findOneAndUpdate(
+                            {
+                                _id: item.productId,
+                                stock: {
+                                    $gte: item.quantity
+                                }
+                            },
+                            {
+                                $inc: {
+                                    stock: -item.quantity
+                                }
+                            },
+                            {
+                                new: true
+                            }
+                        );
 
-                    if (
-                        item.quantity >
-                        product.stock
-                    ) {
+                    if (!updatedProduct) {
+                        for (
+                            const reserved of reservedProducts
+                        ) {
+                            await Product.findByIdAndUpdate(
+                                reserved.productId,
+                                {
+                                    $inc: {
+                                        stock:
+                                            reserved.quantity
+                                    }
+                                }
+                            );
+                        }
 
                         throw new Error(
                             `Insufficient stock for ${product.name}`
                         );
-
                     }
 
+                    reservedProducts.push({
+                        productId: item.productId,
+                        quantity: item.quantity
+                    });
+
+                    console.log(
+                        "Stock updated:",
+                        product.name,
+                        "| Remaining:",
+                        updatedProduct.stock
+                    );
                 }
-
-
-                // =====================================
-                // CREATE RESERVATION
-                // =====================================
 
                 const reservation =
                     await InventoryReservation.create({
-
                         orderId,
-
                         userId,
-
-                        items: items.map(
-                            (item) => ({
-
-                                productId:
-                                    item.productId,
-
-                                quantity:
-                                    item.quantity
-
-                            })
-                        ),
-
-                        status:
-                            "RESERVED"
-
+                        items: items.map(item => ({
+                            productId:
+                                item.productId,
+                            quantity:
+                                item.quantity
+                        })),
+                        status: "RESERVED"
                     });
 
-
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "Inventory reserved successfully"
-                );
-
-                console.log(
-                    "Reservation ID:",
-                    reservation._id
-                );
-
-                console.log(
-                    "Order ID:",
-                    orderId
-                );
-
-                console.log(
-                    "================================="
-                );
-
-
-                // =====================================
-                // CREATE INVENTORY RESERVED EVENT
-                // =====================================
+                console.log("=================================");
+                console.log("Inventory reserved successfully");
+                console.log("Reservation ID:", reservation._id);
+                console.log("Order ID:", orderId);
+                console.log("=================================");
 
                 const inventoryReservedEvent = {
-
                     eventId:
                         crypto.randomUUID(),
 
@@ -259,7 +180,6 @@ const startInventoryConsumer = async () => {
                         new Date().toISOString(),
 
                     data: {
-
                         reservationId:
                             reservation._id.toString(),
 
@@ -268,94 +188,48 @@ const startInventoryConsumer = async () => {
 
                         userId:
                             userId.toString(),
-                            
+
                         amount:
                             event.data.totalAmount,
 
                         items:
-                            reservation.items.map(
-                                (item) => ({
+                            reservation.items.map(item => ({
+                                productId:
+                                    item.productId.toString(),
 
-                                    productId:
-                                        item.productId.toString(),
-
-                                    quantity:
-                                        item.quantity
-
-                                })
-                            )
-
-
+                                quantity:
+                                    item.quantity
+                            }))
                     }
-
                 };
 
-
-                // =====================================
-                // PUBLISH INVENTORY RESERVED
-                // =====================================
-
                 await publishEvent(
-
                     INVENTORY_RESERVED_ROUTING_KEY,
-
                     inventoryReservedEvent
-
                 );
-
 
                 console.log(
                     "InventoryReserved event published"
                 );
 
-
-                // =====================================
-                // ACK MESSAGE
-                // =====================================
-
                 channel.ack(message);
-
 
             } catch (error) {
 
-                console.error(
-                    "================================="
-                );
-
-                console.error(
-                    "INVENTORY RESERVATION ERROR"
-                );
-
-                console.error(
-                    error.message
-                );
-
-                console.error(
-                    "================================="
-                );
-
-
-                /*
-                 * For now we acknowledge the message
-                 * so an invalid order does not loop
-                 * forever.
-                 *
-                 * Retry/DLQ handling will be added
-                 * later in the event-driven phase.
-                 */
+                console.error("=================================");
+                console.error("INVENTORY RESERVATION ERROR");
+                console.error(error.message);
+                console.error("=================================");
 
                 channel.nack(
                     message,
                     false,
                     false
                 );
-
             }
-
         }
     );
 };
-
 
 module.exports = {
     startInventoryConsumer
