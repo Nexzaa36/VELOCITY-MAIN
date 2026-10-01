@@ -45,8 +45,9 @@ const loginAdmin = async (req, res) => {
 
         const token = jwt.sign(
             {
-                userId: admin._id,
-                role: "admin"
+                userId: admin._id.toString(),
+                role: "admin",
+                tokenType: "admin"
             },
             process.env.JWT_SECRET,
             {
@@ -59,7 +60,7 @@ const loginAdmin = async (req, res) => {
             message: "Admin login successful",
             token,
             admin: {
-                id: admin._id,
+                id: admin._id.toString(),
                 name: admin.name,
                 email: admin.email,
                 role: admin.role

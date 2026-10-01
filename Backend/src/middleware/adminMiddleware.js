@@ -21,7 +21,10 @@ const adminProtect = (req, res, next) => {
             process.env.JWT_SECRET
         );
 
-        if (decoded.role !== "admin") {
+        if (
+            decoded.role !== "admin" ||
+            decoded.tokenType !== "admin"
+        ) {
             return res.status(403).json({
                 success: false,
                 message: "Admin access denied"
@@ -33,6 +36,11 @@ const adminProtect = (req, res, next) => {
         next();
 
     } catch (error) {
+        console.error(
+            "Admin Middleware Error:",
+            error.message
+        );
+
         return res.status(401).json({
             success: false,
             message: "Invalid or expired admin token"

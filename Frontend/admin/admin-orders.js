@@ -1,337 +1,198 @@
-/* =========================================================
-   VELOCITY — ADMIN ORDERS
-   ========================================================= */
-
 const API_URL = "http://localhost:5000";
 
+const adminToken =
+    localStorage.getItem("adminToken");
 
-const token =
-    localStorage.getItem("token");
-
-const role =
-    localStorage.getItem("role");
-
+const adminRole =
+    localStorage.getItem("adminRole");
 
 const state = {
-
     orders: [],
-
     filtered: []
-
 };
-
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
 
 const el = (id) =>
     document.getElementById(id);
 
-
-
-/* =========================================================
-   ADMIN ACCESS
-   ========================================================= */
-
 (function checkAdminAccess() {
-
-    if (!token || role !== "admin") {
-
+    if (
+        !adminToken ||
+        adminRole !== "admin"
+    ) {
         window.location.replace(
             "./admin-login.html"
         );
 
         return;
-
     }
-
 
     document.body.classList.add(
         "orders-page"
     );
-
 })();
 
-
-
-/* =========================================================
-   ADMIN PAGE UI
-   ========================================================= */
-
 function setupAdminPageUI() {
-
     const sidebarItems =
         document.querySelectorAll(
             ".sidebar .side-item"
         );
 
-
     sidebarItems.forEach(item => {
-
-        item.classList.remove(
-            "active"
-        );
-
+        item.classList.remove("active");
     });
 
-
     sidebarItems.forEach(item => {
-
         const text =
             item.textContent
                 .trim()
                 .toLowerCase();
 
-
         if (text === "orders") {
-
-            item.classList.add(
-                "active"
-            );
+            item.classList.add("active");
 
             item.setAttribute(
                 "href",
                 "./admin-orders.html"
             );
-
         }
 
-
         if (text === "dashboard") {
-
-            item.classList.remove(
-                "active"
-            );
+            item.classList.remove("active");
 
             item.setAttribute(
                 "href",
                 "./admin-dashboard.html"
             );
-
         }
-
     });
-
 
     const eyebrow =
         document.querySelector(
             ".intro .eyebrow"
         );
 
-
     const heading =
         document.querySelector(
             ".intro h1"
         );
-
 
     const introText =
         document.querySelector(
             ".intro p"
         );
 
-
     if (eyebrow) {
-
         eyebrow.textContent =
             "ORDER MANAGEMENT";
-
     }
 
-
     if (heading) {
-
         heading.innerHTML = `
             Manage your<br>
             <span>Orders.</span>
         `;
-
     }
-
 
     if (introText) {
-
         introText.textContent =
             "View customer orders, track delivery progress, and manage order status.";
-
     }
-
 }
-
 
 setupAdminPageUI();
 
-
-
-/* =========================================================
-   AUTH HEADERS
-   ========================================================= */
-
 function headers() {
-
     return {
-
         "Content-Type":
             "application/json",
 
         "Authorization":
-            `Bearer ${token}`
-
+            `Bearer ${adminToken}`
     };
-
 }
 
-
-
-/* =========================================================
-   PROFILE
-   ========================================================= */
-
 function loadProfile() {
-
     try {
-
         const storedUser =
             localStorage.getItem(
-                "user"
+                "adminUser"
             );
 
-
         if (!storedUser) {
-
             return;
-
         }
-
 
         const user =
             JSON.parse(
                 storedUser
             );
 
-
         const nameElement =
             el("profile-name");
 
-
         const emailElement =
             el("profile-email");
-
 
         if (
             nameElement &&
             user.name
         ) {
-
             nameElement.textContent =
                 user.name;
-
         }
-
 
         if (
             emailElement &&
             user.email
         ) {
-
             emailElement.textContent =
                 user.email;
-
         }
-
-
     } catch (error) {
-
         console.warn(
             "Unable to load admin profile.",
             error
         );
-
     }
-
 }
-
 
 loadProfile();
 
-
-
-/* =========================================================
-   PROFILE MENU
-   =========================================================
-   
-   IMPORTANT:
-
-   The profile icon DOES NOT logout.
-
-   Clicking the profile icon only opens/closes
-   the administrator menu.
-
-   Logout is handled only by #logout-btn.
-   ========================================================= */
-
 function setupProfileMenu() {
-
     const profileButton =
         el("profile-button");
 
-
     const profileMenu =
         el("profile-menu");
-
 
     if (
         !profileButton ||
         !profileMenu
     ) {
-
-        console.warn(
-            "Profile button or profile menu not found."
-        );
-
         return;
-
     }
-
-
-    /*
-     * Start closed.
-     */
 
     profileMenu.classList.remove(
         "show"
     );
-
 
     profileButton.setAttribute(
         "aria-expanded",
         "false"
     );
 
-
-    /*
-     * Open / close profile menu.
-     */
-
     profileButton.addEventListener(
         "click",
-        function (event) {
-
+        function(event) {
             event.preventDefault();
-
             event.stopPropagation();
-
 
             const isOpen =
                 profileMenu.classList.contains(
                     "show"
                 );
 
-
             if (isOpen) {
-
                 profileMenu.classList.remove(
                     "show"
                 );
@@ -340,9 +201,7 @@ function setupProfileMenu() {
                     "aria-expanded",
                     "false"
                 );
-
             } else {
-
                 profileMenu.classList.add(
                     "show"
                 );
@@ -351,36 +210,20 @@ function setupProfileMenu() {
                     "aria-expanded",
                     "true"
                 );
-
             }
-
         }
     );
-
-
-    /*
-     * Clicking inside the menu should not
-     * immediately close it.
-     */
 
     profileMenu.addEventListener(
         "click",
-        function (event) {
-
+        function(event) {
             event.stopPropagation();
-
         }
     );
 
-
-    /*
-     * Clicking anywhere outside closes menu.
-     */
-
     document.addEventListener(
         "click",
-        function () {
-
+        function() {
             profileMenu.classList.remove(
                 "show"
             );
@@ -389,119 +232,70 @@ function setupProfileMenu() {
                 "aria-expanded",
                 "false"
             );
-
         }
     );
-
-
-    /*
-     * LOGOUT BUTTON
-     *
-     * This is the ONLY button that logs out.
-     */
 
     const logoutButton =
         el("logout-btn");
 
-
     if (logoutButton) {
-
         logoutButton.addEventListener(
             "click",
-            function (event) {
-
+            function(event) {
                 event.preventDefault();
-
                 event.stopPropagation();
 
-
                 logoutAdmin();
-
             }
         );
-
     }
-
 }
-
 
 setupProfileMenu();
 
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 function logoutAdmin() {
-
     localStorage.removeItem(
-        "token"
+        "adminToken"
     );
 
-
     localStorage.removeItem(
-        "user"
+        "adminUser"
     );
 
-
     localStorage.removeItem(
-        "role"
+        "adminRole"
     );
-
-
-    localStorage.removeItem(
-        "velocity-current-order"
-    );
-
 
     window.location.replace(
         "./admin-login.html"
     );
-
 }
 
-
-
-/* =========================================================
-   GENERAL HELPERS
-   ========================================================= */
-
 function escapeHtml(value) {
-
     return String(value ?? "")
-
         .replaceAll(
             "&",
             "&amp;"
         )
-
         .replaceAll(
             "<",
             "&lt;"
         )
-
         .replaceAll(
             ">",
             "&gt;"
         )
-
         .replaceAll(
             '"',
             "&quot;"
         )
-
         .replaceAll(
             "'",
             "&#039;"
         );
-
 }
 
-
-
 function formatMoney(value) {
-
     return `₹ ${Number(
         value || 0
     ).toLocaleString(
@@ -511,32 +305,20 @@ function formatMoney(value) {
             maximumFractionDigits: 2
         }
     )}`;
-
 }
 
-
-
 function formatDate(date) {
-
     if (!date) {
-
         return {
-
             day: "—",
-
             time: ""
-
         };
-
     }
-
 
     const d =
         new Date(date);
 
-
     return {
-
         day:
             d.toLocaleDateString(
                 "en-IN",
@@ -547,7 +329,6 @@ function formatDate(date) {
                 }
             ),
 
-
         time:
             d.toLocaleTimeString(
                 "en-IN",
@@ -556,93 +337,59 @@ function formatDate(date) {
                     minute: "2-digit"
                 }
             )
-
     };
-
 }
 
-
-
 function prettyStatus(value) {
-
     return String(
         value || "UNKNOWN"
     )
-
         .replaceAll(
             "_",
             " "
         )
-
         .toLowerCase()
-
         .replace(
             /\b\w/g,
             char =>
                 char.toUpperCase()
         );
-
 }
 
-
-
 function statusClass(value) {
-
     return String(
         value || ""
     )
-
         .toLowerCase()
-
         .replaceAll(
             "_",
             "-"
         );
-
 }
 
-
-
 function paymentLabel(order) {
-
     if (
         order.status === "FAILED" ||
         order.status === "CANCELLED"
     ) {
-
         return "Failed";
-
     }
-
 
     if (
         order.status === "PENDING"
     ) {
-
         return "Pending";
-
     }
 
-
     return "Paid";
-
 }
 
-
-
-/* =========================================================
-   METRICS
-   ========================================================= */
-
 function renderMetrics() {
-
     const orders =
         state.orders;
 
-
     const total =
         orders.length;
-
 
     const pending =
         orders.filter(
@@ -651,7 +398,6 @@ function renderMetrics() {
                 "PENDING"
         ).length;
 
-
     const delivered =
         orders.filter(
             order =>
@@ -659,10 +405,8 @@ function renderMetrics() {
                 "DELIVERED"
         ).length;
 
-
     const revenue =
         orders
-
             .filter(
                 order =>
                     order.status !==
@@ -670,7 +414,6 @@ function renderMetrics() {
                     order.status !==
                         "CANCELLED"
             )
-
             .reduce(
                 (
                     sum,
@@ -684,56 +427,25 @@ function renderMetrics() {
                 0
             );
 
-
-    const totalElement =
-        el("metric-total");
-
-
-    const pendingElement =
-        el("metric-pending");
-
-
-    const deliveredElement =
-        el("metric-delivered");
-
-
-    const revenueElement =
-        el("metric-revenue");
-
-
-    if (totalElement) {
-
-        totalElement.textContent =
+    if (el("metric-total")) {
+        el("metric-total").textContent =
             total;
-
     }
 
-
-    if (pendingElement) {
-
-        pendingElement.textContent =
+    if (el("metric-pending")) {
+        el("metric-pending").textContent =
             pending;
-
     }
 
-
-    if (deliveredElement) {
-
-        deliveredElement.textContent =
+    if (el("metric-delivered")) {
+        el("metric-delivered").textContent =
             delivered;
-
     }
 
-
-    if (revenueElement) {
-
-        revenueElement.textContent =
-            formatMoney(
-                revenue
-            );
-
+    if (el("metric-revenue")) {
+        el("metric-revenue").textContent =
+            formatMoney(revenue);
     }
-
 
     [
         "metric-total-trend",
@@ -741,180 +453,120 @@ function renderMetrics() {
         "metric-revenue-trend",
         "metric-delivered-trend"
     ].forEach(id => {
-
-        const element =
-            el(id);
-
+        const element = el(id);
 
         if (element) {
-
             element.textContent =
                 "Live";
-
         }
-
     });
-
 
     const navCount =
         el("nav-order-count");
 
-
     if (navCount) {
-
         navCount.textContent =
             total;
-
     }
-
 }
 
-
-
-/* =========================================================
-   TABLE
-   ========================================================= */
-
 function renderTable() {
-
     const body =
         el("orders-body");
-
 
     const empty =
         el("empty");
 
-
     if (!body) {
-
         return;
-
     }
-
 
     body.innerHTML = "";
 
-
-    if (
-        !state.filtered.length
-    ) {
-
+    if (!state.filtered.length) {
         if (empty) {
-
             empty.classList.remove(
                 "hidden"
             );
-
         }
 
         return;
-
     }
 
-
     if (empty) {
-
         empty.classList.add(
             "hidden"
         );
-
     }
-
 
     state.filtered.forEach(
         order => {
-
             const customer =
                 order.userId || {};
-
 
             const date =
                 formatDate(
                     order.createdAt
                 );
 
-
             const payment =
-                paymentLabel(
-                    order
-                );
-
+                paymentLabel(order);
 
             const row =
                 document.createElement(
                     "tr"
                 );
 
-
             row.innerHTML = `
-
                 <td>
 
                     <div class="order-id">
-
                         ${escapeHtml(
                             order._id
                         )}
-
                     </div>
 
                 </td>
-
 
                 <td>
 
                     <div class="customer-name">
-
                         ${escapeHtml(
                             customer.name ||
                             "Customer"
                         )}
-
                     </div>
 
-
                     <div class="customer-email">
-
                         ${escapeHtml(
                             customer.email ||
                             "No email"
                         )}
-
                     </div>
 
                 </td>
-
 
                 <td>
 
                     <div class="date-main">
-
                         ${date.day}
-
                     </div>
 
-
                     <div class="date-time">
-
                         ${date.time}
-
                     </div>
 
                 </td>
-
 
                 <td>
 
                     <span class="amount">
-
                         ${formatMoney(
                             order.totalAmount
                         )}
-
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -924,15 +576,12 @@ function renderTable() {
                             payment-${payment.toLowerCase()}
                         "
                     >
-
                         ${escapeHtml(
                             payment
                         )}
-
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -945,17 +594,14 @@ function renderTable() {
                             )}
                         "
                     >
-
                         ${escapeHtml(
                             prettyStatus(
                                 order.trackingStatus
                             )
                         )}
-
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -967,17 +613,14 @@ function renderTable() {
                             )}
                         "
                     >
-
                         ${escapeHtml(
                             prettyStatus(
                                 order.status
                             )
                         )}
-
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -992,34 +635,19 @@ function renderTable() {
                     </button>
 
                 </td>
-
             `;
 
-
-            body.appendChild(
-                row
-            );
-
+            body.appendChild(row);
         }
     );
-
 }
 
-
-
-/* =========================================================
-   FILTER
-   ========================================================= */
-
 function applyFilters() {
-
     const searchInput =
         el("search-input");
 
-
     const statusFilter =
         el("status-filter");
-
 
     const query =
         searchInput
@@ -1028,35 +656,25 @@ function applyFilters() {
                 .toLowerCase()
             : "";
 
-
     const status =
         statusFilter
             ? statusFilter.value
             : "ALL";
 
-
     state.filtered =
         state.orders.filter(
             order => {
-
                 const customer =
                     order.userId || {};
 
-
                 const searchable = [
-
                     order._id,
-
                     customer.name,
-
                     customer.email
-
                 ]
-
+                    .filter(Boolean)
                     .join(" ")
-
                     .toLowerCase();
-
 
                 const queryMatch =
                     !query ||
@@ -1064,61 +682,40 @@ function applyFilters() {
                         query
                     );
 
-
                 const statusMatch =
                     status === "ALL" ||
                     order.status === status;
-
 
                 return (
                     queryMatch &&
                     statusMatch
                 );
-
             }
         );
 
-
     renderTable();
-
 }
 
-
-
-/* =========================================================
-   LOAD ORDERS
-   ========================================================= */
-
 async function loadOrders() {
-
     const loading =
         el("loading");
-
 
     const error =
         el("error");
 
-
     if (loading) {
-
         loading.classList.remove(
             "hidden"
         );
-
     }
 
-
     if (error) {
-
         error.classList.add(
             "hidden"
         );
-
     }
 
-
     try {
-
         const response =
             await fetch(
                 `${API_URL}/api/orders/admin/all`,
@@ -1128,20 +725,23 @@ async function loadOrders() {
                 }
             );
 
-
         const data =
             await response.json();
 
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+            logoutAdmin();
+            return;
+        }
 
         if (!response.ok) {
-
             throw new Error(
                 data.message ||
                 "Failed to load orders."
             );
-
         }
-
 
         state.orders =
             Array.isArray(
@@ -1150,108 +750,52 @@ async function loadOrders() {
                 ? data.orders
                 : [];
 
-
-        state.filtered =
-            [
-                ...state.orders
-            ];
-
+        state.filtered = [
+            ...state.orders
+        ];
 
         renderMetrics();
-
         applyFilters();
-
-
     } catch (error) {
-
         console.error(
             "Admin orders error:",
             error
         );
 
-
-        if (
-            error.message.includes(
-                "Invalid or expired"
-            ) ||
-            error.message.includes(
-                "Admin authentication"
-            ) ||
-            error.message.includes(
-                "Admin access denied"
-            )
-        ) {
-
-            logoutAdmin();
-
-            return;
-
-        }
-
-
         if (el("error")) {
-
             el("error").textContent =
                 error.message;
-
 
             el("error")
                 .classList
                 .remove(
                     "hidden"
                 );
-
         }
-
-
     } finally {
-
         if (loading) {
-
             loading.classList.add(
                 "hidden"
             );
-
         }
-
     }
-
 }
 
-
-
-/* =========================================================
-   TRACKING OPTIONS
-   ========================================================= */
-
 function trackingOptions(current) {
-
     const statuses = [
-
         "PLACED",
-
         "PAID",
-
         "RESERVED",
-
         "CONFIRMED",
-
         "PREPARING",
-
         "SHIPPED",
-
         "OUT_FOR_DELIVERY",
-
         "DELIVERED"
-
     ];
 
-
     return statuses
-
         .map(
             status => `
-
                 <option
                     value="${status}"
                     ${
@@ -1260,66 +804,42 @@ function trackingOptions(current) {
                             : ""
                     }
                 >
-
                     ${escapeHtml(
                         prettyStatus(
                             status
                         )
                     )}
-
                 </option>
-
             `
         )
-
         .join("");
-
 }
 
-
-
-/* =========================================================
-   OPEN ORDER
-   ========================================================= */
-
 async function openOrder(id) {
-
     const modal =
         el("modal");
 
-
     const body =
         el("modal-body");
-
 
     if (
         !modal ||
         !body
     ) {
-
         return;
-
     }
-
 
     modal.classList.remove(
         "hidden"
     );
 
-
     body.innerHTML = `
-
         <div class="state-message">
-
             Loading order...
-
         </div>
-
     `;
 
-
     try {
-
         const response =
             await fetch(
                 `${API_URL}/api/orders/admin/${encodeURIComponent(
@@ -1331,130 +851,100 @@ async function openOrder(id) {
                 }
             );
 
-
         const data =
             await response.json();
 
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+            logoutAdmin();
+            return;
+        }
 
         if (!response.ok) {
-
             throw new Error(
                 data.message ||
                 "Failed to load order."
             );
-
         }
-
 
         const order =
             data.order;
 
-
         const customer =
             order.userId || {};
-
 
         const items =
             order.items || [];
 
-
         const products =
             items
+                .map(item => {
+                    const product =
+                        item.productId ||
+                        {};
 
-                .map(
-                    item => {
+                    const line =
+                        Number(
+                            item.price || 0
+                        ) *
+                        Number(
+                            item.quantity || 0
+                        );
 
-                        const product =
-                            item.productId ||
-                            {};
+                    return `
+                        <div class="product-row">
 
+                            <div>
 
-                        const line =
-                            Number(
-                                item.price ||
-                                0
-                            ) *
-                            Number(
-                                item.quantity ||
-                                0
-                            );
-
-
-                        return `
-
-                            <div class="product-row">
-
-                                <div>
-
-                                    <div class="product-name">
-
-                                        ${escapeHtml(
-                                            product.name ||
-                                            "Product"
-                                        )}
-
-                                    </div>
-
-
-                                    <div class="product-meta">
-
-                                        Qty
-                                        ${escapeHtml(
-                                            item.quantity
-                                        )}
-
-                                        ×
-
-                                        ${formatMoney(
-                                            item.price
-                                        )}
-
-                                    </div>
-
+                                <div class="product-name">
+                                    ${escapeHtml(
+                                        product.name ||
+                                        "Product"
+                                    )}
                                 </div>
 
-
-                                <strong>
-
-                                    ${formatMoney(
-                                        line
+                                <div class="product-meta">
+                                    Qty
+                                    ${escapeHtml(
+                                        item.quantity
                                     )}
-
-                                </strong>
+                                    ×
+                                    ${formatMoney(
+                                        item.price
+                                    )}
+                                </div>
 
                             </div>
 
-                        `;
+                            <strong>
+                                ${formatMoney(
+                                    line
+                                )}
+                            </strong>
 
-                    }
-                )
-
+                        </div>
+                    `;
+                })
                 .join("");
 
-
         body.innerHTML = `
-
             <div class="modal-kicker">
                 ORDER MANAGEMENT
             </div>
-
 
             <h2 class="modal-title">
                 Order details
             </h2>
 
-
             <div class="modal-order-id">
-
                 ${escapeHtml(
                     order._id
                 )}
-
             </div>
 
-
             <div class="detail-grid">
-
 
                 <div class="detail-block">
 
@@ -1462,19 +952,14 @@ async function openOrder(id) {
                         Customer
                     </div>
 
-
                     <div class="detail-value">
-
                         ${escapeHtml(
                             customer.name ||
                             "Unknown"
                         )}
-
                     </div>
 
                 </div>
-
-
 
                 <div class="detail-block">
 
@@ -1482,19 +967,14 @@ async function openOrder(id) {
                         Email
                     </div>
 
-
                     <div class="detail-value">
-
                         ${escapeHtml(
                             customer.email ||
                             "Not available"
                         )}
-
                     </div>
 
                 </div>
-
-
 
                 <div class="detail-block">
 
@@ -1502,20 +982,15 @@ async function openOrder(id) {
                         Order status
                     </div>
 
-
                     <div class="detail-value">
-
                         ${escapeHtml(
                             prettyStatus(
                                 order.status
                             )
                         )}
-
                     </div>
 
                 </div>
-
-
 
                 <div class="detail-block">
 
@@ -1523,21 +998,15 @@ async function openOrder(id) {
                         Total amount
                     </div>
 
-
                     <div class="detail-value">
-
                         ${formatMoney(
                             order.totalAmount
                         )}
-
                     </div>
 
                 </div>
 
-
             </div>
-
-
 
             <div class="product-list">
 
@@ -1552,29 +1021,21 @@ async function openOrder(id) {
 
             </div>
 
-
-
             <div class="tracking-edit">
 
-                <label
-                    for="tracking-select"
-                >
+                <label for="tracking-select">
                     TRACKING STATUS
                 </label>
-
 
                 <div class="tracking-edit-row">
 
                     <select
                         id="tracking-select"
                     >
-
                         ${trackingOptions(
                             order.trackingStatus
                         )}
-
                     </select>
-
 
                     <button
                         id="update-tracking"
@@ -1587,56 +1048,36 @@ async function openOrder(id) {
                 </div>
 
             </div>
-
         `;
-
 
         const updateButton =
             el("update-tracking");
 
-
         if (updateButton) {
-
             updateButton.addEventListener(
                 "click",
                 async () => {
-
                     const button =
-                        el(
-                            "update-tracking"
-                        );
-
+                        el("update-tracking");
 
                     const select =
-                        el(
-                            "tracking-select"
-                        );
-
+                        el("tracking-select");
 
                     if (
                         !button ||
                         !select
                     ) {
-
                         return;
-
                     }
-
 
                     const trackingStatus =
                         select.value;
 
-
-                    button.disabled =
-                        true;
-
-
+                    button.disabled = true;
                     button.textContent =
                         "Updating...";
 
-
                     try {
-
                         const response =
                             await fetch(
                                 `${API_URL}/api/orders/admin/${encodeURIComponent(
@@ -1653,307 +1094,190 @@ async function openOrder(id) {
                                         JSON.stringify({
                                             trackingStatus
                                         })
-
                                 }
                             );
-
 
                         const data =
                             await response.json();
 
+                        if (
+                            response.status === 401 ||
+                            response.status === 403
+                        ) {
+                            logoutAdmin();
+                            return;
+                        }
 
                         if (!response.ok) {
-
                             throw new Error(
                                 data.message ||
                                 "Failed to update tracking."
                             );
-
                         }
-
 
                         closeModal();
 
                         await loadOrders();
-
-
                     } catch (error) {
-
                         console.error(
                             error
                         );
 
-
                         alert(
                             error.message
                         );
-
-
                     } finally {
-
                         button.disabled =
                             false;
 
-
                         button.textContent =
                             "Update";
-
                     }
-
                 }
             );
-
         }
-
-
     } catch (error) {
-
-        console.error(
-            error
-        );
-
+        console.error(error);
 
         body.innerHTML = `
-
-            <div
-                class="
-                    state-message
-                    error-state
-                "
-            >
-
+            <div class="state-message error-state">
                 ${escapeHtml(
                     error.message
                 )}
-
             </div>
-
         `;
-
     }
-
 }
 
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
 function closeModal() {
-
     const modal =
         el("modal");
 
-
     if (!modal) {
-
         return;
-
     }
-
 
     modal.classList.add(
         "hidden"
     );
-
 }
-
-
-
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
 
 const ordersBody =
     el("orders-body");
 
-
 if (ordersBody) {
-
     ordersBody.addEventListener(
         "click",
         event => {
-
             const button =
                 event.target.closest(
                     ".view-button"
                 );
 
-
             if (button) {
-
                 openOrder(
                     button.dataset.id
                 );
-
             }
-
         }
     );
-
 }
-
-
 
 const searchInput =
     el("search-input");
 
-
 if (searchInput) {
-
     searchInput.addEventListener(
         "input",
         applyFilters
     );
-
 }
-
-
 
 const statusFilter =
     el("status-filter");
 
-
 if (statusFilter) {
-
     statusFilter.addEventListener(
         "change",
         applyFilters
     );
-
 }
-
-
 
 const refreshButton =
     el("refresh-btn");
 
-
 if (refreshButton) {
-
     refreshButton.addEventListener(
         "click",
         loadOrders
     );
-
 }
-
-
 
 const viewAllButton =
     el("view-all-btn");
 
-
 if (viewAllButton) {
-
     viewAllButton.addEventListener(
         "click",
         () => {
-
             if (statusFilter) {
-
                 statusFilter.value =
                     "ALL";
-
             }
-
 
             if (searchInput) {
-
-                searchInput.value =
-                    "";
-
+                searchInput.value = "";
             }
 
-
             applyFilters();
-
 
             const recentOrders =
                 el("recent-orders");
 
-
             if (recentOrders) {
-
                 recentOrders.scrollIntoView({
-
-                    behavior:
-                        "smooth",
-
-                    block:
-                        "start"
-
+                    behavior: "smooth",
+                    block: "start"
                 });
-
             }
-
         }
     );
-
 }
-
-
 
 const closeModalButton =
     el("close-modal");
 
-
 if (closeModalButton) {
-
     closeModalButton.addEventListener(
         "click",
         closeModal
     );
-
 }
-
-
 
 const modalBackdrop =
     document.querySelector(
         ".modal-backdrop"
     );
 
-
 if (modalBackdrop) {
-
     modalBackdrop.addEventListener(
         "click",
         closeModal
     );
-
 }
-
-
 
 document.addEventListener(
     "keydown",
     event => {
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-
+        if (event.key === "Escape") {
             closeModal();
-
         }
-
     }
 );
 
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
 if (
-    token &&
-    role === "admin"
+    adminToken &&
+    adminRole === "admin"
 ) {
-
     loadOrders();
-
 }
