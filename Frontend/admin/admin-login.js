@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "https://velocity-y30h.onrender.com";
 
 const form = document.getElementById("adminLoginForm");
 const emailInput = document.getElementById("email");

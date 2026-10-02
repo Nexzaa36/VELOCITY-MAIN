@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "https://velocity-y30h.onrender.com";
 
 let cart = [];
 let subtotal = 0;
