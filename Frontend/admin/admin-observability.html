@@ -432,6 +432,7 @@
                 >
 
                     <div class="health-card">
+
                         <span class="health-name">
                             API
                         </span>
@@ -442,10 +443,12 @@
                         >
                             —
                         </strong>
+
                     </div>
 
 
                     <div class="health-card">
+
                         <span class="health-name">
                             MongoDB
                         </span>
@@ -456,10 +459,12 @@
                         >
                             —
                         </strong>
+
                     </div>
 
 
                     <div class="health-card">
+
                         <span class="health-name">
                             RabbitMQ
                         </span>
@@ -470,10 +475,12 @@
                         >
                             —
                         </strong>
+
                     </div>
 
 
                     <div class="health-card">
+
                         <span class="health-name">
                             Razorpay
                         </span>
@@ -484,10 +491,12 @@
                         >
                             —
                         </strong>
+
                     </div>
 
 
                     <div class="health-card">
+
                         <span class="health-name">
                             Notifications
                         </span>
@@ -498,6 +507,7 @@
                         >
                             —
                         </strong>
+
                     </div>
 
                 </div>
@@ -528,7 +538,6 @@
 
 
                 <div class="metric-grid">
-
 
                     <div class="metric-card">
 
@@ -664,101 +673,12 @@
                     id="event-breakdown"
                     class="breakdown-list"
                 >
+
                     <div class="empty-state">
                         Loading events...
                     </div>
-                </div>
-
-            </section>
-
-
-
-            <!-- SAGA -->
-
-            <section class="section">
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <div class="section-label">
-                            DISTRIBUTED TRANSACTIONS
-                        </div>
-
-                        <h2>
-                            SAGA Monitor
-                        </h2>
-
-                    </div>
 
                 </div>
-
-
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Order
-                                </th>
-
-                                <th>
-                                    Order Status
-                                </th>
-
-                                <th>
-                                    Tracking
-                                </th>
-
-                                <th>
-                                    SAGA
-                                </th>
-
-                                <th>
-                                    Events
-                                </th>
-
-                                <th>
-                                    Created
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="saga-table-body">
-
-                            <tr>
-
-                                <td
-                                    colspan="7"
-                                    class="table-loading"
-                                >
-                                    Loading SAGA data...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-
-                <div
-                    id="saga-pagination"
-                    class="pagination"
-                ></div>
 
             </section>
 
@@ -781,6 +701,7 @@
                         </h2>
 
                     </div>
+
 
                     <div class="filters">
 
@@ -874,9 +795,7 @@
 
             </section>
 
-
-
-            <!-- ORDER SAGA -->
+                        <!-- INSPECT SAGA -->
 
             <section class="section">
 
@@ -928,9 +847,96 @@
 
                 </div>
 
+            </section>  
+
+            <!-- SAGA MONITOR -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            DISTRIBUTED TRANSACTIONS
+                        </div>
+
+                        <h2>
+                            SAGA Monitor
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Order
+                                </th>
+
+                                <th>
+                                    Order Status
+                                </th>
+
+                                <th>
+                                    Tracking
+                                </th>
+
+                                <th>
+                                    SAGA
+                                </th>
+
+                                <th>
+                                    Events
+                                </th>
+
+                                <th>
+                                    Created
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="saga-table-body">
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-loading"
+                                >
+                                    Loading SAGA data...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    id="saga-pagination"
+                    class="pagination"
+                ></div>
+
             </section>
-
-
         </main>
 
     </div>

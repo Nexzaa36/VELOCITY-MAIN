@@ -6,48 +6,59 @@ const {
     MAX_RETRIES
 } = require("./eventConfig");
 
+
+const getSafeRoutingKey = (
+    routingKey
+) => {
+    return routingKey.replace(
+        /[^a-zA-Z0-9.-]/g,
+        "-"
+    );
+};
+
+
 const getRetryQueueName = (
     queueName,
     routingKey
 ) => {
-    const safeRoutingKey =
-        routingKey.replace(
-            /[^a-zA-Z0-9.-]/g,
-            "-"
-        );
-
-    return `${queueName}.retry.${safeRoutingKey}`;
+    return `${queueName}.retry.${getSafeRoutingKey(routingKey)}`;
 };
+
 
 const getDlqQueueName = (
     queueName,
     routingKey
 ) => {
-    const safeRoutingKey =
-        routingKey.replace(
-            /[^a-zA-Z0-9.-]/g,
-            "-"
-        );
-
-    return `${queueName}.dlq.${safeRoutingKey}`;
+    return `${queueName}.dlq.${getSafeRoutingKey(routingKey)}`;
 };
+
+
+const getRetryBindingKey = (
+    queueName,
+    routingKey
+) => {
+    return `${queueName}.retry.${getSafeRoutingKey(routingKey)}`;
+};
+
+
+const getDlqBindingKey = (
+    queueName,
+    routingKey
+) => {
+    return `${queueName}.dlq.${getSafeRoutingKey(routingKey)}`;
+};
+
 
 const setupRetryInfrastructure = async (
     channel,
     queueName,
-    routingKey
+    routingKeys
 ) => {
-    const retryQueue =
-        getRetryQueueName(
-            queueName,
-            routingKey
-        );
 
-    const dlqQueue =
-        getDlqQueueName(
-            queueName,
-            routingKey
-        );
+    const keys = Array.isArray(routingKeys)
+        ? routingKeys
+        : [routingKeys];
+
 
     await channel.assertExchange(
         RETRY_EXCHANGE_NAME,
@@ -57,6 +68,7 @@ const setupRetryInfrastructure = async (
         }
     );
 
+
     await channel.assertExchange(
         DLQ_EXCHANGE_NAME,
         "topic",
@@ -65,46 +77,92 @@ const setupRetryInfrastructure = async (
         }
     );
 
-    await channel.assertQueue(
-        retryQueue,
-        {
-            durable: true,
 
-            messageTtl:
-                RETRY_DELAY,
+    const infrastructure = [];
 
-            deadLetterExchange:
-                EXCHANGE_NAME,
 
-            deadLetterRoutingKey:
+    for (const routingKey of keys) {
+
+        const retryQueue =
+            getRetryQueueName(
+                queueName,
                 routingKey
-        }
-    );
+            );
 
-    await channel.bindQueue(
-        retryQueue,
-        RETRY_EXCHANGE_NAME,
-        queueName
-    );
 
-    await channel.assertQueue(
-        dlqQueue,
-        {
-            durable: true
-        }
-    );
+        const dlqQueue =
+            getDlqQueueName(
+                queueName,
+                routingKey
+            );
 
-    await channel.bindQueue(
-        dlqQueue,
-        DLQ_EXCHANGE_NAME,
-        queueName
-    );
 
-    return {
-        retryQueue,
-        dlqQueue
-    };
+        const retryBindingKey =
+            getRetryBindingKey(
+                queueName,
+                routingKey
+            );
+
+
+        const dlqBindingKey =
+            getDlqBindingKey(
+                queueName,
+                routingKey
+            );
+
+
+        await channel.assertQueue(
+            retryQueue,
+            {
+                durable: true,
+
+                messageTtl:
+                    RETRY_DELAY,
+
+                deadLetterExchange:
+                    EXCHANGE_NAME,
+
+                deadLetterRoutingKey:
+                    routingKey
+            }
+        );
+
+
+        await channel.bindQueue(
+            retryQueue,
+            RETRY_EXCHANGE_NAME,
+            retryBindingKey
+        );
+
+
+        await channel.assertQueue(
+            dlqQueue,
+            {
+                durable: true
+            }
+        );
+
+
+        await channel.bindQueue(
+            dlqQueue,
+            DLQ_EXCHANGE_NAME,
+            dlqBindingKey
+        );
+
+
+        infrastructure.push({
+            routingKey,
+            retryQueue,
+            dlqQueue,
+            retryBindingKey,
+            dlqBindingKey
+        });
+    }
+
+
+    return infrastructure;
 };
+
 
 const retryOrDeadLetter = async (
     channel,
@@ -113,34 +171,57 @@ const retryOrDeadLetter = async (
     routingKey,
     error
 ) => {
+
     const headers =
         message.properties.headers || {};
+
 
     const retryCount =
         Number(
             headers["x-retry-count"] || 0
         );
 
+
     const nextRetry =
         retryCount + 1;
+
 
     console.error(
         `Consumer failure: ${queueName}`
     );
 
+
     console.error(
         `Routing key: ${routingKey}`
     );
+
 
     console.error(
         `Retry ${nextRetry}/${MAX_RETRIES}`
     );
 
+
     console.error(
         error.message
     );
 
+
+    const retryBindingKey =
+        getRetryBindingKey(
+            queueName,
+            routingKey
+        );
+
+
+    const dlqBindingKey =
+        getDlqBindingKey(
+            queueName,
+            routingKey
+        );
+
+
     const publishOptions = {
+
         persistent: true,
 
         contentType:
@@ -148,6 +229,7 @@ const retryOrDeadLetter = async (
             "application/json",
 
         headers: {
+
             ...headers,
 
             "x-retry-count":
@@ -161,8 +243,11 @@ const retryOrDeadLetter = async (
 
             "x-last-error":
                 error.message
+
         }
+
     };
+
 
     try {
 
@@ -174,38 +259,58 @@ const retryOrDeadLetter = async (
                 "x-dead-lettered-at"
             ] = new Date().toISOString();
 
+
             channel.publish(
+
                 DLQ_EXCHANGE_NAME,
-                queueName,
+
+                dlqBindingKey,
+
                 message.content,
+
                 publishOptions
+
             );
+
 
             await channel.waitForConfirms();
 
+
             channel.ack(message);
+
 
             console.error(
                 `Moved to DLQ: ${queueName} [${routingKey}]`
             );
 
+
             return;
         }
 
+
         channel.publish(
+
             RETRY_EXCHANGE_NAME,
-            queueName,
+
+            retryBindingKey,
+
             message.content,
+
             publishOptions
+
         );
+
 
         await channel.waitForConfirms();
 
+
         channel.ack(message);
+
 
         console.log(
             `Retry scheduled: ${queueName} [${routingKey}]`
         );
+
 
     } catch (publishError) {
 
@@ -214,9 +319,11 @@ const retryOrDeadLetter = async (
             publishError.message
         );
 
+
         console.error(
             "Original message was NOT acknowledged"
         );
+
 
         channel.nack(
             message,
@@ -226,7 +333,11 @@ const retryOrDeadLetter = async (
     }
 };
 
+
 module.exports = {
+
     setupRetryInfrastructure,
+
     retryOrDeadLetter
+
 };

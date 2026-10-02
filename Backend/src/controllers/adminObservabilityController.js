@@ -216,7 +216,6 @@ const getOrderEvents = async (
 
 };
 
-
 // ========================================
 // SAGA STATUS
 // ========================================
@@ -232,7 +231,6 @@ const calculateSagaStatus = ({
                 event.eventType
         );
 
-
     const hasEvent =
         eventType =>
             eventTypes.includes(
@@ -241,7 +239,9 @@ const calculateSagaStatus = ({
 
 
     /*
-        ACTUAL VELOCITY FLOW
+        FINAL ORDER STATE IS AUTHORITATIVE
+
+        Successful flow:
 
         OrderCreated
             ↓
@@ -249,19 +249,44 @@ const calculateSagaStatus = ({
             ↓
         PaymentProcessed
             ↓
-        Order CONFIRMED
+        CONFIRMED
 
-        Failure:
+        Failed flow:
 
         PaymentFailed
             ↓
         OrderCancelled
             ↓
         InventoryReleased
+            ↓
+        COMPENSATED
     */
 
 
     if (
+        order.status ===
+        "CONFIRMED"
+    ) {
+
+        return "COMPLETED";
+
+    }
+
+
+    if (
+        order.status ===
+        "CANCELLED"
+    ) {
+
+        return "COMPENSATED";
+
+    }
+
+
+    if (
+        hasEvent(
+            "PaymentFailed"
+        ) &&
         hasEvent(
             "InventoryReleased"
         )
@@ -286,9 +311,7 @@ const calculateSagaStatus = ({
     if (
         hasEvent(
             "PaymentProcessed"
-        ) &&
-        order.status ===
-            "CONFIRMED"
+        )
     ) {
 
         return "COMPLETED";
@@ -299,12 +322,6 @@ const calculateSagaStatus = ({
     if (
         hasEvent(
             "InventoryReserved"
-        ) &&
-        !hasEvent(
-            "PaymentProcessed"
-        ) &&
-        !hasEvent(
-            "PaymentFailed"
         )
     ) {
 
@@ -316,9 +333,6 @@ const calculateSagaStatus = ({
     if (
         hasEvent(
             "OrderCreated"
-        ) &&
-        !hasEvent(
-            "InventoryReserved"
         )
     ) {
 
@@ -330,7 +344,6 @@ const calculateSagaStatus = ({
     return "IN_PROGRESS";
 
 };
-
 
 // ========================================
 // SAGA MONITOR

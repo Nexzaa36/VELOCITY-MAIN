@@ -90,7 +90,7 @@ const startNotificationConsumer = async () => {
                     JSON.parse(
                         message.content.toString()
                     );
-
+                
                 const {
                     orderId,
                     userId

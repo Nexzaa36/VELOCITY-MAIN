@@ -11,7 +11,13 @@ const TRACKING_STEPS = [
     "DELIVERED"
 ];
 
+const TRACKING_STATUSES = [
+    ...TRACKING_STEPS,
+    "CANCELLED"
+];
+
 module.exports = {
     TRACKING_STEP_SECONDS,
-    TRACKING_STEPS
+    TRACKING_STEPS,
+    TRACKING_STATUSES
 };

@@ -2,11 +2,12 @@ const Order = require("../models/Order");
 
 const {
     TRACKING_STEP_SECONDS,
-    TRACKING_STEPS
+    TRACKING_STEPS,
+    TRACKING_STATUSES
 } = require("../config/trackingConfig");
 
 const updateTrackingStatus = async (order, status) => {
-    if (!TRACKING_STEPS.includes(status)) {
+    if (!TRACKING_STATUSES.includes(status)) {
         throw new Error(`Invalid tracking status: ${status}`);
     }
 
@@ -120,10 +121,18 @@ const syncTrackingWithOrderStatus = async order => {
         return null;
     }
 
-    if (
-        order.status === "FAILED" ||
-        order.status === "CANCELLED"
-    ) {
+    if (order.status === "CANCELLED") {
+        if (order.trackingStatus !== "CANCELLED") {
+            await updateTrackingStatus(
+                order,
+                "CANCELLED"
+            );
+        }
+
+        return order;
+    }
+
+    if (order.status === "FAILED") {
         return order;
     }
 

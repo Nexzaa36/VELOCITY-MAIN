@@ -1,4 +1,7 @@
-const { getChannel } = require("./rabbitmq");
+const {
+    getChannel
+} = require("./rabbitmq");
+
 const crypto = require("crypto");
 
 const {
@@ -15,14 +18,19 @@ const Order =
     require("../models/Order");
 
 const {
-    setupRetryInfrastructure,
-    retryOrDeadLetter
-} = require("./retryHandler");
+    updateTrackingStatus
+} = require("../services/trackingService");
+
+
+// START PAYMENT FAILED CONSUMER
 
 const startPaymentFailedConsumer = async () => {
 
     const channel =
         getChannel();
+
+
+    // EXCHANGE
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -32,6 +40,9 @@ const startPaymentFailedConsumer = async () => {
         }
     );
 
+
+    // QUEUE
+
     await channel.assertQueue(
         PAYMENT_FAILED_QUEUE,
         {
@@ -39,21 +50,22 @@ const startPaymentFailedConsumer = async () => {
         }
     );
 
+
+    // BIND QUEUE
+
     await channel.bindQueue(
         PAYMENT_FAILED_QUEUE,
         EXCHANGE_NAME,
         PAYMENT_FAILED_ORDER_ROUTING_KEY
     );
 
-    await setupRetryInfrastructure(
-        channel,
-        PAYMENT_FAILED_QUEUE,
-        PAYMENT_FAILED_ORDER_ROUTING_KEY
-    );
 
     console.log(
         "PaymentFailed consumer started"
     );
+
+
+    // CONSUME PAYMENT FAILED
 
     channel.consume(
         PAYMENT_FAILED_QUEUE,
@@ -65,6 +77,8 @@ const startPaymentFailedConsumer = async () => {
             }
 
             try {
+
+                // PARSE EVENT
 
                 const event =
                     JSON.parse(
@@ -103,9 +117,15 @@ const startPaymentFailedConsumer = async () => {
                     "================================="
                 );
 
+
+                // GET ORDER ID
+
                 const {
                     orderId
                 } = event.data;
+
+
+                // FIND ORDER
 
                 const order =
                     await Order.findById(
@@ -113,12 +133,13 @@ const startPaymentFailedConsumer = async () => {
                     );
 
                 if (!order) {
-
                     throw new Error(
                         `Order not found: ${orderId}`
                     );
-
                 }
+
+
+                // IDEMPOTENCY CHECK
 
                 if (
                     order.status ===
@@ -130,25 +151,37 @@ const startPaymentFailedConsumer = async () => {
                         orderId
                     );
 
+                    if (
+                        order.trackingStatus !==
+                        "CANCELLED"
+                    ) {
+                        await updateTrackingStatus(
+                            order,
+                            "CANCELLED"
+                        );
+                    }
+
                     channel.ack(
                         message
                     );
 
                     return;
-
                 }
 
-                order.status =
-                    "CANCELLED";
 
-                await order.save();
+                // CANCEL ORDER
+
+                order.status = "CANCELLED";
+
+                await updateTrackingStatus(
+                    order,
+                    "CANCELLED"
+                );
 
                 const orderCancelledEvent = {
-                    eventId:
-                        crypto.randomUUID(),
+                    eventId: crypto.randomUUID(),
 
-                    eventType:
-                        "OrderCancelled",
+                    eventType: "OrderCancelled",
 
                     timestamp:
                         new Date().toISOString(),
@@ -174,6 +207,9 @@ const startPaymentFailedConsumer = async () => {
                     "OrderCancelled event published"
                 );
 
+
+                // LOG RESULT
+
                 console.log(
                     "================================="
                 );
@@ -193,8 +229,16 @@ const startPaymentFailedConsumer = async () => {
                 );
 
                 console.log(
+                    "Tracking Status:",
+                    order.trackingStatus
+                );
+
+                console.log(
                     "================================="
                 );
+
+
+                // ACK MESSAGE
 
                 channel.ack(
                     message
@@ -218,17 +262,18 @@ const startPaymentFailedConsumer = async () => {
                     "================================="
                 );
 
-                await retryOrDeadLetter(
-                    channel,
+                channel.nack(
                     message,
-                    PAYMENT_FAILED_QUEUE,
-                    PAYMENT_FAILED_ORDER_ROUTING_KEY,
-                    error
+                    false,
+                    false
                 );
             }
         }
     );
 };
+
+
+// EXPORT
 
 module.exports = {
     startPaymentFailedConsumer
