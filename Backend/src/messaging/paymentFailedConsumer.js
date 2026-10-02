@@ -1,4 +1,4 @@
-const { getChannel } =require("./rabbitmq");
+const { getChannel } = require("./rabbitmq");
 const crypto = require("crypto");
 
 const {
@@ -7,107 +7,69 @@ const {
 
 const {
     EXCHANGE_NAME,
-
     PAYMENT_FAILED_QUEUE,
-
     PAYMENT_FAILED_ORDER_ROUTING_KEY
-
 } = require("./eventConfig");
 
 const Order =
     require("../models/Order");
 
-
-// ========================================
-// START PAYMENT FAILED CONSUMER
-// ========================================
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
 
 const startPaymentFailedConsumer = async () => {
 
     const channel =
         getChannel();
 
-
-    // ========================================
-    // EXCHANGE
-    // ========================================
-
     await channel.assertExchange(
-
         EXCHANGE_NAME,
-
         "topic",
-
         {
             durable: true
         }
-
     );
-
-
-    // ========================================
-    // QUEUE
-    // ========================================
 
     await channel.assertQueue(
-
         PAYMENT_FAILED_QUEUE,
-
         {
             durable: true
         }
-
     );
-
-
-    // ========================================
-    // BIND QUEUE
-    // ========================================
 
     await channel.bindQueue(
-
         PAYMENT_FAILED_QUEUE,
-
         EXCHANGE_NAME,
-
         PAYMENT_FAILED_ORDER_ROUTING_KEY
-
     );
 
+    await setupRetryInfrastructure(
+        channel,
+        PAYMENT_FAILED_QUEUE,
+        PAYMENT_FAILED_ORDER_ROUTING_KEY
+    );
 
     console.log(
         "PaymentFailed consumer started"
     );
 
-
-    // ========================================
-    // CONSUME PAYMENT FAILED
-    // ========================================
-
     channel.consume(
-
         PAYMENT_FAILED_QUEUE,
 
         async (message) => {
 
             if (!message) {
-
                 return;
-
             }
 
-
             try {
-
-                // ========================================
-                // PARSE EVENT
-                // ========================================
 
                 const event =
                     JSON.parse(
                         message.content.toString()
                     );
-
 
                 console.log(
                     "================================="
@@ -141,40 +103,22 @@ const startPaymentFailedConsumer = async () => {
                     "================================="
                 );
 
-
-                // ========================================
-                // GET ORDER ID
-                // ========================================
-
                 const {
                     orderId
                 } = event.data;
-
-
-                // ========================================
-                // FIND ORDER
-                // ========================================
 
                 const order =
                     await Order.findById(
                         orderId
                     );
 
-
                 if (!order) {
 
                     throw new Error(
-
                         `Order not found: ${orderId}`
-
                     );
 
                 }
-
-
-                // ========================================
-                // IDEMPOTENCY CHECK
-                // ========================================
 
                 if (
                     order.status ===
@@ -182,40 +126,42 @@ const startPaymentFailedConsumer = async () => {
                 ) {
 
                     console.log(
-
                         "Order already cancelled:",
-
                         orderId
-
                     );
-
 
                     channel.ack(
                         message
                     );
 
-
                     return;
 
                 }
 
-
-                // ========================================
-                // CANCEL ORDER
-                // ========================================
-
-                order.status = "CANCELLED";
-
+                order.status =
+                    "CANCELLED";
 
                 await order.save();
+
                 const orderCancelledEvent = {
-                    eventId: crypto.randomUUID(),
-                    eventType: "OrderCancelled",
-                    timestamp: new Date().toISOString(),
+                    eventId:
+                        crypto.randomUUID(),
+
+                    eventType:
+                        "OrderCancelled",
+
+                    timestamp:
+                        new Date().toISOString(),
+
                     data: {
-                        orderId: String(order._id),
-                        userId: String(order.userId),
-                        reason: event.data.reason
+                        orderId:
+                            String(order._id),
+
+                        userId:
+                            String(order.userId),
+
+                        reason:
+                            event.data.reason
                     }
                 };
 
@@ -227,10 +173,6 @@ const startPaymentFailedConsumer = async () => {
                 console.log(
                     "OrderCancelled event published"
                 );
-
-                // ========================================
-                // LOG RESULT
-                // ========================================
 
                 console.log(
                     "================================="
@@ -254,15 +196,9 @@ const startPaymentFailedConsumer = async () => {
                     "================================="
                 );
 
-
-                // ========================================
-                // ACK MESSAGE
-                // ========================================
-
                 channel.ack(
                     message
                 );
-
 
             } catch (error) {
 
@@ -282,32 +218,18 @@ const startPaymentFailedConsumer = async () => {
                     "================================="
                 );
 
-
-                channel.nack(
-
+                await retryOrDeadLetter(
+                    channel,
                     message,
-
-                    false,
-
-                    false
-
+                    PAYMENT_FAILED_QUEUE,
+                    PAYMENT_FAILED_ORDER_ROUTING_KEY,
+                    error
                 );
-
             }
-
         }
-
     );
-
 };
 
-
-// ========================================
-// EXPORT
-// ========================================
-
 module.exports = {
-
     startPaymentFailedConsumer
-
 };

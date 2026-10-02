@@ -6,6 +6,11 @@ const {
     ORDER_CREATED_ROUTING_KEY
 } = require("./eventConfig");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startOrderCreatedConsumer = async () => {
     const channel = getChannel();
 
@@ -30,13 +35,18 @@ const startOrderCreatedConsumer = async () => {
         ORDER_CREATED_ROUTING_KEY
     );
 
+    await setupRetryInfrastructure(
+        channel,
+        ORDER_CREATED_QUEUE,
+        ORDER_CREATED_ROUTING_KEY
+    );
     console.log(
         "OrderCreated consumer started"
     );
 
     channel.consume(
         ORDER_CREATED_QUEUE,
-        (message) => {
+        async (message) => {
 
             if (!message) {
                 return;
@@ -79,14 +89,16 @@ const startOrderCreatedConsumer = async () => {
             } catch (error) {
 
                 console.error(
-                    "Failed to process OrderCreated:",
+                    "ORDER CREATED ERROR:",
                     error.message
                 );
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    ORDER_CREATED_QUEUE,
+                    ORDER_CREATED_ROUTING_KEY,
+                    error
                 );
             }
         }

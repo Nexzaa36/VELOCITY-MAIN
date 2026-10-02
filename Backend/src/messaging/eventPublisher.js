@@ -6,14 +6,11 @@ const {
 
 const EventLog = require("../models/EventLog");
 
-
 const publishEvent = async (
     routingKey,
     event
 ) => {
-
     const channel = getChannel();
-
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -23,12 +20,20 @@ const publishEvent = async (
         }
     );
 
-
     const message =
         Buffer.from(
             JSON.stringify(event)
         );
 
+    const orderId =
+        event?.data?.orderId
+            ? String(event.data.orderId)
+            : null;
+
+    const userId =
+        event?.data?.userId
+            ? String(event.data.userId)
+            : null;
 
     try {
 
@@ -38,26 +43,13 @@ const publishEvent = async (
             message,
             {
                 persistent: true,
-                contentType:
-                    "application/json"
+                contentType: "application/json"
             }
         );
 
-
-        const orderId =
-            event?.data?.orderId
-                ? String(event.data.orderId)
-                : null;
-
-
-        const userId =
-            event?.data?.userId
-                ? String(event.data.userId)
-                : null;
-
+        await channel.waitForConfirms();
 
         await EventLog.create({
-
             eventId:
                 event.eventId,
 
@@ -80,12 +72,14 @@ const publishEvent = async (
                 event.timestamp
                     ? new Date(event.timestamp)
                     : new Date()
-
         });
-
 
         console.log(
             `Event published: ${event.eventType}`
+        );
+
+        console.log(
+            `Event confirmed by RabbitMQ: ${event.eventId}`
         );
 
         console.log(
@@ -99,11 +93,9 @@ const publishEvent = async (
             error.message
         );
 
-
         try {
 
             await EventLog.create({
-
                 eventId:
                     event.eventId,
 
@@ -112,19 +104,9 @@ const publishEvent = async (
 
                 routingKey,
 
-                orderId:
-                    event?.data?.orderId
-                        ? String(
-                            event.data.orderId
-                        )
-                        : null,
+                orderId,
 
-                userId:
-                    event?.data?.userId
-                        ? String(
-                            event.data.userId
-                        )
-                        : null,
+                userId,
 
                 status:
                     "FAILED",
@@ -141,7 +123,6 @@ const publishEvent = async (
                             event.timestamp
                         )
                         : new Date()
-
             });
 
         } catch (logError) {
@@ -150,13 +131,11 @@ const publishEvent = async (
                 "Failed to save event log:",
                 logError.message
             );
-
         }
 
         throw error;
     }
 };
-
 
 module.exports = {
     publishEvent

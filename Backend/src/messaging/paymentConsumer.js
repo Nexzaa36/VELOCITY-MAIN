@@ -9,16 +9,15 @@ const {
     PAYMENT_INVENTORY_RESERVED_ROUTING_KEY
 } = require("./eventConfig");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
 
 const startPaymentConsumer = async () => {
 
     const channel =
         getChannel();
-
-
-    // ========================================
-    // EXCHANGE
-    // ========================================
 
     await channel.assertExchange(
         EXCHANGE_NAME,
@@ -28,11 +27,6 @@ const startPaymentConsumer = async () => {
         }
     );
 
-
-    // ========================================
-    // QUEUE
-    // ========================================
-
     await channel.assertQueue(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
         {
@@ -40,26 +34,21 @@ const startPaymentConsumer = async () => {
         }
     );
 
-
-    // ========================================
-    // BIND QUEUE
-    // ========================================
-
     await channel.bindQueue(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
         EXCHANGE_NAME,
         PAYMENT_INVENTORY_RESERVED_ROUTING_KEY
     );
 
+    await setupRetryInfrastructure(
+        channel,
+        PAYMENT_INVENTORY_RESERVED_QUEUE,
+        PAYMENT_INVENTORY_RESERVED_ROUTING_KEY
+    );
 
     console.log(
         "Payment consumer started"
     );
-
-
-    // ========================================
-    // CONSUME INVENTORY RESERVED
-    // ========================================
 
     channel.consume(
         PAYMENT_INVENTORY_RESERVED_QUEUE,
@@ -70,14 +59,12 @@ const startPaymentConsumer = async () => {
                 return;
             }
 
-
             try {
 
                 const event =
                     JSON.parse(
                         message.content.toString()
                     );
-
 
                 console.log(
                     "================================="
@@ -105,22 +92,17 @@ const startPaymentConsumer = async () => {
                     "================================="
                 );
 
-
                 /*
-                 * IMPORTANT
-                 *
-                 * We do NOT create a successful
-                 * payment here.
-                 *
-                 * Razorpay payment is now started
+                 * Razorpay payment is started
                  * from the checkout flow.
+                 *
+                 * This consumer only confirms
+                 * that InventoryReserved was received.
                  */
-
 
                 channel.ack(
                     message
                 );
-
 
             } catch (error) {
 
@@ -140,17 +122,17 @@ const startPaymentConsumer = async () => {
                     "================================="
                 );
 
-
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    PAYMENT_INVENTORY_RESERVED_QUEUE,
+                    PAYMENT_INVENTORY_RESERVED_ROUTING_KEY,
+                    error
                 );
             }
         }
     );
 };
-
 
 module.exports = {
     startPaymentConsumer

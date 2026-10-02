@@ -20,6 +20,11 @@ const {
     publishEvent
 } = require("./eventPublisher");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startPaymentFailedInventoryConsumer = async () => {
     const channel = getChannel();
 
@@ -41,6 +46,12 @@ const startPaymentFailedInventoryConsumer = async () => {
     await channel.bindQueue(
         INVENTORY_PAYMENT_FAILED_QUEUE,
         EXCHANGE_NAME,
+        PAYMENT_FAILED_ORDER_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        INVENTORY_PAYMENT_FAILED_QUEUE,
         PAYMENT_FAILED_ORDER_ROUTING_KEY
     );
 
@@ -128,9 +139,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     return;
                 }
 
-                // =====================================
-                // RESTORE PRODUCT STOCK
-                // =====================================
+                // Restore product stock
 
                 for (
                     const item of reservation.items
@@ -164,9 +173,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     );
                 }
 
-                // =====================================
-                // MARK RESERVATION RELEASED
-                // =====================================
+                // Mark reservation released
 
                 reservation.status =
                     "RELEASED";
@@ -178,9 +185,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     orderId
                 );
 
-                // =====================================
-                // CREATE INVENTORY RELEASED EVENT
-                // =====================================
+                // Create InventoryReleased event
 
                 const inventoryReleasedEvent = {
                     eventId:
@@ -215,9 +220,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                     }
                 };
 
-                // =====================================
-                // PUBLISH INVENTORY RELEASED
-                // =====================================
+                // Publish InventoryReleased
 
                 await publishEvent(
                     INVENTORY_RELEASED_ROUTING_KEY,
@@ -231,6 +234,7 @@ const startPaymentFailedInventoryConsumer = async () => {
                 channel.ack(message);
 
             } catch (error) {
+
                 console.error(
                     "================================="
                 );
@@ -244,10 +248,12 @@ const startPaymentFailedInventoryConsumer = async () => {
                     "================================="
                 );
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    INVENTORY_PAYMENT_FAILED_QUEUE,
+                    PAYMENT_FAILED_ORDER_ROUTING_KEY,
+                    error
                 );
             }
         }

@@ -12,6 +12,11 @@ const {
     updateTrackingStatus
 } = require("../services/trackingService");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startInventoryReservedConsumer = async () => {
     const channel = getChannel();
 
@@ -33,6 +38,12 @@ const startInventoryReservedConsumer = async () => {
     await channel.bindQueue(
         INVENTORY_RESERVED_QUEUE,
         EXCHANGE_NAME,
+        INVENTORY_RESERVED_ORDER_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        INVENTORY_RESERVED_QUEUE,
         INVENTORY_RESERVED_ORDER_ROUTING_KEY
     );
 
@@ -151,7 +162,9 @@ const startInventoryReservedConsumer = async () => {
                 );
 
                 channel.ack(message);
+
             } catch (error) {
+
                 console.error(
                     "================================="
                 );
@@ -168,10 +181,12 @@ const startInventoryReservedConsumer = async () => {
                     "================================="
                 );
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    INVENTORY_RESERVED_QUEUE,
+                    INVENTORY_RESERVED_ORDER_ROUTING_KEY,
+                    error
                 );
             }
         }

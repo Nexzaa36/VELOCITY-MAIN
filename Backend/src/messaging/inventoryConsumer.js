@@ -15,6 +15,11 @@ const {
     publishEvent
 } = require("./eventPublisher");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startInventoryConsumer = async () => {
     const channel = getChannel();
 
@@ -32,6 +37,12 @@ const startInventoryConsumer = async () => {
     await channel.bindQueue(
         INVENTORY_ORDER_CREATED_QUEUE,
         EXCHANGE_NAME,
+        INVENTORY_ORDER_CREATED_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        INVENTORY_ORDER_CREATED_QUEUE,
         INVENTORY_ORDER_CREATED_ROUTING_KEY
     );
 
@@ -221,10 +232,12 @@ const startInventoryConsumer = async () => {
                 console.error(error.message);
                 console.error("=================================");
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    INVENTORY_ORDER_CREATED_QUEUE,
+                    INVENTORY_ORDER_CREATED_ROUTING_KEY,
+                    error
                 );
             }
         }

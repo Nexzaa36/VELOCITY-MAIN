@@ -1,9 +1,16 @@
 const mongoose = require("mongoose");
 
-const EventLog = require("../models/EventLog");
-const Order = require("../models/Order");
-const Payment = require("../models/Payment");
-const InventoryReservation = require("../models/InventoryReservation");
+const EventLog =
+    require("../models/EventLog");
+
+const Order =
+    require("../models/Order");
+
+const Payment =
+    require("../models/Payment");
+
+const InventoryReservation =
+    require("../models/InventoryReservation");
 
 const {
     getChannel
@@ -11,10 +18,11 @@ const {
 
 
 // ========================================
-// GET EVENT HISTORY
+// EVENT HISTORY
 // ========================================
 
 const getEvents = async (req, res) => {
+
     try {
 
         const {
@@ -25,11 +33,13 @@ const getEvents = async (req, res) => {
             orderId
         } = req.query;
 
+
         const pageNumber =
             Math.max(
                 parseInt(page, 10) || 1,
                 1
             );
+
 
         const limitNumber =
             Math.min(
@@ -40,23 +50,32 @@ const getEvents = async (req, res) => {
                 100
             );
 
+
         const filter = {};
 
+
         if (eventType) {
-            filter.eventType = eventType;
+            filter.eventType =
+                eventType;
         }
+
 
         if (status) {
-            filter.status = status;
+            filter.status =
+                status;
         }
 
+
         if (orderId) {
-            filter.orderId = orderId;
+            filter.orderId =
+                orderId;
         }
+
 
         const skip =
             (pageNumber - 1) *
             limitNumber;
+
 
         const [
             events,
@@ -72,9 +91,12 @@ const getEvents = async (req, res) => {
                 .limit(limitNumber)
                 .lean(),
 
-            EventLog.countDocuments(filter)
+            EventLog.countDocuments(
+                filter
+            )
 
         ]);
+
 
         return res.status(200).json({
 
@@ -83,14 +105,19 @@ const getEvents = async (req, res) => {
             events,
 
             pagination: {
+
                 page: pageNumber,
+
                 limit: limitNumber,
+
                 total,
+
                 totalPages:
                     Math.ceil(
                         total /
                         limitNumber
                     )
+
             }
 
         });
@@ -102,6 +129,7 @@ const getEvents = async (req, res) => {
             error.message
         );
 
+
         return res.status(500).json({
 
             success: false,
@@ -110,22 +138,30 @@ const getEvents = async (req, res) => {
                 "Unable to load event history"
 
         });
+
     }
+
 };
 
 
 // ========================================
-// GET EVENTS FOR ONE ORDER
+// EVENTS FOR ONE ORDER
 // ========================================
 
-const getOrderEvents = async (req, res) => {
+const getOrderEvents = async (
+    req,
+    res
+) => {
+
     try {
 
         const {
             orderId
         } = req.params;
 
+
         if (!orderId) {
+
             return res.status(400).json({
 
                 success: false,
@@ -134,7 +170,9 @@ const getOrderEvents = async (req, res) => {
                     "Order ID is required"
 
             });
+
         }
+
 
         const events =
             await EventLog
@@ -145,6 +183,7 @@ const getOrderEvents = async (req, res) => {
                     timestamp: 1
                 })
                 .lean();
+
 
         return res.status(200).json({
 
@@ -163,6 +202,7 @@ const getOrderEvents = async (req, res) => {
             error.message
         );
 
+
         return res.status(500).json({
 
             success: false,
@@ -171,15 +211,136 @@ const getOrderEvents = async (req, res) => {
                 "Unable to load order events"
 
         });
+
     }
+
 };
 
 
 // ========================================
-// GET SAGA MONITOR
+// SAGA STATUS
 // ========================================
 
-const getSagas = async (req, res) => {
+const calculateSagaStatus = ({
+    order,
+    events
+}) => {
+
+    const eventTypes =
+        events.map(
+            event =>
+                event.eventType
+        );
+
+
+    const hasEvent =
+        eventType =>
+            eventTypes.includes(
+                eventType
+            );
+
+
+    /*
+        ACTUAL VELOCITY FLOW
+
+        OrderCreated
+            ↓
+        InventoryReserved
+            ↓
+        PaymentProcessed
+            ↓
+        Order CONFIRMED
+
+        Failure:
+
+        PaymentFailed
+            ↓
+        OrderCancelled
+            ↓
+        InventoryReleased
+    */
+
+
+    if (
+        hasEvent(
+            "InventoryReleased"
+        )
+    ) {
+
+        return "COMPENSATED";
+
+    }
+
+
+    if (
+        hasEvent(
+            "PaymentFailed"
+        )
+    ) {
+
+        return "COMPENSATING";
+
+    }
+
+
+    if (
+        hasEvent(
+            "PaymentProcessed"
+        ) &&
+        order.status ===
+            "CONFIRMED"
+    ) {
+
+        return "COMPLETED";
+
+    }
+
+
+    if (
+        hasEvent(
+            "InventoryReserved"
+        ) &&
+        !hasEvent(
+            "PaymentProcessed"
+        ) &&
+        !hasEvent(
+            "PaymentFailed"
+        )
+    ) {
+
+        return "WAITING_PAYMENT";
+
+    }
+
+
+    if (
+        hasEvent(
+            "OrderCreated"
+        ) &&
+        !hasEvent(
+            "InventoryReserved"
+        )
+    ) {
+
+        return "WAITING_INVENTORY";
+
+    }
+
+
+    return "IN_PROGRESS";
+
+};
+
+
+// ========================================
+// SAGA MONITOR
+// ========================================
+
+const getSagas = async (
+    req,
+    res
+) => {
+
     try {
 
         const {
@@ -187,11 +348,13 @@ const getSagas = async (req, res) => {
             limit = 30
         } = req.query;
 
+
         const pageNumber =
             Math.max(
                 parseInt(page, 10) || 1,
                 1
             );
+
 
         const limitNumber =
             Math.min(
@@ -203,16 +366,18 @@ const getSagas = async (req, res) => {
             );
 
 
+        const skip =
+            (pageNumber - 1) *
+            limitNumber;
+
+
         const orders =
             await Order
                 .find({})
                 .sort({
                     createdAt: -1
                 })
-                .skip(
-                    (pageNumber - 1) *
-                    limitNumber
-                )
+                .skip(skip)
                 .limit(limitNumber)
                 .lean();
 
@@ -228,7 +393,8 @@ const getSagas = async (req, res) => {
             await EventLog
                 .find({
                     orderId: {
-                        $in: orderIds
+                        $in:
+                            orderIds
                     }
                 })
                 .sort({
@@ -237,21 +403,83 @@ const getSagas = async (req, res) => {
                 .lean();
 
 
-        const eventMap = new Map();
+        const payments =
+            await Payment
+                .find({
+                    orderId: {
+                        $in:
+                            orderIds
+                    }
+                })
+                .lean();
+
+
+        const reservations =
+            await InventoryReservation
+                .find({
+                    orderId: {
+                        $in:
+                            orderIds
+                    }
+                })
+                .lean();
+
+
+        const eventMap =
+            new Map();
 
 
         for (const event of events) {
 
-            if (!eventMap.has(event.orderId)) {
+            if (
+                !eventMap.has(
+                    event.orderId
+                )
+            ) {
+
                 eventMap.set(
                     event.orderId,
                     []
                 );
+
             }
+
 
             eventMap
                 .get(event.orderId)
                 .push(event);
+
+        }
+
+
+        const paymentMap =
+            new Map();
+
+
+        for (const payment of payments) {
+
+            paymentMap.set(
+                payment.orderId.toString(),
+                payment
+            );
+
+        }
+
+
+        const reservationMap =
+            new Map();
+
+
+        for (
+            const reservation
+            of reservations
+        ) {
+
+            reservationMap.set(
+                reservation.orderId.toString(),
+                reservation
+            );
+
         }
 
 
@@ -261,85 +489,23 @@ const getSagas = async (req, res) => {
                 const orderId =
                     order._id.toString();
 
+
                 const orderEvents =
                     eventMap.get(
                         orderId
                     ) || [];
 
 
-                const eventTypes =
-                    orderEvents.map(
-                        event =>
-                            event.eventType
+                const payment =
+                    paymentMap.get(
+                        orderId
                     );
 
 
-                const has =
-                    type =>
-                        eventTypes.includes(
-                            type
-                        );
-
-
-                let sagaStatus =
-                    "IN_PROGRESS";
-
-
-                if (
-                    has("PaymentFailed") ||
-                    has("InventoryReservationFailed")
-                ) {
-
-                    sagaStatus =
-                        "COMPENSATING";
-
-                }
-
-
-                if (
-                    has("InventoryReleased")
-                ) {
-
-                    sagaStatus =
-                        "COMPENSATED";
-
-                }
-
-
-                if (
-                    has("PaymentProcessed") &&
-                    !has("InventoryReleased") &&
-                    order.status === "CONFIRMED"
-                ) {
-
-                    sagaStatus =
-                        "COMPLETED";
-
-                }
-
-
-                if (
-                    has("OrderCreated") &&
-                    !has("InventoryReserved") &&
-                    !has("InventoryReservationFailed")
-                ) {
-
-                    sagaStatus =
-                        "WAITING_INVENTORY";
-
-                }
-
-
-                if (
-                    has("InventoryReserved") &&
-                    !has("PaymentProcessed") &&
-                    !has("PaymentFailed")
-                ) {
-
-                    sagaStatus =
-                        "WAITING_PAYMENT";
-
-                }
+                const reservation =
+                    reservationMap.get(
+                        orderId
+                    );
 
 
                 return {
@@ -352,7 +518,22 @@ const getSagas = async (req, res) => {
                     trackingStatus:
                         order.trackingStatus,
 
-                    sagaStatus,
+                    sagaStatus:
+                        calculateSagaStatus({
+                            order,
+                            events:
+                                orderEvents
+                        }),
+
+                    paymentStatus:
+                        payment
+                            ? payment.status
+                            : null,
+
+                    inventoryStatus:
+                        reservation
+                            ? reservation.status
+                            : null,
 
                     createdAt:
                         order.createdAt,
@@ -379,14 +560,21 @@ const getSagas = async (req, res) => {
             sagas,
 
             pagination: {
-                page: pageNumber,
-                limit: limitNumber,
+
+                page:
+                    pageNumber,
+
+                limit:
+                    limitNumber,
+
                 total,
+
                 totalPages:
                     Math.ceil(
                         total /
                         limitNumber
                     )
+
             }
 
         });
@@ -398,6 +586,7 @@ const getSagas = async (req, res) => {
             error.message
         );
 
+
         return res.status(500).json({
 
             success: false,
@@ -406,15 +595,21 @@ const getSagas = async (req, res) => {
                 "Unable to load SAGA monitor"
 
         });
+
     }
+
 };
 
 
 // ========================================
-// GET SAGA FOR ONE ORDER
+// ONE ORDER SAGA
 // ========================================
 
-const getSagaByOrderId = async (req, res) => {
+const getSagaByOrderId = async (
+    req,
+    res
+) => {
+
     try {
 
         const {
@@ -436,6 +631,7 @@ const getSagaByOrderId = async (req, res) => {
                     "Invalid order ID"
 
             });
+
         }
 
 
@@ -455,91 +651,45 @@ const getSagaByOrderId = async (req, res) => {
                     "Order not found"
 
             });
+
         }
 
 
-        const events =
-            await EventLog
+        const [
+            events,
+            payment,
+            reservation
+        ] = await Promise.all([
+
+            EventLog
                 .find({
-                    orderId:
-                        orderId
+                    orderId
                 })
                 .sort({
                     timestamp: 1
                 })
-                .lean();
+                .lean(),
+
+            Payment
+                .findOne({
+                    orderId
+                })
+                .lean(),
+
+            InventoryReservation
+                .findOne({
+                    orderId
+                })
+                .lean()
+
+        ]);
 
 
-        const eventTypes =
-            events.map(
-                event =>
-                    event.eventType
-            );
-
-
-        const has =
-            type =>
-                eventTypes.includes(type);
-
-
-        let sagaStatus =
-            "IN_PROGRESS";
-
-
-        if (
-            has("PaymentFailed") ||
-            has("InventoryReservationFailed")
-        ) {
-
-            sagaStatus =
-                "COMPENSATING";
-
-        }
-
-
-        if (
-            has("InventoryReleased")
-        ) {
-
-            sagaStatus =
-                "COMPENSATED";
-
-        }
-
-
-        if (
-            has("PaymentProcessed") &&
-            order.status === "CONFIRMED"
-        ) {
-
-            sagaStatus =
-                "COMPLETED";
-
-        }
-
-
-        if (
-            has("OrderCreated") &&
-            !has("InventoryReserved") &&
-            !has("InventoryReservationFailed")
-        ) {
-
-            sagaStatus =
-                "WAITING_INVENTORY";
-
-        }
-
-
-        if (
-            has("InventoryReserved") &&
-            !has("PaymentProcessed") &&
-            !has("PaymentFailed")
-        ) {
-
-            sagaStatus =
-                "WAITING_PAYMENT";
-
-        }
+        const sagaStatus =
+            calculateSagaStatus({
+                order,
+                events
+            });
 
 
         return res.status(200).json({
@@ -557,6 +707,16 @@ const getSagaByOrderId = async (req, res) => {
                     order.trackingStatus,
 
                 sagaStatus,
+
+                paymentStatus:
+                    payment
+                        ? payment.status
+                        : null,
+
+                inventoryStatus:
+                    reservation
+                        ? reservation.status
+                        : null,
 
                 createdAt:
                     order.createdAt,
@@ -577,6 +737,7 @@ const getSagaByOrderId = async (req, res) => {
             error.message
         );
 
+
         return res.status(500).json({
 
             success: false,
@@ -585,85 +746,131 @@ const getSagaByOrderId = async (req, res) => {
                 "Unable to load SAGA"
 
         });
+
     }
+
 };
 
 
 // ========================================
-// GET SYSTEM METRICS
+// SYSTEM METRICS
 // ========================================
 
-const getMetrics = async (req, res) => {
+const getMetrics = async (
+    req,
+    res
+) => {
+
     try {
 
         const [
+
             totalOrders,
-            successfulOrders,
+
+            confirmedOrders,
+
+            pendingOrders,
+
             failedOrders,
+
             cancelledOrders,
+
             totalEvents,
+
             publishedEvents,
+
             failedEvents,
+
             reservedInventory,
+
             releasedInventory,
+
             failedInventory,
+
+            pendingPayments,
+
             successfulPayments,
+
             failedPayments
+
         ] = await Promise.all([
+
 
             Order.countDocuments(),
 
-            Order.countDocuments({
-                status: "CONFIRMED"
-            }),
 
             Order.countDocuments({
-                status: "FAILED"
+                status:
+                    "CONFIRMED"
             }),
 
+
             Order.countDocuments({
-                status: "CANCELLED"
+                status:
+                    "PENDING"
             }),
+
+
+            Order.countDocuments({
+                status:
+                    "FAILED"
+            }),
+
+
+            Order.countDocuments({
+                status:
+                    "CANCELLED"
+            }),
+
 
             EventLog.countDocuments(),
 
-            EventLog.countDocuments({
-                status: "PUBLISHED"
-            }),
 
             EventLog.countDocuments({
-                status: "FAILED"
+                status:
+                    "PUBLISHED"
             }),
 
-            InventoryReservation.countDocuments({
-                status: "RESERVED"
+
+            EventLog.countDocuments({
+                status:
+                    "FAILED"
             }),
 
-            InventoryReservation.countDocuments({
-                status: "RELEASED"
-            }),
 
             InventoryReservation.countDocuments({
-                status: "FAILED"
+                status:
+                    "RESERVED"
             }),
+
+
+            InventoryReservation.countDocuments({
+                status:
+                    "RELEASED"
+            }),
+
+
+            InventoryReservation.countDocuments({
+                status:
+                    "FAILED"
+            }),
+
 
             Payment.countDocuments({
-                status: {
-                    $in: [
-                        "SUCCESS",
-                        "PAID",
-                        "COMPLETED"
-                    ]
-                }
+                status:
+                    "PENDING"
             }),
 
+
             Payment.countDocuments({
-                status: {
-                    $in: [
-                        "FAILED",
-                        "FAILURE"
-                    ]
-                }
+                status:
+                    "SUCCESS"
+            }),
+
+
+            Payment.countDocuments({
+                status:
+                    "FAILED"
             })
 
         ]);
@@ -674,18 +881,22 @@ const getMetrics = async (req, res) => {
 
                 {
                     $group: {
+
                         _id:
                             "$eventType",
 
                         count: {
                             $sum: 1
                         }
+
                     }
                 },
 
                 {
                     $sort: {
+
                         count: -1
+
                     }
                 }
 
@@ -699,39 +910,66 @@ const getMetrics = async (req, res) => {
             metrics: {
 
                 orders: {
-                    total: totalOrders,
+
+                    total:
+                        totalOrders,
+
+                    pending:
+                        pendingOrders,
+
                     successful:
-                        successfulOrders,
+                        confirmedOrders,
+
                     failed:
                         failedOrders,
+
                     cancelled:
                         cancelledOrders
+
                 },
+
 
                 events: {
+
                     total:
                         totalEvents,
+
                     published:
                         publishedEvents,
+
                     failed:
                         failedEvents
+
                 },
+
 
                 inventory: {
+
                     reserved:
                         reservedInventory,
+
                     released:
                         releasedInventory,
+
                     failed:
                         failedInventory
+
                 },
 
+
                 payments: {
+
+                    pending:
+                        pendingPayments,
+
                     successful:
                         successfulPayments,
+
                     failed:
                         failedPayments
+
                 },
+
 
                 eventBreakdown
 
@@ -746,6 +984,7 @@ const getMetrics = async (req, res) => {
             error.message
         );
 
+
         return res.status(500).json({
 
             success: false,
@@ -754,42 +993,54 @@ const getMetrics = async (req, res) => {
                 "Unable to load system metrics"
 
         });
+
     }
+
 };
 
 
 // ========================================
-// GET SYSTEM HEALTH
+// SYSTEM HEALTH
 // ========================================
 
-const getHealth = async (req, res) => {
+const getHealth = async (
+    req,
+    res
+) => {
 
     const health = {
 
         api: {
-            status: "UP"
+            status:
+                "UP"
         },
 
         mongodb: {
-            status: "DOWN"
+            status:
+                "DOWN"
         },
 
         rabbitmq: {
-            status: "DOWN"
+            status:
+                "DOWN"
         },
 
         payment: {
+
             status:
                 process.env.RAZORPAY_KEY_ID
                     ? "CONFIGURED"
                     : "NOT_CONFIGURED"
+
         },
 
         notification: {
+
             status:
                 process.env.EMAIL_USER
                     ? "CONFIGURED"
                     : "NOT_CONFIGURED"
+
         }
 
     };
@@ -799,12 +1050,9 @@ const getHealth = async (req, res) => {
         "UP";
 
 
-    // ========================================
-    // MONGODB
-    // ========================================
-
     if (
-        mongoose.connection.readyState === 1
+        mongoose.connection
+            .readyState === 1
     ) {
 
         health.mongodb.status =
@@ -818,14 +1066,11 @@ const getHealth = async (req, res) => {
     }
 
 
-    // ========================================
-    // RABBITMQ
-    // ========================================
-
     try {
 
         const channel =
             getChannel();
+
 
         if (channel) {
 
@@ -842,10 +1087,6 @@ const getHealth = async (req, res) => {
     }
 
 
-    // ========================================
-    // PAYMENT
-    // ========================================
-
     if (
         health.payment.status ===
         "NOT_CONFIGURED"
@@ -856,10 +1097,6 @@ const getHealth = async (req, res) => {
 
     }
 
-
-    // ========================================
-    // NOTIFICATION
-    // ========================================
 
     if (
         health.notification.status ===

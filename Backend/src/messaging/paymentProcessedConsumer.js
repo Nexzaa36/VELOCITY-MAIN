@@ -12,6 +12,11 @@ const {
     updateTrackingStatus
 } = require("../services/trackingService");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startPaymentProcessedConsumer = async () => {
     const channel = getChannel();
 
@@ -33,6 +38,12 @@ const startPaymentProcessedConsumer = async () => {
     await channel.bindQueue(
         PAYMENT_PROCESSED_QUEUE,
         EXCHANGE_NAME,
+        PAYMENT_PROCESSED_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        PAYMENT_PROCESSED_QUEUE,
         PAYMENT_PROCESSED_ROUTING_KEY
     );
 
@@ -156,7 +167,9 @@ const startPaymentProcessedConsumer = async () => {
                 );
 
                 channel.ack(message);
+
             } catch (error) {
+
                 console.error(
                     "================================="
                 );
@@ -173,10 +186,12 @@ const startPaymentProcessedConsumer = async () => {
                     "================================="
                 );
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    PAYMENT_PROCESSED_QUEUE,
+                    PAYMENT_PROCESSED_ROUTING_KEY,
+                    error
                 );
             }
         }

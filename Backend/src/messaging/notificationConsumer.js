@@ -14,18 +14,27 @@ const {
     sendEmail
 } = require("../services/emailService");
 
+const {
+    setupRetryInfrastructure,
+    retryOrDeadLetter
+} = require("./retryHandler");
+
 const startNotificationConsumer = async () => {
     const channel = getChannel();
 
     await channel.assertExchange(
         EXCHANGE_NAME,
         "topic",
-        { durable: true }
+        {
+            durable: true
+        }
     );
 
     await channel.assertQueue(
         NOTIFICATION_QUEUE,
-        { durable: true }
+        {
+            durable: true
+        }
     );
 
     await channel.bindQueue(
@@ -46,26 +55,51 @@ const startNotificationConsumer = async () => {
         NOTIFICATION_ORDER_CANCELLED_ROUTING_KEY
     );
 
-    console.log("Notification consumer started");
+    await setupRetryInfrastructure(
+        channel,
+        NOTIFICATION_QUEUE,
+        NOTIFICATION_PAYMENT_PROCESSED_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        NOTIFICATION_QUEUE,
+        NOTIFICATION_PAYMENT_FAILED_ROUTING_KEY
+    );
+
+    await setupRetryInfrastructure(
+        channel,
+        NOTIFICATION_QUEUE,
+        NOTIFICATION_ORDER_CANCELLED_ROUTING_KEY
+    );
+
+    console.log(
+        "Notification consumer started"
+    );
 
     channel.consume(
         NOTIFICATION_QUEUE,
+
         async (message) => {
             if (!message) {
                 return;
             }
 
             try {
-                const event = JSON.parse(
-                    message.content.toString()
-                );
+                const event =
+                    JSON.parse(
+                        message.content.toString()
+                    );
 
                 const {
                     orderId,
                     userId
                 } = event.data;
 
-                const user = await User.findById(userId);
+                const user =
+                    await User.findById(
+                        userId
+                    );
 
                 if (!user) {
                     throw new Error(
@@ -109,18 +143,47 @@ const startNotificationConsumer = async () => {
                         "Your order has been cancelled.";
                 }
 
-                if (!subject || !messageText) {
+                if (
+                    !subject ||
+                    !messageText
+                ) {
                     throw new Error(
                         `Unsupported notification event: ${event.eventType}`
                     );
                 }
 
-                console.log("=================================");
-                console.log("NOTIFICATION SERVICE");
-                console.log("Event:", event.eventType);
-                console.log("Order ID:", orderId);
-                console.log("User ID:", userId);
-                console.log("Sending email to:", user.email);
+                console.log(
+                    "================================="
+                );
+
+                console.log(
+                    "NOTIFICATION SERVICE"
+                );
+
+                console.log(
+                    "Event:",
+                    event.eventType
+                );
+
+                console.log(
+                    "Routing Key:",
+                    message.fields.routingKey
+                );
+
+                console.log(
+                    "Order ID:",
+                    orderId
+                );
+
+                console.log(
+                    "User ID:",
+                    userId
+                );
+
+                console.log(
+                    "Sending email to:",
+                    user.email
+                );
 
                 await sendEmail(
                     user.email,
@@ -131,21 +194,31 @@ const startNotificationConsumer = async () => {
                     event.eventType
                 );
 
-                console.log("Notification email sent");
-                console.log("=================================");
+                console.log(
+                    "Notification email sent"
+                );
 
-                channel.ack(message);
+                console.log(
+                    "================================="
+                );
+
+                channel.ack(
+                    message
+                );
 
             } catch (error) {
+
                 console.error(
                     "Notification error:",
                     error.message
                 );
 
-                channel.nack(
+                await retryOrDeadLetter(
+                    channel,
                     message,
-                    false,
-                    false
+                    NOTIFICATION_QUEUE,
+                    message.fields.routingKey,
+                    error
                 );
             }
         }
