@@ -2,8 +2,8 @@ const API_URL = "http://localhost:5000";
 
 const timelineSteps = [
     "PLACED",
-    "PAID",
     "RESERVED",
+    "PAID",
     "CONFIRMED",
     "PREPARING",
     "SHIPPED",
