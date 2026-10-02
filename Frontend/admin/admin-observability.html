@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VELOCITY — Observability</title>
+
+    <link
+        rel="stylesheet"
+        href="admin-observability.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <div
+        id="admin-page-loading"
+        class="admin-page-loading"
+    >
+        VERIFYING ADMIN ACCESS...
+    </div>
+
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <a
+            class="logo"
+            href="../index.html"
+        >
+            VELOCITY
+        </a>
+
+
+        <nav class="topnav">
+
+            <a href="../index.html">
+                Home
+            </a>
+
+            <a href="../catalogue.html">
+                Catalogue
+            </a>
+
+            <a href="./admin-orders.html">
+                Orders
+            </a>
+
+            <a
+                href="./admin-dashboard.html"
+                class="admin-link"
+            >
+                Admin
+            </a>
+
+
+            <div class="profile-wrap">
+
+                <button
+                    id="profile-button"
+                    class="avatar-button"
+                    type="button"
+                    aria-label="Open administrator menu"
+                    aria-expanded="false"
+                >
+
+                    <span class="avatar-icon"></span>
+
+                </button>
+
+
+                <div
+                    id="profile-menu"
+                    class="profile-menu"
+                >
+
+                    <div class="profile-info">
+
+                        <div class="profile-role">
+                            ADMINISTRATOR
+                        </div>
+
+                        <div
+                            id="profile-name"
+                            class="profile-name"
+                        >
+                            Administrator
+                        </div>
+
+                        <div
+                            id="profile-email"
+                            class="profile-email"
+                        >
+                            Admin account
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-links">
+
+                        <a
+                            href="./admin-dashboard.html"
+                            class="profile-menu-link"
+                        >
+                            <span>
+                                Admin Dashboard
+                            </span>
+
+                            <span>→</span>
+                        </a>
+
+
+                        <a
+                            href="./admin-orders.html"
+                            class="profile-menu-link"
+                        >
+                            <span>
+                                Manage Orders
+                            </span>
+
+                            <span>→</span>
+                        </a>
+
+
+                        <a
+                            href="./admin-products.html"
+                            class="profile-menu-link"
+                        >
+                            <span>
+                                Manage Products
+                            </span>
+
+                            <span>→</span>
+                        </a>
+
+
+                        <a
+                            href="./admin-observability.html"
+                            class="profile-menu-link"
+                        >
+                            <span>
+                                Observability
+                            </span>
+
+                            <span>→</span>
+                        </a>
+
+
+                        <div class="profile-divider"></div>
+
+
+                        <button
+                            id="logout-btn"
+                            class="profile-logout"
+                            type="button"
+                        >
+                            <span>
+                                Logout
+                            </span>
+
+                            <span>↗</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- APPLICATION -->
+
+    <div class="app-shell">
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <nav class="sidebar-nav">
+
+
+                <a
+                    href="./admin-dashboard.html"
+                    class="side-item"
+                >
+
+                    <span class="side-icon grid-icon"></span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./admin-orders.html"
+                    class="side-item"
+                >
+
+                    <span class="side-icon bag-icon"></span>
+
+                    <span>
+                        Orders
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./admin-products.html"
+                    class="side-item"
+                >
+
+                    <span class="side-icon cube-icon"></span>
+
+                    <span>
+                        Products
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./admin-observability.html"
+                    class="side-item active"
+                >
+
+                    <span class="side-icon monitor-icon"></span>
+
+                    <span>
+                        Observability
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="side-item disabled"
+                    onclick="return false;"
+                >
+
+                    <span class="side-icon users-icon"></span>
+
+                    <span>
+                        Users
+                    </span>
+
+                    <small>
+                        SOON
+                    </small>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="side-item disabled"
+                    onclick="return false;"
+                >
+
+                    <span class="side-icon card-icon"></span>
+
+                    <span>
+                        Payments
+                    </span>
+
+                    <small>
+                        SOON
+                    </small>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="side-item disabled"
+                    onclick="return false;"
+                >
+
+                    <span class="side-icon inventory-icon"></span>
+
+                    <span>
+                        Inventory
+                    </span>
+
+                    <small>
+                        SOON
+                    </small>
+
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <div class="footer-status">
+
+                    <span class="status-dot"></span>
+
+                    <div>
+
+                        <strong>
+                            System online
+                        </strong>
+
+                        <small>
+                            VELOCITY services
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="sidebar-logout"
+                    class="sidebar-logout"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- MAIN -->
+
+        <main class="main-content">
+
+
+            <section class="page-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        SYSTEM OBSERVABILITY
+                    </div>
+
+                    <h1>
+                        Events, Health<br>
+                        <span>& SAGA.</span>
+                    </h1>
+
+                    <p>
+                        Monitor event-driven activity,
+                        distributed transactions,
+                        inventory reservations,
+                        payments, and system health.
+                    </p>
+
+                </div>
+
+
+                <div class="refresh-area">
+
+                    <div
+                        id="last-updated"
+                        class="last-updated"
+                    >
+                        Updating...
+                    </div>
+
+                    <button
+                        id="refresh-btn"
+                        class="refresh-btn"
+                        type="button"
+                    >
+                        Refresh
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- HEALTH -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            SERVICE HEALTH
+                        </div>
+
+                        <h2>
+                            System Status
+                        </h2>
+
+                    </div>
+
+                    <span
+                        id="overall-health"
+                        class="health-badge"
+                    >
+                        CHECKING
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="health-grid"
+                    class="health-grid"
+                >
+
+                    <div class="health-card">
+                        <span class="health-name">
+                            API
+                        </span>
+
+                        <strong
+                            id="health-api"
+                            class="health-value"
+                        >
+                            —
+                        </strong>
+                    </div>
+
+
+                    <div class="health-card">
+                        <span class="health-name">
+                            MongoDB
+                        </span>
+
+                        <strong
+                            id="health-mongodb"
+                            class="health-value"
+                        >
+                            —
+                        </strong>
+                    </div>
+
+
+                    <div class="health-card">
+                        <span class="health-name">
+                            RabbitMQ
+                        </span>
+
+                        <strong
+                            id="health-rabbitmq"
+                            class="health-value"
+                        >
+                            —
+                        </strong>
+                    </div>
+
+
+                    <div class="health-card">
+                        <span class="health-name">
+                            Razorpay
+                        </span>
+
+                        <strong
+                            id="health-payment"
+                            class="health-value"
+                        >
+                            —
+                        </strong>
+                    </div>
+
+
+                    <div class="health-card">
+                        <span class="health-name">
+                            Notifications
+                        </span>
+
+                        <strong
+                            id="health-notification"
+                            class="health-value"
+                        >
+                            —
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- METRICS -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            SYSTEM METRICS
+                        </div>
+
+                        <h2>
+                            Platform Overview
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metric-grid">
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Total Orders
+                        </span>
+
+                        <strong id="metric-orders">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Confirmed Orders
+                        </span>
+
+                        <strong id="metric-confirmed">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Failed Orders
+                        </span>
+
+                        <strong id="metric-failed-orders">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Events
+                        </span>
+
+                        <strong id="metric-events">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Published Events
+                        </span>
+
+                        <strong id="metric-published">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Failed Events
+                        </span>
+
+                        <strong id="metric-failed-events">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Reserved Inventory
+                        </span>
+
+                        <strong id="metric-reserved">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Successful Payments
+                        </span>
+
+                        <strong id="metric-payments">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- EVENT BREAKDOWN -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            EVENT STREAM
+                        </div>
+
+                        <h2>
+                            Event Breakdown
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="event-breakdown"
+                    class="breakdown-list"
+                >
+                    <div class="empty-state">
+                        Loading events...
+                    </div>
+                </div>
+
+            </section>
+
+
+
+            <!-- SAGA -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            DISTRIBUTED TRANSACTIONS
+                        </div>
+
+                        <h2>
+                            SAGA Monitor
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Order
+                                </th>
+
+                                <th>
+                                    Order Status
+                                </th>
+
+                                <th>
+                                    Tracking
+                                </th>
+
+                                <th>
+                                    SAGA
+                                </th>
+
+                                <th>
+                                    Events
+                                </th>
+
+                                <th>
+                                    Created
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="saga-table-body">
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-loading"
+                                >
+                                    Loading SAGA data...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    id="saga-pagination"
+                    class="pagination"
+                ></div>
+
+            </section>
+
+
+
+            <!-- EVENT HISTORY -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            EVENT HISTORY
+                        </div>
+
+                        <h2>
+                            Recent Events
+                        </h2>
+
+                    </div>
+
+                    <div class="filters">
+
+                        <select id="event-status-filter">
+
+                            <option value="">
+                                All statuses
+                            </option>
+
+                            <option value="PUBLISHED">
+                                Published
+                            </option>
+
+                            <option value="FAILED">
+                                Failed
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            id="load-events-btn"
+                            class="small-btn"
+                            type="button"
+                        >
+                            Load
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Event
+                                </th>
+
+                                <th>
+                                    Routing Key
+                                </th>
+
+                                <th>
+                                    Order
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="event-table-body">
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="table-loading"
+                                >
+                                    Loading event history...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    id="event-pagination"
+                    class="pagination"
+                ></div>
+
+            </section>
+
+
+
+            <!-- ORDER SAGA -->
+
+            <section class="section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            ORDER INSPECTION
+                        </div>
+
+                        <h2>
+                            Inspect SAGA
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="inspect-box">
+
+                    <input
+                        id="order-id-input"
+                        type="text"
+                        placeholder="Enter order ID"
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="inspect-order-btn"
+                        class="inspect-btn"
+                        type="button"
+                    >
+                        Inspect
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="saga-detail"
+                    class="saga-detail"
+                >
+
+                    <div class="empty-state">
+                        Enter an order ID to inspect its SAGA.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+
+    <script src="admin-observability.js"></script>
+
+</body>
+
+</html>

@@ -18,6 +18,8 @@ const paymentRoutes =require("./src/routes/paymentRoutes");
 
 const adminAuthRoutes = require("./src/routes/adminAuthRoutes");
 
+const adminObservabilityRoutes =require("./src/routes/adminObservabilityRoutes");
+
 // ========================================
 // RABBITMQ
 // ========================================
@@ -189,7 +191,10 @@ app.use(
     paymentRoutes
 );
 
-
+app.use(
+    "/api/admin/observability",
+    adminObservabilityRoutes
+);
 
 // ========================================
 // HEALTH CHECK

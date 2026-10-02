@@ -904,6 +904,37 @@ tbody tr:last-child td {
 .field textarea:focus {
     border-color: #999;
 }
+
+/* OBSERVABILITY ICON */
+
+.observability-icon {
+    width: 18px;
+    height: 13px;
+    border: 1.4px solid currentColor;
+    border-radius: 2px;
+}
+
+.observability-icon::before {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 1.4px;
+    left: 4px;
+    bottom: -4px;
+    background: currentColor;
+}
+
+.observability-icon::after {
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    left: 6px;
+    top: 4px;
+    border-left: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(-45deg);
+}
 /* RESPONSIVE */
 @media (max-width: 1050px) {
     .app-shell {

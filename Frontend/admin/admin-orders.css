@@ -2292,3 +2292,28 @@ tbody tr:last-child td {
 .intro-action span {
     font-size: 15px;
 }
+
+.monitor-icon {
+    width: 15px;
+    height: 11px;
+
+    margin-top: 1px;
+
+    border: 1.3px solid #444;
+
+    border-radius: 2px;
+}
+
+.monitor-icon::after {
+    content: "";
+
+    position: absolute;
+
+    width: 7px;
+    height: 1px;
+
+    left: 4px;
+    bottom: -4px;
+
+    background: #444;
+}
