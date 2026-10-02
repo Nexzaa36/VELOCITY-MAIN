@@ -1,4 +1,5 @@
 const express = require("express");
+const helmet = require("helmet");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -105,21 +106,17 @@ const {
 const app =
     express();
 
-const PORT =
-    process.env.PORT;
+const PORT = process.env.PORT;
 
 
 // ========================================
 // MIDDLEWARE
 // ========================================
+app.disable("x-powered-by");
 
-app.use(
-    cors()
-);
-
-app.use(
-    express.json()
-);
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
 
 
 // ========================================
