@@ -6,7 +6,7 @@ let failed = 0;
 
 async function makeRequest() {
     try {
-        const response = await fetch("http://localhost:5000/api/health");
+        const response = await fetch("https://velocity-y30h.onrender.com");
 
         if (response.ok) {
             completed++;
