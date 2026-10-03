@@ -832,11 +832,302 @@ const sendEmail = async (
     }
 };
 
+// =============================================
+// PASSWORD RESET EMAIL
+// =============================================
+
+const sendPasswordResetEmail = async (
+    to,
+    resetToken
+) => {
+
+    if (!process.env.RESEND_API_KEY) {
+        throw new Error(
+            "RESEND_API_KEY is not configured"
+        );
+    }
+
+    if (!to) {
+        throw new Error(
+            "Recipient email address is missing"
+        );
+    }
+
+    // -----------------------------------------
+    // Deployed frontend reset URL
+    // -----------------------------------------
+
+    const resetUrl =
+        `https://velocity-ecom.vercel.app/reset-password.html?token=${encodeURIComponent(resetToken)}`;
+
+    const html = `
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Reset Your Password | VELOCITY</title>
+
+</head>
+
+<body
+    style="
+        margin:0;
+        padding:40px 15px;
+        background:#f1f3f5;
+        font-family:Arial,Helvetica,sans-serif;
+        color:#111827;
+    "
+>
+
+<table
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+>
+
+<tr>
+
+<td align="center">
+
+<table
+    width="600"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="
+        max-width:600px;
+        width:100%;
+        background:#ffffff;
+        border-radius:14px;
+        overflow:hidden;
+    "
+>
+
+<tr>
+
+<td
+    style="
+        background:#111111;
+        padding:38px 25px;
+        text-align:center;
+    "
+>
+
+<div
+    style="
+        font-size:31px;
+        font-weight:bold;
+        letter-spacing:8px;
+        color:#ffffff;
+    "
+>
+    VELOCITY
+</div>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td
+    style="
+        padding:45px 40px;
+        text-align:center;
+    "
+>
+
+<h1
+    style="
+        margin:0 0 15px;
+        font-size:28px;
+        color:#111827;
+    "
+>
+    Reset Your Password
+</h1>
+
+<p
+    style="
+        color:#64748b;
+        font-size:15px;
+        line-height:1.7;
+    "
+>
+    We received a request to reset the password
+    for your VELOCITY account.
+</p>
+
+<p
+    style="
+        color:#64748b;
+        font-size:15px;
+        line-height:1.7;
+    "
+>
+    Click the button below to create a new password.
+</p>
+
+<a
+    href="${resetUrl}"
+    style="
+        display:inline-block;
+        margin-top:20px;
+        padding:15px 35px;
+        background:#111111;
+        color:#ffffff;
+        text-decoration:none;
+        border-radius:7px;
+        font-size:13px;
+        font-weight:bold;
+        letter-spacing:1px;
+    "
+>
+    RESET PASSWORD
+</a>
+
+<p
+    style="
+        margin-top:30px;
+        color:#94a3b8;
+        font-size:13px;
+        line-height:1.6;
+    "
+>
+    This link will expire in 15 minutes.
+</p>
+
+<p
+    style="
+        color:#94a3b8;
+        font-size:12px;
+        line-height:1.6;
+    "
+>
+    If you did not request a password reset,
+    you can safely ignore this email.
+</p>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td
+    style="
+        background:#f8fafc;
+        padding:22px;
+        text-align:center;
+    "
+>
+
+<p
+    style="
+        margin:0;
+        color:#94a3b8;
+        font-size:11px;
+    "
+>
+    This is an automated email from VELOCITY.
+</p>
+
+</td>
+
+</tr>
+
+</table>
+
+</td>
+
+</tr>
+
+</table>
+
+</body>
+
+</html>
+`;
+
+    const text = `
+VELOCITY Password Reset
+
+We received a request to reset your password.
+
+Reset your password using this link:
+
+${resetUrl}
+
+This link expires in 15 minutes.
+
+If you did not request this, you can safely ignore this email.
+`;
+
+    try {
+
+        const { data, error } =
+            await resend.emails.send(
+                {
+                    from:
+                        "VELOCITY <onboarding@resend.dev>",
+
+                    to: [to],
+
+                    subject:
+                        "Reset Your VELOCITY Password",
+
+                    text,
+
+                    html
+                }
+            );
+
+        if (error) {
+
+            console.error(
+                "Password reset email error:",
+                error
+            );
+
+            throw new Error(
+                error.message ||
+                "Password reset email failed"
+            );
+        }
+
+        console.log(
+            "Password reset email sent:",
+            data?.id
+        );
+
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "Password reset email failed:",
+            error.message
+        );
+
+        throw error;
+    }
+};
 
 // =============================================
 // EXPORT
 // =============================================
 
 module.exports = {
-    sendEmail
+    sendEmail,
+    sendPasswordResetEmail
 };

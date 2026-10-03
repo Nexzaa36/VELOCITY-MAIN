@@ -21,10 +21,18 @@ const userSchema = new mongoose.Schema(
             required: true
         },
 
-        role: {
+        // =========================================
+        // PASSWORD RESET
+        // =========================================
+
+        resetPasswordToken: {
             type: String,
-            enum: ["user", "admin"],
-            default: "user"
+            default: null
+        },
+
+        resetPasswordExpires: {
+            type: Date,
+            default: null
         }
     },
     {
