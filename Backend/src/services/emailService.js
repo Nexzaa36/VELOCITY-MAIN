@@ -1,8 +1,6 @@
 const { Resend } = require("resend");
 
-const resend = new Resend(
-    process.env.RESEND_API_KEY
-);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (
     to,
@@ -12,24 +10,23 @@ const sendEmail = async (
     amount,
     eventType
 ) => {
+
     // -----------------------------------------
     // Validate Resend configuration
     // -----------------------------------------
+
     if (!process.env.RESEND_API_KEY) {
-        throw new Error(
-            "RESEND_API_KEY is not configured"
-        );
+        throw new Error("RESEND_API_KEY is not configured");
     }
 
     if (!to) {
-        throw new Error(
-            "Recipient email address is missing"
-        );
+        throw new Error("Recipient email address is missing");
     }
 
     // -----------------------------------------
     // Notification variables
     // -----------------------------------------
+
     let title;
     let description;
     let status;
@@ -45,6 +42,7 @@ const sendEmail = async (
     // -----------------------------------------
     // Payment Successful
     // -----------------------------------------
+
     if (eventType === "PaymentProcessed") {
 
         title = "Payment Successful";
@@ -70,12 +68,12 @@ const sendEmail = async (
 
         footerMessage =
             "Your payment has been successfully processed and your order is now confirmed.";
-
     }
 
     // -----------------------------------------
     // Payment Failed
     // -----------------------------------------
+
     else if (eventType === "PaymentFailed") {
 
         title = "Payment Failed";
@@ -101,12 +99,12 @@ const sendEmail = async (
 
         footerMessage =
             "Your payment could not be processed. Please try again with another payment method.";
-
     }
 
     // -----------------------------------------
     // Order Cancelled
     // -----------------------------------------
+
     else if (eventType === "OrderCancelled") {
 
         title = "Order Cancelled";
@@ -132,23 +130,23 @@ const sendEmail = async (
 
         footerMessage =
             "Your order has been cancelled because the payment was not completed successfully.";
-
     }
 
     // -----------------------------------------
     // Unsupported event
     // -----------------------------------------
+
     else {
 
         throw new Error(
             `Unsupported notification event: ${eventType}`
         );
-
     }
 
     // -----------------------------------------
     // Format amount
     // -----------------------------------------
+
     const formattedAmount =
         amount !== undefined &&
         amount !== null &&
@@ -157,10 +155,23 @@ const sendEmail = async (
             : "—";
 
     // -----------------------------------------
+    // FRONTEND ORDER TRACKING URL
+    // -----------------------------------------
+    // IMPORTANT:
+    // This must be your deployed Vercel URL.
+    // Do NOT use localhost / 127.0.0.1 here.
+    // -----------------------------------------
+
+    const orderTrackingUrl =
+        "https://velocity-ecom.vercel.app/order-tracking.html";
+
+    // -----------------------------------------
     // HTML Email
     // -----------------------------------------
+
     const html = `
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -175,6 +186,7 @@ const sendEmail = async (
     <title>${subject}</title>
 
 </head>
+
 
 <body
     style="
@@ -201,6 +213,7 @@ const sendEmail = async (
 
 <td align="center">
 
+
 <table
     width="600"
     cellpadding="0"
@@ -215,6 +228,7 @@ const sendEmail = async (
         box-shadow:0 8px 30px rgba(0,0,0,0.08);
     "
 >
+
 
 <!-- ========================================= -->
 <!-- HEADER -->
@@ -240,6 +254,7 @@ const sendEmail = async (
 >
     VELOCITY
 </div>
+
 
 <div
     style="
@@ -269,6 +284,7 @@ const sendEmail = async (
         text-align:center;
     "
 >
+
 
 <!-- STATUS ICON -->
 
@@ -334,6 +350,7 @@ const sendEmail = async (
     "
 >
 
+
 <!-- ORDER ID -->
 
 <tr>
@@ -355,6 +372,7 @@ const sendEmail = async (
 >
     ORDER ID
 </div>
+
 
 <div
     style="
@@ -406,6 +424,7 @@ const sendEmail = async (
 >
     ${amountLabel}
 </div>
+
 
 <div
     style="
@@ -473,6 +492,7 @@ const sendEmail = async (
     PAYMENT STATUS
 </div>
 
+
 <div
     style="
         margin-top:8px;
@@ -507,6 +527,7 @@ const sendEmail = async (
     Thank you for shopping with VELOCITY.
 </p>
 
+
 <p
     style="
         margin:0;
@@ -517,6 +538,7 @@ const sendEmail = async (
 >
     ${footerMessage}
 </p>
+
 
 <p
     style="
@@ -535,8 +557,7 @@ const sendEmail = async (
 <!-- ========================================= -->
 
 <a
-    href="https://velocity-ecom.vercel.app/order-tracking.html"
-    id="view-order-btn"
+    href="${orderTrackingUrl}"
     style="
         display:inline-block;
         background:#111111;
@@ -551,6 +572,7 @@ const sendEmail = async (
 >
     VIEW YOUR ORDER →
 </a>
+
 
 </td>
 
@@ -579,6 +601,7 @@ const sendEmail = async (
 >
 
 <tr>
+
 
 <td
     width="33%"
@@ -647,6 +670,7 @@ const sendEmail = async (
 
 </td>
 
+
 </tr>
 
 </table>
@@ -681,6 +705,7 @@ const sendEmail = async (
     This is an automated email from VELOCITY.
 </p>
 
+
 <p
     style="
         margin:7px 0 0;
@@ -694,6 +719,7 @@ const sendEmail = async (
 </td>
 
 </tr>
+
 
 </table>
 
@@ -717,8 +743,7 @@ const sendEmail = async (
         const { data, error } =
             await resend.emails.send(
                 {
-                    from:
-                        "VELOCITY <onboarding@resend.dev>",
+                    from: "VELOCITY <onboarding@resend.dev>",
 
                     to: [to],
 
@@ -733,6 +758,7 @@ const sendEmail = async (
                         `velocity-${eventType}-${orderId}`
                 }
             );
+
 
         // -------------------------------------
         // Resend returned an error
@@ -750,6 +776,7 @@ const sendEmail = async (
                 "Email sending failed"
             );
         }
+
 
         // -------------------------------------
         // Successful email
@@ -790,6 +817,7 @@ const sendEmail = async (
         console.log(
             "================================="
         );
+
 
         return data;
 
