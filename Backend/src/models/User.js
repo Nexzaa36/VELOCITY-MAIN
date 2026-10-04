@@ -21,9 +21,11 @@ const userSchema = new mongoose.Schema(
             required: true
         },
 
-        // =========================================
-        // PASSWORD RESET
-        // =========================================
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user"
+        },
 
         resetPasswordToken: {
             type: String,
